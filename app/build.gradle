@@ -5,6 +5,16 @@ apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.firebase.crashlytics'
 apply plugin: 'koin'
 
+// Create a variable called keystorePropertiesFile, and initialize it to your
+// keystore.properties file, in the rootProject folder.
+def keystorePropertiesFile = rootProject.file("keystore.properties")
+
+// Initialize a new Properties() object called keystoreProperties.
+def keystoreProperties = new Properties()
+
+// Load your keystore.properties file into the keystoreProperties object.
+keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+
 android {
     compileSdkVersion 31
     ndkVersion "21.0.6113669"
@@ -20,6 +30,7 @@ android {
 
         buildConfigField "String", "CLIENT_ID", '"' + System.getenv("ONLINE_GO_CLIENT_ID") + '"'
         buildConfigField "String", "CLIENT_SECRET", '"' + System.getenv("ONLINE_GO_CLIENT_SECRET") + '"'
+        applicationIdSuffix '.bqv'
     }
     buildTypes {
         release {
@@ -46,6 +57,18 @@ android {
         cmake {
             path 'CMakeLists.txt'
             version "3.10.2"
+        }
+    }
+    lintOptions {
+        // if set to true (default), stops the build if errors are found.
+        abortOnError false   
+    }
+    signingConfigs {
+        debug {
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+            storeFile file(keystoreProperties['storeFile'])
+            storePassword keystoreProperties['storePassword']
         }
     }
 }

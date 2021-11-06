@@ -8,3 +8,5 @@
 /app/.cxx
 app/google-services.json
 OnlineGo.iml
+keystore.properties
+gradle.keystore
