@@ -522,6 +522,14 @@ class GameFragment : Fragment(), GameContract.View {
         presenter.onPassClicked()
     }
 
+    private fun onPauseClicked() {
+        presenter.onPauseClicked()
+    }
+
+    private fun onResumeClicked() {
+        presenter.onResumeClicked()
+    }
+
     private fun onWhitePlayerPressed() {
         view?.findNavController()?.navigate(
                 R.id.action_gameFragment_to_statsFragment,

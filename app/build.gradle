@@ -22,21 +22,14 @@ android {
         applicationId "io.zenandroid.onlinego"
         minSdkVersion 21
         targetSdkVersion 31
-        versionCode 42
-        versionName "alpha_b${versionCode}"
+        versionCode 44
+        versionName "2021.11.08.${versionCode}"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
         multiDexEnabled true
 
         buildConfigField "String", "CLIENT_ID", '"' + System.getenv("ONLINE_GO_CLIENT_ID") + '"'
         buildConfigField "String", "CLIENT_SECRET", '"' + System.getenv("ONLINE_GO_CLIENT_SECRET") + '"'
-        applicationIdSuffix '.bqv'
-    }
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
     }
     compileOptions {
         targetCompatibility 1.8
@@ -69,6 +62,22 @@ android {
             keyPassword keystoreProperties['keyPassword']
             storeFile file(keystoreProperties['storeFile'])
             storePassword keystoreProperties['storePassword']
+        }
+        release {
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+            storeFile file(keystoreProperties['storeFile'])
+            storePassword keystoreProperties['storePassword']
+        }
+    }
+    buildTypes {
+        debug {
+            applicationIdSuffix '.bqv'
+        }
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.release
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
 }

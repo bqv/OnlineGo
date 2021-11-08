@@ -21,6 +21,14 @@ class MenuRecyclerItem(val item: GameContract.MenuItem) : BindableItem<ItemGameM
                 binding.titleView.text = "Game Info"
                 binding.iconView.setImageResource(R.drawable.ic_dialog_info)
             }
+            PAUSE -> {
+                binding.titleView.text = "Pause"
+                binding.iconView.setImageResource(R.drawable.ic_pause)
+            }
+            RESUME -> {
+                binding.titleView.text = "Resume"
+                binding.iconView.setImageResource(R.drawable.ic_resume)
+            }
             ESTIMATE_SCORE -> {
                 binding.titleView.text = "Estimate Score"
                 binding.iconView.setImageResource(R.drawable.ic_territory)

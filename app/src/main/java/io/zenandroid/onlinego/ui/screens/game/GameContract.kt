@@ -106,10 +106,14 @@ interface GameContract {
         fun onPassClicked()
         fun onResignClicked()
         fun onAbortGameConfirmed()
+        fun onPauseClicked()
+        fun onResumeClicked()
     }
 
     sealed class MenuItem {
         object GAME_INFO: MenuItem()
+        object PAUSE: MenuItem()
+        object RESUME: MenuItem()
         object PASS: MenuItem()
         object RESIGN: MenuItem()
         object ESTIMATE_SCORE: MenuItem()

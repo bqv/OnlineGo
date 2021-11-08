@@ -175,6 +175,22 @@ class GameConnection(
         })
     }
 
+    fun pause() {
+        socketService.emit("game/pause", createJsonObject {
+            put("auth", gameAuth)
+            put("game_id", gameId)
+            put("player_id", getCurrentUserId())
+        })
+    }
+
+    fun resume() {
+        socketService.emit("game/resume", createJsonObject {
+            put("auth", gameAuth)
+            put("game_id", gameId)
+            put("player_id", getCurrentUserId())
+        })
+    }
+
     fun rejectRemovedStones() {
         socketService.emit("game/removed_stones/reject", createJsonObject {
             put("auth", gameAuth)

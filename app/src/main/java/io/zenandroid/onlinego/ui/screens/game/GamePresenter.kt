@@ -410,6 +410,11 @@ class GamePresenter(
         if(canRequestUndo()) {
             list.add(REQUEST_UNDO)
         }
+        if(game?.pausedSince == null) {
+            list.add(PAUSE)
+        } else {
+            list.add(RESUME)
+        }
         val showCoordinates = settingsRepository.showCoordinates
         if(showCoordinates) {
             list.add(HIDE_COORDINATES)
@@ -450,6 +455,8 @@ class GamePresenter(
             PASS -> onPassClicked()
             RESIGN -> onResignClicked()
             ESTIMATE_SCORE -> onEstimateClicked()
+            PAUSE -> onPauseClicked()
+            RESUME -> onResumeClicked()
             ANALYZE -> onAnalyzeButtonClicked()
             SHOW_COORDINATES -> toggleCoordinates()
             HIDE_COORDINATES -> toggleCoordinates()
@@ -927,6 +934,18 @@ class GamePresenter(
     override fun onPassClicked() {
         analytics.logEvent("pass_clicked", null)
         view.showPassConfirmation()
+    }
+
+    override fun onPauseClicked() {
+        analytics.logEvent("pause_clicked", null)
+        gameConnection?.pause()
+        game?.let { refreshUI(it) }
+    }
+
+    override fun onResumeClicked() {
+        analytics.logEvent("resume_clicked", null)
+        gameConnection?.resume()
+        game?.let { refreshUI(it) }
     }
 
     override fun onResignClicked() {
