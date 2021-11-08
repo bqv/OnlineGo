@@ -35,4 +35,9 @@
 -keep,allowobfuscation,allowshrinking class io.reactivex.Completable
 -keep,allowobfuscation,allowshrinking interface retrofit2.Call
 -keep,allowobfuscation,allowshrinking class retrofit2.Response
--keep,allowobfuscation,allowshrinking class kotlin.coroutines.Continuation
+-keep,allowobfuscation,allowshrinking class kotlin.coroutines.Continuation# Please add these rules to your existing keep rules in order to suppress warnings.
+-dontwarn java.lang.management.ManagementFactory
+-dontwarn javax.management.MBeanServer
+-dontwarn javax.management.ObjectInstance
+-dontwarn javax.management.ObjectName
+-dontwarn javax.management.StandardMBean

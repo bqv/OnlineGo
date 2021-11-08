@@ -48,6 +48,25 @@ android {
             manifestPlaceholders["analyticsCollectionEnabled"] = false
         }
     }
+    if (new File("signing.properties").exists()) {
+        Properties props = new Properties()
+        props.load(new FileInputStream(file("../signing.properties")))
+
+        signingConfigs {
+            release {
+                storeFile file(props['keystore'])
+                storePassword props['keystore.password']
+                keyAlias props['keystore.alias']
+                keyPassword props['keystore.password']
+            }
+        }
+        buildTypes.release.signingConfig = signingConfigs.release
+        buildTypes.release.applicationIdSuffix ".bqv"
+        buildTypes.release.manifestPlaceholders["crashlyticsCollectionEnabled"] = false
+        buildTypes.release.manifestPlaceholders["analyticsCollectionEnabled"] = false
+        buildTypes.release.minifyEnabled = false
+        buildTypes.release.shrinkResources = false
+    }
     compileOptions {
         coreLibraryDesugaringEnabled true
         sourceCompatibility JavaVersion.VERSION_17
