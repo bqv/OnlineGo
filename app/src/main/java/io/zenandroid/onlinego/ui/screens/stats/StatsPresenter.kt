@@ -134,7 +134,7 @@ class StatsPresenter(
 
     private fun onError(t: Throwable) {
         Log.e("StatsPresenter", t.message, t)
-        FirebaseCrashlytics.getInstance().recordException(t)
+      //FirebaseCrashlytics.getInstance().recordException(t)
     }
 
     override fun unsubscribe() {

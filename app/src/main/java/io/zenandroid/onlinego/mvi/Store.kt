@@ -50,6 +50,6 @@ class Store<S: Any, A: Any> (
 
     private fun onError(throwable: Throwable) {
         Log.e("Store", throwable.message, throwable)
-        FirebaseCrashlytics.getInstance().recordException(throwable)
+      //FirebaseCrashlytics.getInstance().recordException(throwable)
     }
 }

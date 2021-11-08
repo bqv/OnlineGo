@@ -24,7 +24,7 @@ class PlayStoreService(
 
     private val billingClient = BillingClient.newBuilder(context)
             .setListener { billingResult, purchases ->
-                FirebaseCrashlytics.getInstance().log("billingResult: $billingResult purchases: $purchases")
+              //FirebaseCrashlytics.getInstance().log("billingResult: $billingResult purchases: $purchases")
                 Log.v("PlayStoreService", "billingResult: $billingResult purchases: $purchases")
                 if(billingResult.responseCode == BillingResponseCode.OK && purchases != null) {
                     for(purchase in purchases) {
@@ -45,7 +45,7 @@ class PlayStoreService(
 
                 Log.v("PlayStoreService","response code: $billingResponseCode")
                 Log.v("PlayStoreService","debugMessage : $billingDebugMessage")
-                FirebaseCrashlytics.getInstance().log("response code: $billingResponseCode debugMessage : $billingDebugMessage")
+              //FirebaseCrashlytics.getInstance().log("response code: $billingResponseCode debugMessage : $billingDebugMessage")
             }
         }
     }
@@ -61,7 +61,7 @@ class PlayStoreService(
                         connectionInProgress = false
                         if (billingResult.responseCode == BillingResponseCode.OK) {
                             Log.e("PlayStoreService", "Setup Billing Done")
-                            FirebaseCrashlytics.getInstance().log("Setup Billing Done")
+                          //FirebaseCrashlytics.getInstance().log("Setup Billing Done")
                             emitter.onComplete()
                             connectionSubject.onNext(Unit)
                         } else {
@@ -73,7 +73,7 @@ class PlayStoreService(
                     override fun onBillingServiceDisconnected() {
                         connectionInProgress = false
                         Log.e("PlayStoreService", "Billing client Disconnected")
-                        FirebaseCrashlytics.getInstance().log("Billing client Disconnected")
+                      //FirebaseCrashlytics.getInstance().log("Billing client Disconnected")
                     }
                 })
             }

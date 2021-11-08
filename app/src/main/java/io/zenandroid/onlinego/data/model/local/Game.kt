@@ -114,7 +114,7 @@ data class Game(
                 is Double -> gamedata.ranked != 0.0
                 is Boolean -> gamedata.ranked as Boolean
                 else -> {
-                    FirebaseCrashlytics.getInstance().log("gamedata.ranked has unexpected value: ${gamedata.ranked}")
+                  //FirebaseCrashlytics.getInstance().log("gamedata.ranked has unexpected value: ${gamedata.ranked}")
                     null
                 }
             }

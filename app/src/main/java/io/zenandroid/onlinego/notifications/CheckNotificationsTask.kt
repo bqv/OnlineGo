@@ -39,20 +39,20 @@ class CheckNotificationsTask(val context: Context, val supressWhenInForeground: 
                     .onErrorReturn { e ->
                         when {
                             (e as? HttpException)?.code() in arrayOf(401, 403) -> {
-                                FirebaseCrashlytics.getInstance().log("E/$TAG: Unauthorized when checking for notifications")
-                                FirebaseCrashlytics.getInstance().recordException(e)
-                                FirebaseCrashlytics.getInstance().setCustomKey("AUTO_LOGOUT", System.currentTimeMillis())
+                              //FirebaseCrashlytics.getInstance().log("E/$TAG: Unauthorized when checking for notifications")
+                              //FirebaseCrashlytics.getInstance().recordException(e)
+                              //FirebaseCrashlytics.getInstance().setCustomKey("AUTO_LOGOUT", System.currentTimeMillis())
                                 NotificationUtils.notifyLogout(context)
                                 userSessionRepository.logOut()
                                 return@onErrorReturn ListenableWorker.Result.failure()
                             }
                             e is SocketTimeoutException || e is ConnectException -> {
-                                FirebaseCrashlytics.getInstance().log("E/$TAG: Can't connect when checking for notifications")
+                              //FirebaseCrashlytics.getInstance().log("E/$TAG: Can't connect when checking for notifications")
                                 return@onErrorReturn ListenableWorker.Result.failure()
                             }
                             else -> {
-                                FirebaseCrashlytics.getInstance().log("E/$TAG: Error when checking for notifications")
-                                FirebaseCrashlytics.getInstance().recordException(e)
+                              //FirebaseCrashlytics.getInstance().log("E/$TAG: Error when checking for notifications")
+                              //FirebaseCrashlytics.getInstance().recordException(e)
                                 return@onErrorReturn ListenableWorker.Result.retry()
                             }
                         }

@@ -33,8 +33,13 @@ class UserSessionRepository {
 
     fun storeUIConfig(uiConfig: UIConfig) {
         this.uiConfig = uiConfig
+<<<<<<< HEAD
         socketService.resendAuth()
         FirebaseCrashlytics.getInstance().setUserId(uiConfig.user?.id.toString())
+=======
+        socketService.authSent = false
+      //FirebaseCrashlytics.getInstance().setUserId(uiConfig.user?.id.toString())
+>>>>>>> 285b01a (disable firebase)
         PersistenceManager.storeUIConfig(uiConfig)
     }
 

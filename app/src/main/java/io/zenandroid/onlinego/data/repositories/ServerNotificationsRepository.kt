@@ -33,7 +33,7 @@ class ServerNotificationsRepository(
     }
 
     private fun onError(t: Throwable) {
-        FirebaseCrashlytics.getInstance().recordException(t)
+      //FirebaseCrashlytics.getInstance().recordException(t)
     }
 
     fun notificationsObservable() =

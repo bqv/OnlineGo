@@ -43,7 +43,7 @@ class ActiveGamesRepository(
 
     private fun onNotification(game: OGSGame) {
         if(gameDao.getGameMaybe(game.id).blockingGet() == null) {
-            FirebaseCrashlytics.getInstance().log("ActiveGameRepository: New game found from active_game notification ${game.id}")
+          //FirebaseCrashlytics.getInstance().log("ActiveGameRepository: New game found from active_game notification ${game.id}")
             restService.fetchGame(game.id)
                     .subscribeOn(Schedulers.io())
                     .observeOn(Schedulers.single())
@@ -269,7 +269,7 @@ class ActiveGamesRepository(
                     .ignoreElement()
 
     private fun updateGamesThatFinishedSinceLastUpdate(gameIds: List<Long>) {
-        FirebaseCrashlytics.getInstance().log("Found ${gameIds.size} games that are neither active nor marked as finished")
+      //FirebaseCrashlytics.getInstance().log("Found ${gameIds.size} games that are neither active nor marked as finished")
         val games = mutableListOf<Game>()
         gameIds.forEach {
             var backoffMillis = 10000L
@@ -288,10 +288,10 @@ class ActiveGamesRepository(
 
                     // request is throttled
                     if(e is retrofit2.HttpException && e.code() == 429) {
-                        FirebaseCrashlytics.getInstance().apply {
-                            setCustomKey("HIT_RATE_LIMITER", true)
-                            log("Hit rate limiter backing off $backoffMillis milliseconds")
-                        }
+                      //FirebaseCrashlytics.getInstance().apply {
+                      //    setCustomKey("HIT_RATE_LIMITER", true)
+                      //    log("Hit rate limiter backing off $backoffMillis milliseconds")
+                      //}
                         Thread.sleep(backoffMillis)
                         backoffMillis *= 2
                     } else {
@@ -313,10 +313,10 @@ class ActiveGamesRepository(
         if(t is retrofit2.HttpException) {
             message = "$request: ${t.response()?.errorBody()?.string()}"
             if(t.code() == 429) {
-                FirebaseCrashlytics.getInstance().setCustomKey("HIT_RATE_LIMITER", true)
+              //FirebaseCrashlytics.getInstance().setCustomKey("HIT_RATE_LIMITER", true)
             }
         }
-        FirebaseCrashlytics.getInstance().recordException(Exception(message, t))
+      //FirebaseCrashlytics.getInstance().recordException(Exception(message, t))
         Log.e("ActiveGameRespository", message, t)
     }
 }

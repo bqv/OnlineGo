@@ -94,7 +94,7 @@ class OnboardingViewModel(
     }
 
     private fun onLoginClicked(state: OnboardingState) {
-        FirebaseCrashlytics.getInstance().setCustomKey("LOGIN_METHOD", "PASSWORD")
+      //FirebaseCrashlytics.getInstance().setCustomKey("LOGIN_METHOD", "PASSWORD")
         if(state.isExistingAccount) {
             doLogin(state)
         } else {
@@ -115,7 +115,7 @@ class OnboardingViewModel(
     }
 
     private fun onCreateAccountSuccess() {
-        FirebaseCrashlytics.getInstance().setCustomKey("NEW_ACCOUNT", true)
+      //FirebaseCrashlytics.getInstance().setCustomKey("NEW_ACCOUNT", true)
         analytics.logEvent(FirebaseAnalytics.Event.SIGN_UP, null)
         doLogin(_state.value!!)
     }
@@ -126,7 +126,7 @@ class OnboardingViewModel(
 
     private fun onPasswordLoginFailure(t: Throwable) {
         Log.e(OnboardingViewModel::class.java.simpleName, t.message, t)
-        FirebaseCrashlytics.getInstance().recordException(t)
+      //FirebaseCrashlytics.getInstance().recordException(t)
         if( (t as? HttpException)?.code() in arrayOf(401, 403) ) {
             _state.value = state.value!!.copy(loginProcessing = false, loginErrorDialogText = "Invalid username or password")
         } else {

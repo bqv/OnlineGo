@@ -122,8 +122,8 @@ class GameConnection(
 
     private fun <T> Flowable<T>.retryOnError(requestTag: String): Flowable<T> {
         return this.doOnError {
-            FirebaseCrashlytics.getInstance().log("E/$TAG: $requestTag error ${it.message}")
-            FirebaseCrashlytics.getInstance().recordException(it)
+          //FirebaseCrashlytics.getInstance().log("E/$TAG: $requestTag error ${it.message}")
+          //FirebaseCrashlytics.getInstance().recordException(it)
         }
                 .retry()
     }

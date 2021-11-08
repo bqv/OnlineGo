@@ -59,7 +59,7 @@ class OnboardingFragment : Fragment() {
             }
         } catch (e: ApiException) {
             Log.w("OnboardingFragment", "signInResult:failed code=" + e.statusCode)
-            FirebaseCrashlytics.getInstance().recordException(e)
+          //FirebaseCrashlytics.getInstance().recordException(e)
             Toast.makeText(requireContext(), "signInResult:failed code=" + e.statusCode, Toast.LENGTH_LONG).show()
             viewModel.onAction(SocialPlatformLoginFailed)
         }
@@ -109,7 +109,7 @@ class OnboardingFragment : Fragment() {
     }
 
     private fun doFacebookFlow() {
-        FirebaseCrashlytics.getInstance().setCustomKey("LOGIN_METHOD", "FACEBOOK")
+      //FirebaseCrashlytics.getInstance().setCustomKey("LOGIN_METHOD", "FACEBOOK")
         val url = "https://online-go.com/login/facebook/"
         val request = Request.Builder()
             .url(url)
@@ -127,14 +127,14 @@ class OnboardingFragment : Fragment() {
 
                 startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(response.header("Location"))))
             }, {
-                FirebaseCrashlytics.getInstance().recordException(it)
+              //FirebaseCrashlytics.getInstance().recordException(it)
                 Toast.makeText(context, it.message, Toast.LENGTH_LONG).show()
                 viewModel.onAction(SocialPlatformLoginFailed)
             }).addToDisposable(subscriptions)
     }
 
     private fun doGoogleFlow() {
-        FirebaseCrashlytics.getInstance().setCustomKey("LOGIN_METHOD", "GOOGLE")
+      //FirebaseCrashlytics.getInstance().setCustomKey("LOGIN_METHOD", "GOOGLE")
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestServerAuthCode("870935345166-6j2s6i9adl64ms3ta4k9n4flkqjhs229.apps.googleusercontent.com")
             .requestScopes(Scope(Scopes.OPEN_ID), Scope(Scopes.EMAIL), Scope(Scopes.PROFILE))

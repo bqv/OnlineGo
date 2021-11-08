@@ -54,7 +54,7 @@ class AutomatchRepository(
 
     private fun onError(t: Throwable) {
         Log.e("AutomatchRepository", t.message, t)
-        FirebaseCrashlytics.getInstance().recordException(t)
+      //FirebaseCrashlytics.getInstance().recordException(t)
     }
 
     private fun removeAutomatch(automatch: OGSAutomatch) {

@@ -114,7 +114,7 @@ abstract class GameDao {
         val newGames = games.filter { candidate ->
             existingGames.find { it.id == candidate.id } == null
         }
-        FirebaseCrashlytics.getInstance().log("Inserting ${newGames.size} games out of ${games.size}")
+      //FirebaseCrashlytics.getInstance().log("Inserting ${newGames.size} games out of ${games.size}")
         insertAllGamesInternal(newGames)
 
         val updatedGames = mutableListOf<Game>()
@@ -134,7 +134,7 @@ abstract class GameDao {
             }
         }
 
-        FirebaseCrashlytics.getInstance().log("Updating ${existingGames.size} games out of ${games.size}")
+      //FirebaseCrashlytics.getInstance().log("Updating ${existingGames.size} games out of ${games.size}")
         updateGames(updatedGames)
     }
 

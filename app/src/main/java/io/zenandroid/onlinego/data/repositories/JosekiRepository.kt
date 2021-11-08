@@ -55,7 +55,7 @@ class JosekiRepository(
 
     private fun onError(error: Throwable) {
         Log.e("JosekiRepository", error.message, error)
-        FirebaseCrashlytics.getInstance().recordException(error)
+      //FirebaseCrashlytics.getInstance().recordException(error)
     }
 
     private fun extractLabelsFromDescription(originalPos: JosekiPosition): JosekiPosition {

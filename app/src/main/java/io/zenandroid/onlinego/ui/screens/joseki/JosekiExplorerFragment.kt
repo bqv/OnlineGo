@@ -98,7 +98,7 @@ class JosekiExplorerFragment : Fragment(), MviView<JosekiExplorerState, JosekiEx
         state.error?.let {
             binding.description.text = it.message
             Log.e(TAG, it.message, it)
-            FirebaseCrashlytics.getInstance().recordException(it)
+          //FirebaseCrashlytics.getInstance().recordException(it)
         }
         binding.previousButton.isEnabled = state.previousButtonEnabled
         binding.passButton.isEnabled = state.passButtonEnabled
@@ -166,7 +166,7 @@ class JosekiExplorerFragment : Fragment(), MviView<JosekiExplorerState, JosekiEx
                                 val posId = link.substring(9).toLongOrNull()
                                 if (posId == null) {
                                     Log.e(TAG, "Can't resolve link $link")
-                                    FirebaseCrashlytics.getInstance().log("E/$TAG: Can't resolve link $link for in the description of joseki pos ${currentState?.position?.node_id}")
+                                  //FirebaseCrashlytics.getInstance().log("E/$TAG: Can't resolve link $link for in the description of joseki pos ${currentState?.position?.node_id}")
                                 } else {
                                     internalActions.onNext(LoadPosition(posId))
                                 }
@@ -184,7 +184,7 @@ class JosekiExplorerFragment : Fragment(), MviView<JosekiExplorerState, JosekiEx
                                         context.startActivity(intent)
                                     } catch (e: ActivityNotFoundException) {
                                         Log.e(TAG, "Can't resolve link $link")
-                                        FirebaseCrashlytics.getInstance().log("E/$TAG: Can't resolve link $link for in the description of joseki pos ${currentState?.position?.node_id}")
+                                      //FirebaseCrashlytics.getInstance().log("E/$TAG: Can't resolve link $link for in the description of joseki pos ${currentState?.position?.node_id}")
                                     }
                                 }
                             }

@@ -33,7 +33,7 @@ class SupporterFragment : Fragment(), SupporterContract.View {
         binding.apply {
             subscribeButton.setOnClickListener {
                 presenter.onSubscribeClick()
-                FirebaseAnalytics.getInstance(requireContext()).logEvent("start_subscription_flow", null)
+              //FirebaseAnalytics.getInstance(requireContext()).logEvent("start_subscription_flow", null)
             }
             backButton.setOnClickListener { activity?.onBackPressed() }
             scrollView.viewTreeObserver.addOnScrollChangedListener {
@@ -54,12 +54,12 @@ class SupporterFragment : Fragment(), SupporterContract.View {
                 requireActivity().startActivity(Intent(Intent.ACTION_VIEW).apply {
                     data = "https://play.google.com/store/account/subscriptions?package=io.zenandroid.onlinego".toUri()
                 })
-                FirebaseAnalytics.getInstance(requireContext()).logEvent("cancel_subscription", null)
+              //FirebaseAnalytics.getInstance(requireContext()).logEvent("cancel_subscription", null)
             }
         }
         presenter = SupporterPresenter(this, get())
 
-        FirebaseAnalytics.getInstance(requireContext()).setCurrentScreen(requireActivity(), javaClass.simpleName, javaClass.simpleName)
+      //FirebaseAnalytics.getInstance(requireContext()).setCurrentScreen(requireActivity(), javaClass.simpleName, javaClass.simpleName)
     }
 
     override fun onResume() {
@@ -74,7 +74,7 @@ class SupporterFragment : Fragment(), SupporterContract.View {
     }
 
     override fun showError(t: Throwable) {
-        FirebaseCrashlytics.getInstance().recordException(t)
+      //FirebaseCrashlytics.getInstance().recordException(t)
         Toast.makeText(requireContext(), t.message, Toast.LENGTH_LONG).show()
     }
 

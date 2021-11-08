@@ -59,10 +59,10 @@ class FinishedGamesRepository(
         if(t is retrofit2.HttpException) {
             message = "$request: ${t.response()?.errorBody()?.string()}"
             if(t.code() == 429) {
-                FirebaseCrashlytics.getInstance().setCustomKey("HIT_RATE_LIMITER", true)
+              //FirebaseCrashlytics.getInstance().setCustomKey("HIT_RATE_LIMITER", true)
             }
         }
-        FirebaseCrashlytics.getInstance().recordException(Exception(message, t))
+      //FirebaseCrashlytics.getInstance().recordException(Exception(message, t))
         Log.e("FinishedGameRepository", message, t)
     }
 

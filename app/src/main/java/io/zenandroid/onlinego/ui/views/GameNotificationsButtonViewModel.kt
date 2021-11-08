@@ -41,7 +41,7 @@ class GameNotificationsButtonViewModel(
     fun onNotificationClicked() {
         val gamesList = activeGamesRepository.myTurnGamesList
         if(gamesList.isEmpty()) {
-            FirebaseCrashlytics.getInstance().log("Notification clicked while no games available")
+          //FirebaseCrashlytics.getInstance().log("Notification clicked while no games available")
             return
         }
         val gameToNavigate = if(lastGameNotified == null) {
