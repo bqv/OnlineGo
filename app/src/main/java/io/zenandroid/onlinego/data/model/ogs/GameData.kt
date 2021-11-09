@@ -49,5 +49,7 @@ data class GameData (
         var outcome: String? = null,
         var end_time: Long? = null, // SECONDS!!!
         var score: Scores? = null,
-        var undo_requested: Int? = null
+        var undo_requested: Int? = null,
+        var group_ids: List<Int>? = null,
+        var original_display_analysis: Boolean? = null
 )
