@@ -13,6 +13,7 @@ sealed class AiGameAction {
     class NewGame(
             val size: Int,
             val youPlayBlack: Boolean,
+            val youPlayWhite: Boolean,
             val handicap: Int
     ): AiGameAction()
 
@@ -25,11 +26,12 @@ sealed class AiGameAction {
 
     class NewPosition(val newPos: Position): AiGameAction()
     class AIMove(val newPos: Position): AiGameAction()
+    object NextPlayerChanged: AiGameAction()
     object AIError: AiGameAction()
     object AIHint: AiGameAction()
     object AIOwnershipResponse: AiGameAction()
     object HideOwnership: AiGameAction()
-    class ScoreComputed(val newPos: Position, val whiteScore: Float, val blackScore: Int, val aiWon: Boolean): AiGameAction()
+    class ScoreComputed(val newPos: Position, val whiteScore: Float, val blackScore: Int, val whiteWon: Boolean): AiGameAction()
 
 
     // User actions
@@ -41,6 +43,8 @@ sealed class AiGameAction {
     object UserPressedPass: AiGameAction()
     object UserAskedForHint: AiGameAction()
     object UserAskedForOwnership: AiGameAction()
+    object ToggleAIBlack: AiGameAction()
+    object ToggleAIWhite: AiGameAction()
     class UserTriedSuicidalMove(val coordinate: Point): AiGameAction()
     class UserTriedKoMove(val coordinate: Point): AiGameAction()
 

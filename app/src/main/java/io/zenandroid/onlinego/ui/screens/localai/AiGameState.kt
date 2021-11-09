@@ -12,6 +12,7 @@ data class AiGameState(
         val position: Position? = null,
         val boardSize: Int = 19,
         val enginePlaysBlack: Boolean = false,
+        val enginePlaysWhite: Boolean = false,
         val handicap: Int = 0,
         val boardIsInteractive: Boolean = false,
         val candidateMove: Point? = null,
@@ -28,5 +29,5 @@ data class AiGameState(
         val ownershipButtonVisible: Boolean = false,
         val finalWhiteScore: Float? = null,
         val finalBlackScore: Float? = null,
-        val aiWon: Boolean? = null
+        val whiteWon: Boolean? = null
 )

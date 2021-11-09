@@ -19,12 +19,12 @@ class GameTurnMiddleware : Middleware<AiGameState, AiGameAction> {
                     newGame(actions),
                     nextMove(actions, state),
                     computeScore(actions, state)
-            )
+            ).mergeWith( toggleAI(actions, state) )
 
     private fun engineStarted(actions: Observable<AiGameAction>, state: Observable<AiGameState>) =
             actions.ofType(EngineStarted::class.java)
                     .withLatestFrom(state)
-                    .filter { (_, state) -> state.position != null && !(state.position.isGameOver() && state.aiWon != null) }
+                    .filter { (_, state) -> state.position != null && !(state.position.isGameOver() && state.whiteWon != null) }
                     .map { (_, state) -> NewPosition(state.position!!) }
 
     private fun newGame(actions: Observable<AiGameAction>) =
@@ -32,12 +32,12 @@ class GameTurnMiddleware : Middleware<AiGameState, AiGameAction> {
                     .map { NewPosition(RulesManager.initializePosition(it.size, it.handicap)) }
 
     private fun nextMove(actions: Observable<AiGameAction>, state: Observable<AiGameState>) =
-            actions.filter { it is NewPosition || it is AIMove }
+            actions.filter { it is NewPosition || it is AIMove || it is NextPlayerChanged || it is DismissNewGameDialog }
                     .withLatestFrom(state)
-                    .filter { (_, state) -> state.position?.isGameOver() == false }
+                    .filter { (_, state) -> state.position?.isGameOver() == false && !state.newGameDialogShown }
                     .map { (_, state) ->
-                        val isBlacksTurn = state.position?.nextToMove != StoneType.WHITE
-                        if (isBlacksTurn == state.enginePlaysBlack) {
+                        if ((state.position?.nextToMove == StoneType.BLACK && state.enginePlaysBlack) ||
+                            (state.position?.nextToMove == StoneType.WHITE && state.enginePlaysWhite)) {
                             GenerateAiMove
                         } else {
                             PromptUserForMove
@@ -88,9 +88,20 @@ class GameTurnMiddleware : Middleware<AiGameState, AiGameAction> {
 
                                     val whiteScore = (newPos.komi ?: 0f) + newPos.whiteTerritory.size + newPos.whiteCapturedCount + newPos.blackDeadStones.size
                                     val blackScore = newPos.blackTerritory.size + newPos.blackCapturedCount + newPos.whiteDeadStones.size
-                                    val aiWon = state.enginePlaysBlack == (blackScore > whiteScore)
-                                    ScoreComputed(newPos, whiteScore, blackScore, aiWon)
+                                    val whiteWon = blackScore < whiteScore
+                                    ScoreComputed(newPos, whiteScore, blackScore, whiteWon)
                                 }
                                 .subscribeOn(Schedulers.io())
                     }
+
+    private fun toggleAI(actions: Observable<AiGameAction>, state: Observable<AiGameState>) =
+            actions.filter { it is ToggleAIBlack || it is ToggleAIWhite }
+                .withLatestFrom(state)
+                .filter{ (sideChanged, state) -> state.engineStarted && state.position != null
+                    && state.position?.nextToMove == when(sideChanged) {
+                        ToggleAIBlack -> StoneType.BLACK
+                        ToggleAIWhite -> StoneType.WHITE
+                        else -> null
+                    } }
+                .map { NextPlayerChanged }
 }

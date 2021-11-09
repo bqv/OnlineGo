@@ -1,6 +1,7 @@
 package io.zenandroid.onlinego.ui.screens.localai.middlewares
 
 import android.os.Bundle
+import android.util.Log
 import androidx.core.os.bundleOf
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.withLatestFrom
@@ -19,10 +20,10 @@ class AnalyticsMiddleware: Middleware<AiGameState, AiGameAction> {
         return actions.withLatestFrom(state)
                 .doOnNext { (action, state) ->
                     when(action) {
-                        ViewReady, is RestoredState, ViewPaused, ShowNewGameDialog, DismissNewGameDialog, PromptUserForMove, is NewPosition, is UserHotTrackedCoordinate, AIOwnershipResponse,
+                        ViewReady, is RestoredState, ViewPaused, ShowNewGameDialog, DismissNewGameDialog, is UserHotTrackedCoordinate, AIOwnershipResponse,
                         HideOwnership -> Unit
                         is NewGame -> {
-                            analytics.logEvent("ai_game_new_game", null)
+                            Log.d("ai.state", "ai_game_new_game")
                             state.position?.let {
                                 var moves = 0
                                 var cursor = it
@@ -31,43 +32,39 @@ class AnalyticsMiddleware: Middleware<AiGameState, AiGameAction> {
                                     cursor = cursor.parentPosition!!
                                 }
                                 if(moves > it.boardWidth) {
-                                    analytics.logEvent("ai_game_abandoned_late", bundleOf("MOVES" to moves))
+                                    Log.d("ai.state", "ai_game_abandoned_late")
                                 } else {
-                                    analytics.logEvent("ai_game_abandoned_early", bundleOf("MOVES" to moves))
+                                    Log.d("ai.state", "ai_game_abandoned_early")
                                 }
                             }
                         }
-                        EngineStarted -> analytics.logEvent("katago_started", null)
-                        EngineStopped -> analytics.logEvent("katago_stopped", null)
-                        GenerateAiMove -> analytics.logEvent("katago_generate_move", null)
-                        is AIMove -> analytics.logEvent("katago_move", null)
-                        AIHint -> analytics.logEvent("katago_hint", null)
+                        EngineStarted -> Log.d("ai.state", "katago_started")
+                        EngineStopped -> Log.d("ai.state", "katago_stopped")
+                        GenerateAiMove -> Log.d("ai.state", "katago_generate_move")
+                        is AIMove -> Log.d("ai.state", "katago_move")
+                        AIHint -> Log.d("ai.state", "katago_hint")
 
-                        is ScoreComputed -> if(action.aiWon) {
-                            analytics.logEvent("katago_won", Bundle().apply {
-                                OnlineGoApplication.instance.get< UserSessionRepository>().uiConfig?.user?.ranking?.let {
-                                    putInt("RANKING", it)
-                                }
-                            })
+                        is ScoreComputed -> if(action.whiteWon) {
+                            Log.d("ai.state", "katago_won")
                         } else {
-                            analytics.logEvent("katago_lost", Bundle().apply {
-                                OnlineGoApplication.instance.get< UserSessionRepository>().uiConfig?.user?.ranking?.let {
-                                    putInt("RANKING", it)
-                                }
-                            })
+                            Log.d("ai.state", "katago_lost")
                         }
 
-                        is UserTappedCoordinate -> analytics.logEvent("ai_game_user_move", null)
-                        UserPressedPrevious -> analytics.logEvent("ai_game_user_undo", null)
-                        UserPressedBack -> analytics.logEvent("ai_game_user_back", null)
-                        UserPressedNext -> analytics.logEvent("ai_game_user_redo", null)
-                        UserPressedPass -> analytics.logEvent("ai_game_user_pass", null)
-                        UserAskedForHint -> analytics.logEvent("ai_game_user_asked_hint", null)
-                        is EngineWouldNotStart -> analytics.logEvent("katago_would_not_start", null)
-                        AIError -> analytics.logEvent("katago_error", null)
-                        UserAskedForOwnership -> analytics.logEvent("ai_game_user_asked_territory", null)
-                        is UserTriedSuicidalMove -> analytics.logEvent("ai_game_user_tried_suicide", null)
-                        is UserTriedKoMove -> analytics.logEvent("ai_game_user_tried_ko", null)
+                        is UserTappedCoordinate -> Log.d("ai.state", "ai_game_user_move")
+                        UserPressedPrevious -> Log.d("ai.state", "ai_game_user_undo")
+                        UserPressedBack -> Log.d("ai.state", "ai_game_user_back")
+                        UserPressedNext -> Log.d("ai.state", "ai_game_user_redo")
+                        UserPressedPass -> Log.d("ai.state", "ai_game_user_pass")
+                        UserAskedForHint -> Log.d("ai.state", "ai_game_user_asked_hint")
+                        is EngineWouldNotStart -> Log.d("ai.state", "katago_would_not_start")
+                        AIError -> Log.d("ai.state", "katago_error")
+                        UserAskedForOwnership -> Log.d("ai.state", "ai_game_user_asked_territory")
+                        is UserTriedSuicidalMove -> Log.d("ai.state", "ai_game_user_tried_suicide")
+                        is UserTriedKoMove -> Log.d("ai.state", "ai_game_user_tried_ko")
+                        is ToggleAIBlack -> Log.d("ai.state", "ai_game_toggle_ai_black")
+                        is ToggleAIWhite -> Log.d("ai.state", "ai_game_toggle_ai_white")
+                        is PromptUserForMove -> Log.d("ai.state", "ai_game_prompt_user_for_move")
+                        is NewPosition -> Log.d("ai.state", "ai_game_new")
                     }
                 }
                 .switchMap { Observable.empty<AiGameAction>() }

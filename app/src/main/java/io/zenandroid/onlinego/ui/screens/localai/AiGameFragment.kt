@@ -60,7 +60,11 @@ class AiGameFragment : Fragment(), MviView<AiGameState, AiGameAction> {
                         RxView.clicks(binding.hintButton)
                                 .map<AiGameAction> { UserAskedForHint },
                         RxView.clicks(binding.ownershipButton)
-                                .map<AiGameAction> { UserAskedForOwnership }
+                                .map<AiGameAction> { UserAskedForOwnership },
+                        RxView.clicks(binding.nameButtonLeft)
+                                .map<AiGameAction> { ToggleAIBlack },
+                        RxView.clicks(binding.nameButtonRight)
+                                .map<AiGameAction> { ToggleAIWhite }
                 )
         ).startWith(ViewReady)
 
@@ -121,9 +125,11 @@ class AiGameFragment : Fragment(), MviView<AiGameState, AiGameAction> {
 
         binding.hintButton.showIf(state.hintButtonVisible)
         binding.ownershipButton.showIf(state.ownershipButtonVisible)
+        binding.nameButtonLeft.setText(if(state.enginePlaysBlack) "KataGo" else "Player")
+        binding.nameButtonRight.setText(if(state.enginePlaysWhite) "KataGo" else "Player")
         if(state.newGameDialogShown && bottomSheet?.isShowing != true) {
-            bottomSheet = NewGameBottomSheet(requireContext()) { size, youPlayBlack, handicap ->
-                internalActions.onNext(NewGame(size, youPlayBlack, handicap))
+            bottomSheet = NewGameBottomSheet(requireContext()) { size, youPlayBlack, youPlayWhite, handicap ->
+                internalActions.onNext(NewGame(size, youPlayBlack, youPlayWhite, handicap))
             }.apply {
                 setOnCancelListener {
                     internalActions.onNext(DismissNewGameDialog)
@@ -141,13 +147,13 @@ class AiGameFragment : Fragment(), MviView<AiGameState, AiGameAction> {
             binding.winrateProgressBar.progress = winrateAsPercentage.toInt()
         }
         state.position?.let {
-            binding.prisonersLeft.text = if(state.enginePlaysBlack) it.blackCapturedCount.toString() else it.whiteCapturedCount.toString()
-            binding.prisonersRight.text = if(state.enginePlaysBlack) it.whiteCapturedCount.toString() else it.blackCapturedCount.toString()
-            binding.komiLeft.text = if(state.enginePlaysBlack) "" else it.komi.toString()
-            binding.komiRight.text = if(state.enginePlaysBlack) it.komi.toString() else ""
+            binding.prisonersLeft.text = it.blackCapturedCount.toString()
+            binding.prisonersRight.text = it.whiteCapturedCount.toString()
+            binding.komiLeft.text = "-"
+            binding.komiRight.text = it.komi.toString()
         }
-        binding.colorIndicatorLeft.setColorFilter(if(state.enginePlaysBlack) Color.BLACK else Color.WHITE)
-        binding.colorIndicatorRight.setColorFilter(if(state.enginePlaysBlack) Color.WHITE else Color.BLACK)
+        binding.colorIndicatorLeft.setColorFilter(Color.BLACK)
+        binding.colorIndicatorRight.setColorFilter(Color.WHITE)
 
         state.chatText?.let {
             binding.chatBubble.visibility = VISIBLE

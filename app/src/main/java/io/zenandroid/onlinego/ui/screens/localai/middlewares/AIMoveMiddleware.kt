@@ -32,9 +32,8 @@ class AIMoveMiddleware : Middleware<AiGameState, AiGameAction> {
                             .map {
                                 val selectedMove = selectMove(it)
                                 val move = Util.getCoordinatesFromGTP(selectedMove.move, state.boardSize)
-                                val side = if(state.enginePlaysBlack) StoneType.BLACK else StoneType.WHITE
                                 state.position.aiAnalysisResult = it
-                                val newPos = RulesManager.makeMove(state.position, side, move)?.apply {
+                                val newPos = RulesManager.makeMove(state.position, state.position.nextToMove, move)?.apply {
                                     nextToMove = nextToMove.opponent
                                     aiQuickEstimation = selectedMove
                                 }
