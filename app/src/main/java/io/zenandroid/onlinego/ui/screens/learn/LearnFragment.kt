@@ -29,7 +29,6 @@ class LearnFragment : Fragment() {
 
 
     private val viewModel: LearnViewModel by viewModel()
-    private val analytics = OnlineGoApplication.instance.analytics
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return ComposeView(requireContext()).apply {
@@ -55,6 +54,6 @@ class LearnFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        analytics.setCurrentScreen(requireActivity(), javaClass.simpleName, null)
+      //analytics.setCurrentScreen(requireActivity(), javaClass.simpleName, null)
     }
 }

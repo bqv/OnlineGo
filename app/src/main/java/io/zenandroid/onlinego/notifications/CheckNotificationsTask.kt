@@ -3,7 +3,6 @@ package io.zenandroid.onlinego.notifications
 import android.content.Context
 import android.util.Log
 import androidx.work.ListenableWorker
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.reactivex.Completable
 import io.reactivex.Single
 import io.reactivex.functions.BiFunction

@@ -38,7 +38,6 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 class MyGamesFragment : Fragment() {
 
     private val viewModel: MyGamesViewModel by viewModel()
-    private var analytics = OnlineGoApplication.instance.analytics
 
     @ExperimentalFoundationApi
     @ExperimentalPagerApi
@@ -95,27 +94,27 @@ class MyGamesFragment : Fragment() {
     private fun onAction(action: Action) {
         when(action) {
             Action.CustomGame -> {
-                analytics.logEvent("friend_item_clicked", null)
+              //analytics.logEvent("friend_item_clicked", null)
                 (activity as MainActivity).onCustomGameSearch()
             }
             Action.PlayAgainstAI -> {
-                analytics.logEvent("localai_item_clicked", null)
+              //analytics.logEvent("localai_item_clicked", null)
                 view?.findNavController()?.navigate(R.id.action_myGamesFragment_to_aiGameFragment)
             }
             Action.PlayOnline -> {
-                analytics.logEvent("automatch_item_clicked", null)
+              //analytics.logEvent("automatch_item_clicked", null)
                 (activity as MainActivity).onAutoMatchSearch()
             }
             Action.SupportClicked -> {
-                analytics.logEvent("support_whats_new_clicked", null)
+              //analytics.logEvent("support_whats_new_clicked", null)
                 (activity as MainActivity).onNavigateToSupport()
             }
             is GameSelected -> {
                 val game = action.game
-                analytics.logEvent("clicked_game", Bundle().apply {
-                    putLong("GAME_ID", game.id)
-                    putBoolean("ACTIVE_GAME", game.ended == null)
-                })
+              //analytics.logEvent("clicked_game", Bundle().apply {
+              //    putLong("GAME_ID", game.id)
+              //    putBoolean("ACTIVE_GAME", game.ended == null)
+              //})
                 navigateToGameScreen(game)
             }
             else -> viewModel.onAction(action)
@@ -139,6 +138,6 @@ class MyGamesFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         viewModel.onAction(Action.ViewResumed)
-        analytics.setCurrentScreen(requireActivity(), javaClass.simpleName, null)
+      //analytics.setCurrentScreen(requireActivity(), javaClass.simpleName, null)
     }
 }

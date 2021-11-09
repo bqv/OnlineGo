@@ -1,7 +1,6 @@
 package io.zenandroid.onlinego.data.ogs
 
 import android.util.Log
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.JsonEncodingException
 import com.squareup.moshi.Moshi
@@ -84,7 +83,7 @@ class OGSWebSocketService(
         if(userSessionRepository.requiresUIConfigRefresh()) {
             restService.fetchUIConfig()
                     .subscribeOn(Schedulers.io())
-                    .subscribe({}, { FirebaseCrashlytics.getInstance().log("E/$TAG: Failed to refresh UIConfig $it") })
+                    .subscribe({}, { /*FirebaseCrashlytics.getInstance().log("E/$TAG: Failed to refresh UIConfig $it")*/ })
         }
         socket.connect()
     }

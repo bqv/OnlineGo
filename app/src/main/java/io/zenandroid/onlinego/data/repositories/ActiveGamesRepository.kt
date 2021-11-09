@@ -1,7 +1,6 @@
 package io.zenandroid.onlinego.data.repositories
 
 import android.util.Log
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.squareup.moshi.JsonEncodingException
 import io.reactivex.Completable
 import io.reactivex.Flowable
@@ -261,7 +260,7 @@ class ActiveGamesRepository(
             restService.fetchActiveGames()
                     .map { it.map (Game.Companion::fromOGSGame)}
                     .doOnSuccess(gameDao::insertAllGames)
-                    .doOnSuccess { FirebaseCrashlytics.getInstance().log("overview returned ${it.size} games") }
+                    .doOnSuccess { /*FirebaseCrashlytics.getInstance().log("overview returned ${it.size} games")*/ }
                     .map { it.map(Game::id) }
                     .map { gameDao.getGamesThatShouldBeFinished(userSessionRepository.userId, it) }
                     .doOnSuccess (this::updateGamesThatFinishedSinceLastUpdate)

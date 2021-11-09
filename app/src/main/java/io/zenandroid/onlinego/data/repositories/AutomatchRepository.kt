@@ -1,7 +1,6 @@
 package io.zenandroid.onlinego.data.repositories
 
 import android.util.Log
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject

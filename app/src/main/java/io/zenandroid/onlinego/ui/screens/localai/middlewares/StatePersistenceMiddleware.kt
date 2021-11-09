@@ -2,7 +2,6 @@ package io.zenandroid.onlinego.ui.screens.localai.middlewares
 
 import android.util.Log
 import androidx.preference.PreferenceManager
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import io.reactivex.Observable

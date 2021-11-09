@@ -22,7 +22,6 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.transition.DrawableCrossFadeFactory
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.firebase.analytics.FirebaseAnalytics
 import io.zenandroid.onlinego.BuildConfig
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
@@ -85,7 +84,7 @@ class SettingsFragment : Fragment() {
                         .setNegativeButtonbackgroundColor(R.color.colorPrimaryDark)
                         .setNegativeButtonTextColor(R.color.white)
                         .setPositiveButtonClick {
-                            context?.let { FirebaseAnalytics.getInstance(it).logEvent("logout_clicked", null) }
+                          //context?.let { FirebaseAnalytics.getInstance(it).logEvent("logout_clicked", null) }
                             userSessionRepository.logOut()
                             (activity as? MainActivity)?.showLogin()
                         }

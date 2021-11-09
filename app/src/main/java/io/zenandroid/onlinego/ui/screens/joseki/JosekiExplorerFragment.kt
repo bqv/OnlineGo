@@ -14,7 +14,6 @@ import androidx.activity.OnBackPressedCallback
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.jakewharton.rxbinding2.view.RxView
 import io.noties.markwon.AbstractMarkwonPlugin
 import io.noties.markwon.Markwon
@@ -47,7 +46,6 @@ class JosekiExplorerFragment : Fragment(), MviView<JosekiExplorerState, JosekiEx
 
     private val internalActions = PublishSubject.create<JosekiExplorerAction>()
     private var currentState: JosekiExplorerState? = null
-    private var analytics = OnlineGoApplication.instance.analytics
     private lateinit var binding: FragmentJosekiBinding
 
     private val onBackPressedCallback = object : OnBackPressedCallback(true) {
@@ -112,7 +110,7 @@ class JosekiExplorerFragment : Fragment(), MviView<JosekiExplorerState, JosekiEx
 
     override fun onResume() {
         super.onResume()
-        analytics.setCurrentScreen(requireActivity(), javaClass.simpleName, null)
+      //analytics.setCurrentScreen(requireActivity(), javaClass.simpleName, null)
         binding.board.apply {
             isInteractive = true
             drawCoordinates = settingsRepository.showCoordinates

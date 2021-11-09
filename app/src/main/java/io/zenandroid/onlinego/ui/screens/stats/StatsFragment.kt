@@ -52,7 +52,6 @@ class StatsFragment : Fragment(), StatsContract.View {
     private lateinit var binding: FragmentStatsBinding
 
     private lateinit var presenter: StatsContract.Presenter
-    private var analytics = OnlineGoApplication.instance.analytics
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentStatsBinding.inflate(inflater, container, false)
@@ -62,12 +61,12 @@ class StatsFragment : Fragment(), StatsContract.View {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val playerId = arguments?.getLong(PLAYER_ID) ?: Util.getCurrentUserId()!!
-        presenter = StatsPresenter(this, analytics, get(), playerId)
+        presenter = StatsPresenter(this, get(), playerId)
     }
 
     override fun onResume() {
         super.onResume()
-        analytics.setCurrentScreen(requireActivity(), javaClass.simpleName, javaClass.simpleName)
+      //analytics.setCurrentScreen(requireActivity(), javaClass.simpleName, javaClass.simpleName)
         presenter.subscribe()
     }
 

@@ -4,8 +4,6 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -24,7 +22,6 @@ class OnboardingViewModel(
     val ogsWebSocketService: OGSWebSocketService
 ) : ViewModel() {
 
-    private val analytics = OnlineGoApplication.instance.analytics
     private val subscriptions = CompositeDisposable()
 
     private val _state: MutableLiveData<OnboardingState> = MutableLiveData(
@@ -84,7 +81,7 @@ class OnboardingViewModel(
         (isExistingAccount || email.isNotBlank()) && username.isNotBlank() && password.isNotBlank()
 
     private fun goToPage(pageIndex: Int) {
-        analytics.logEvent("oboarding_page_$pageIndex", null)
+      //analytics.logEvent("oboarding_page_$pageIndex", null)
         val state = _state.value
         _state.value = state?.copy(
             currentPageIndex = pageIndex,
@@ -109,14 +106,14 @@ class OnboardingViewModel(
         ogsRestService.login(state.username.trim(), state.password)
             .doOnComplete { ogsWebSocketService.ensureSocketConnected() }
             .observeOn(AndroidSchedulers.mainThread())
-            .doOnComplete { analytics.logEvent(FirebaseAnalytics.Event.LOGIN, null) }
+            .doOnComplete { /*analytics.logEvent(FirebaseAnalytics.Event.LOGIN, null)*/ }
             .subscribe(this::onLoginSuccess, this::onPasswordLoginFailure)
             .addToDisposable(subscriptions)
     }
 
     private fun onCreateAccountSuccess() {
       //FirebaseCrashlytics.getInstance().setCustomKey("NEW_ACCOUNT", true)
-        analytics.logEvent(FirebaseAnalytics.Event.SIGN_UP, null)
+      //analytics.logEvent(FirebaseAnalytics.Event.SIGN_UP, null)
         doLogin(_state.value!!)
     }
 

@@ -2,8 +2,6 @@ package io.zenandroid.onlinego.ui.screens.stats
 
 import android.util.Log
 import com.github.mikephil.charting.data.Entry
-import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -19,7 +17,6 @@ import kotlin.math.roundToLong
  */
 class StatsPresenter(
         private val view: StatsContract.View,
-        private val analytics: FirebaseAnalytics,
         private val restService: OGSRestService,
         private val playerId: Long
 ) : StatsContract.Presenter {

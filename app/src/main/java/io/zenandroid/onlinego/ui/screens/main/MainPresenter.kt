@@ -1,7 +1,6 @@
 package io.zenandroid.onlinego.ui.screens.main
 
 import android.util.Log
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable

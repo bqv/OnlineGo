@@ -4,8 +4,6 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.reactivex.Maybe
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -33,7 +31,6 @@ class MyGamesViewModel(
     private val automatchRepository: AutomatchRepository,
     private val chatRepository: ChatRepository,
     private val notificationsRepository: ServerNotificationsRepository,
-    private val analytics: FirebaseAnalytics,
     private val restService: OGSRestService,
     private val socketService: OGSWebSocketService,
     ) : ViewModel() {
@@ -156,7 +153,7 @@ class MyGamesViewModel(
 
 
     private fun onChallengeCancelled(challenge: Challenge) {
-        analytics.logEvent("challenge_cancelled", null)
+      //analytics.logEvent("challenge_cancelled", null)
         restService.declineChallenge(challenge.id)
             .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
             .subscribe({}, this::onError)
@@ -164,7 +161,7 @@ class MyGamesViewModel(
     }
 
     private fun onChallengeAccepted(challenge: Challenge) {
-        analytics.logEvent("challenge_accepted", null)
+      //analytics.logEvent("challenge_accepted", null)
         restService.acceptChallenge(challenge.id)
             .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
             .subscribe({}, this::onError)
@@ -172,7 +169,7 @@ class MyGamesViewModel(
     }
 
     private fun onChallengeDeclined(challenge: Challenge) {
-        analytics.logEvent("challenge_declined", null)
+      //analytics.logEvent("challenge_declined", null)
         restService.declineChallenge(challenge.id)
             .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
             .subscribe({}, this::onError)
@@ -180,7 +177,7 @@ class MyGamesViewModel(
     }
 
     private fun onAutomatchCancelled(automatch: OGSAutomatch) {
-        analytics.logEvent("new_game_cancelled", null)
+      //analytics.logEvent("new_game_cancelled", null)
         socketService.cancelAutomatch(automatch)
     }
 
@@ -193,7 +190,7 @@ class MyGamesViewModel(
                     alertDialogTitle = "Bot rejected challenge",
                     alertDialogText = "This might happen because the opponent's maintainer has set some conditions on the challenge parameters. $message"
                 )
-                analytics.logEvent("bot_refused_challenge", null)
+              //analytics.logEvent("bot_refused_challenge", null)
               //FirebaseCrashlytics.getInstance().log("Bot refused challenge. $message")
             } else {
                 _state.value = _state.value?.copy(

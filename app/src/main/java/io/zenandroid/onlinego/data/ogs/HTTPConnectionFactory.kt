@@ -1,7 +1,6 @@
 package io.zenandroid.onlinego.data.ogs
 
 import android.util.Log
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.facebook.stetho.okhttp3.StethoInterceptor
 import com.google.android.gms.common.util.IOUtils
 import io.zenandroid.onlinego.BuildConfig

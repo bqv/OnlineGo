@@ -29,7 +29,6 @@ class SpectateFragment : Fragment(), SpectateContract.View {
 
     private lateinit var presenter: SpectateContract.Presenter
     private val spectateAdapter = SpectateAdapter()
-    private val analytics = OnlineGoApplication.instance.analytics
 
     override var games: GameList? = null
         set(value) {
@@ -55,13 +54,13 @@ class SpectateFragment : Fragment(), SpectateContract.View {
     }
 
     override fun navigateToGameScreen(game: OGSGame) {
-        analytics.logEvent("spectate_game", Bundle().apply { putLong("GAME_ID", game.id) })
+      //analytics.logEvent("spectate_game", Bundle().apply { putLong("GAME_ID", game.id) })
         (requireActivity() as MainActivity).navigateToGameScreen(Game.fromOGSGame(game))
     }
 
     override fun onResume() {
         super.onResume()
-        analytics.setCurrentScreen(requireActivity(), javaClass.simpleName, null)
+      //analytics.setCurrentScreen(requireActivity(), javaClass.simpleName, null)
         presenter.subscribe()
     }
 

@@ -1,6 +1,5 @@
 package io.zenandroid.onlinego.ui.screens.localai.middlewares
 
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.withLatestFrom
 import io.reactivex.schedulers.Schedulers

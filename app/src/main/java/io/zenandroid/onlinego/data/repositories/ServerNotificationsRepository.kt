@@ -1,6 +1,5 @@
 package io.zenandroid.onlinego.data.repositories
 
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService

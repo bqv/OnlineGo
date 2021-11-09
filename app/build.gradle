@@ -2,7 +2,6 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'com.google.gms.google-services'
-apply plugin: 'com.google.firebase.crashlytics'
 apply plugin: 'koin'
 
 // Create a variable called keystorePropertiesFile, and initialize it to your
@@ -156,9 +155,6 @@ dependencies {
     implementation 'com.jakewharton.rxbinding2:rxbinding:2.2.0'
 
     implementation 'br.com.simplepass:loading-button-android:2.1.5'
-    implementation 'com.google.firebase:firebase-analytics-ktx:19.0.2'
-    implementation 'com.google.firebase:firebase-crashlytics:18.2.3'
-    implementation 'com.google.firebase:firebase-messaging:22.0.0'
 
     implementation 'io.noties.markwon:core:4.3.1'
 

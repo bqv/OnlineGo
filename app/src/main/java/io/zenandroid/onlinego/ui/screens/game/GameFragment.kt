@@ -50,7 +50,6 @@ const val GAME_HEIGHT = "GAME_HEIGHT"
 class GameFragment : Fragment(), GameContract.View {
     private lateinit var presenter: GameContract.Presenter
     private val subscriptions = CompositeDisposable()
-    private val analytics = OnlineGoApplication.instance.analytics
     private val chatDialog: ChatDialog by lazy { ChatDialog() }
     private val gameInfoDialog: GameInfoDialog by lazy { GameInfoDialog() }
 
@@ -269,12 +268,11 @@ class GameFragment : Fragment(), GameContract.View {
         }
 
 
-        analytics.logEvent("showing_game", arguments)
+      //analytics.logEvent("showing_game", arguments)
         presenter = GamePresenter(
                 view = this,
                 socketService = get(),
                 userSessionRepository = get(),
-                analytics = analytics,
                 gameRepository = get(),
                 settingsRepository = get(),
                 clockDriftRepository = get(),
@@ -436,7 +434,7 @@ class GameFragment : Fragment(), GameContract.View {
                     }
                     .addToDisposable(subscriptions)
         }
-        analytics.setCurrentScreen(requireActivity(), javaClass.simpleName, javaClass.simpleName)
+      //analytics.setCurrentScreen(requireActivity(), javaClass.simpleName, javaClass.simpleName)
         repeatingPresses(binding.previousButton)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { presenter.onPreviousButtonPressed() }

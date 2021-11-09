@@ -1,7 +1,6 @@
 package io.zenandroid.onlinego.data.db
 
 import androidx.room.*
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.reactivex.Flowable
 import io.reactivex.Maybe
 import io.reactivex.Single

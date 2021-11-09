@@ -1,7 +1,6 @@
 package io.zenandroid.onlinego.ai
 
 import android.util.Log
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import io.reactivex.Single

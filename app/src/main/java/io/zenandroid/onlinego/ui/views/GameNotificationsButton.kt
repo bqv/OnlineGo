@@ -18,7 +18,6 @@ import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.get
 import androidx.navigation.NavOptions
 import androidx.navigation.findNavController
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.zenandroid.onlinego.OnlineGoApplication
@@ -41,7 +40,6 @@ class GameNotificationsButton: FrameLayout {
 
     private val binding: ViewGameNotificationsButtonBinding
 
-    private val analytics = OnlineGoApplication.instance.analytics
     private val settingsRepository: SettingsRepository = get().get()
 
     private var viewModel: GameNotificationsButtonViewModel? = null
@@ -59,7 +57,7 @@ class GameNotificationsButton: FrameLayout {
     }
 
     private fun onNotificationClicked() {
-        analytics.logEvent("my_move_clicked", null)
+      //analytics.logEvent("my_move_clicked", null)
         viewModel?.onNotificationClicked()
     }
 

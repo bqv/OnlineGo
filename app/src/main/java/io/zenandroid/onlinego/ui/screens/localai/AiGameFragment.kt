@@ -34,7 +34,6 @@ import kotlin.math.abs
 
 class AiGameFragment : Fragment(), MviView<AiGameState, AiGameAction> {
     private val viewModel: AiGameViewModel by viewModel()
-    private var analytics = OnlineGoApplication.instance.analytics
     private val settingsRepository: SettingsRepository by inject()
     private var bottomSheet: NewGameBottomSheet? = null
     private lateinit var binding: FragmentAigameBinding
@@ -81,7 +80,7 @@ class AiGameFragment : Fragment(), MviView<AiGameState, AiGameAction> {
 
     override fun onResume() {
         super.onResume()
-        analytics.setCurrentScreen(requireActivity(), javaClass.simpleName, null)
+      //analytics.setCurrentScreen(requireActivity(), javaClass.simpleName, null)
         binding.board.apply {
             drawCoordinates = settingsRepository.showCoordinates
         }

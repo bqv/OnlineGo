@@ -14,8 +14,6 @@ import io.zenandroid.onlinego.ui.screens.localai.AiGameState
 import org.koin.android.ext.android.get
 
 class AnalyticsMiddleware: Middleware<AiGameState, AiGameAction> {
-    private var analytics = OnlineGoApplication.instance.analytics
-
     override fun bind(actions: Observable<AiGameAction>, state: Observable<AiGameState>): Observable<AiGameAction> {
         return actions.withLatestFrom(state)
                 .doOnNext { (action, state) ->

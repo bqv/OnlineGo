@@ -9,8 +9,6 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
-import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.databinding.FragmentSupporterBinding
 import io.zenandroid.onlinego.utils.showIf
@@ -19,7 +17,6 @@ import org.koin.android.ext.android.get
 class SupporterFragment : Fragment(), SupporterContract.View {
 
     private lateinit var presenter: SupporterContract.Presenter
-    private var analytics = OnlineGoApplication.instance.analytics
     private lateinit var binding: FragmentSupporterBinding
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -64,7 +61,7 @@ class SupporterFragment : Fragment(), SupporterContract.View {
 
     override fun onResume() {
         super.onResume()
-        analytics.setCurrentScreen(requireActivity(), javaClass.simpleName, javaClass.simpleName)
+      //analytics.setCurrentScreen(requireActivity(), javaClass.simpleName, javaClass.simpleName)
         presenter.subscribe()
     }
 

@@ -46,8 +46,6 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         val TAG = MainActivity::class.java.simpleName
     }
 
-    private val analytics = OnlineGoApplication.instance.analytics
-
     private lateinit var binding: ActivityMainBinding
 
     private val presenter: MainPresenter by lazy { MainPresenter(this, get(), get(), get(), get()) }
@@ -188,7 +186,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
                 putString("SPEED", speed.toString())
                 putString("SIZE", sizes.joinToString { it.toString() })
             }
-            analytics.logEvent("new_game_search", params)
+          //analytics.logEvent("new_game_search", params)
             presenter.onStartSearch(sizes, speed)
         }.show()
     }
@@ -202,7 +200,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     }
 
     fun onNewChallengeSearchClicked(challengeParams: ChallengeParams) {
-        analytics.logEvent("bot_challenge", null)
+      //analytics.logEvent("bot_challenge", null)
         presenter.onNewBotChallenge(challengeParams)
     }
 }

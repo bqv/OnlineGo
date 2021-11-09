@@ -2,8 +2,6 @@ package io.zenandroid.onlinego.ui.screens.game
 
 import android.graphics.Point
 import android.util.Log
-import com.google.firebase.crashlytics.FirebaseCrashlytics
-import com.google.firebase.analytics.FirebaseAnalytics
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -37,7 +35,6 @@ class GamePresenter(
         private val view: GameContract.View,
         private val socketService: OGSWebSocketService,
         private val userSessionRepository: UserSessionRepository,
-        private val analytics: FirebaseAnalytics,
         private val gameRepository: ActiveGamesRepository,
         private val settingsRepository: SettingsRepository,
         private val chatRepository: ChatRepository,
@@ -155,7 +152,7 @@ class GamePresenter(
     }
 
     override fun onNewMessage(message: String) {
-        analytics.logEvent("message_sent", null)
+      //analytics.logEvent("message_sent", null)
         gameConnection?.sendMessage(message, game?.moves?.size ?: 0)
     }
 
@@ -283,12 +280,12 @@ class GamePresenter(
                         view.showCandidateMove(null)
                         game?.let { showPlayControls(it) }
                     } else {
-                        analytics.logEvent("candidate_move", null)
+                      //analytics.logEvent("candidate_move", null)
                         showConfirmMoveControls()
                     }
                 }
             SCORING -> {
-                analytics.logEvent("scoring_change_group", null)
+              //analytics.logEvent("scoring_change_group", null)
                 val newPos = currentPosition.clone()
                 RulesManager.toggleRemoved(newPos, point)
                 var delta = newPos.removedSpots - currentPosition.removedSpots
@@ -308,7 +305,7 @@ class GamePresenter(
     }
 
     private fun doAnalysisMove(candidateMove: Point) {
-        analytics.logEvent("analysis_move", null)
+      //analytics.logEvent("analysis_move", null)
         RulesManager.makeMove(analysisPosition, analysisPosition.nextToMove, candidateMove)?.let {
             if(RulesManager.isIllegalKO(it)) {
                 view.showKoDialog()
@@ -334,7 +331,7 @@ class GamePresenter(
     override fun onDiscardButtonPressed() {
         when (currentState){
             ANALYSIS -> {
-                analytics.logEvent("analysis_cancel", null)
+              //analytics.logEvent("analysis_cancel", null)
                 currentState = determineStateFromGame(game)
                 candidateMove = null
                 view.showCandidateMove(null)
@@ -343,21 +340,21 @@ class GamePresenter(
             }
             PLAYING -> {
                 if(candidateMove != null) {
-                    analytics.logEvent("discard_move", null)
+                  //analytics.logEvent("discard_move", null)
                     candidateMove = null
                     view.showCandidateMove(null)
                     game?.let { showPlayControls(it) }
                 } else {
-                    analytics.logEvent("abort_game", null)
+                  //analytics.logEvent("abort_game", null)
                     view.showAbortGameConfirmation()
                 }
             }
             SCORING -> {
-                analytics.logEvent("resume_from_scoring", null)
+              //analytics.logEvent("resume_from_scoring", null)
                 gameConnection?.rejectRemovedStones()
             }
             ESTIMATION -> {
-                analytics.logEvent("cancel_estimation", null)
+              //analytics.logEvent("cancel_estimation", null)
                 currentState = stateToReturnFromEstimation
                 game?.let { refreshUI(it) }
             }
@@ -368,21 +365,21 @@ class GamePresenter(
     }
 
     override fun onAbortGameConfirmed() {
-        analytics.logEvent("abort_game_confirmed", null)
+      //analytics.logEvent("abort_game_confirmed", null)
         gameConnection?.abortGame()
     }
 
     override fun onConfirmButtonPressed() {
         when(currentState) {
             PLAYING -> {
-                analytics.logEvent("confirm_move", null)
+              //analytics.logEvent("confirm_move", null)
                 view.interactive = false
                 candidateMove?.let { gameConnection?.submitMove(it) }
                 candidateMove = null
                 game?.let { showPlayControls(it) }
             }
             SCORING -> {
-                analytics.logEvent("accept_scoring", null)
+              //analytics.logEvent("accept_scoring", null)
                 gameConnection?.acceptRemovedStones(currentPosition.removedSpots)
             }
             else -> {
@@ -392,7 +389,7 @@ class GamePresenter(
     }
 
     override fun onMenuButtonPressed() {
-        analytics.logEvent("menu_button_pressed", null)
+      //analytics.logEvent("menu_button_pressed", null)
         val list = mutableListOf<MenuItem>(GAME_INFO)
         if(myGame && currentState in arrayOf(PLAYING, HISTORY, ANALYSIS)) {
             if(game?.moves?.size ?: 0 < 2) {
@@ -486,7 +483,7 @@ class GamePresenter(
     }
 
     private fun onEstimateClicked() {
-        analytics.logEvent("estimate_clicked", null)
+      //analytics.logEvent("estimate_clicked", null)
         game?.let { game ->
             val pos = when (currentState) {
                 ANALYSIS -> analysisPosition
@@ -717,7 +714,7 @@ class GamePresenter(
         if(game?.phase != Phase.STONE_REMOVAL) {
             return
         }
-        analytics.logEvent("auto_clicked", null)
+      //analytics.logEvent("auto_clicked", null)
         val newPos = currentPosition.clone()
         newPos.clearAllRemovedSpots()
         RulesManager.determineTerritory(newPos)
@@ -769,7 +766,7 @@ class GamePresenter(
 
         game.undoRequested?.let {
             if(it != undoPromptShownAtMoveNo && game.playerToMoveId == userId) {
-                analytics.logEvent("undo_requested_by_opponent", null)
+              //analytics.logEvent("undo_requested_by_opponent", null)
                 undoPromptShownAtMoveNo = it
                 view.showUndoPrompt()
             }
@@ -783,27 +780,27 @@ class GamePresenter(
     }
 
     override fun onAcceptUndo() {
-        analytics.logEvent("undo_accepted", null)
+      //analytics.logEvent("undo_accepted", null)
         gameConnection?.acceptUndo(undoPromptShownAtMoveNo)
         undoPromptShownAtMoveNo = -1
     }
 
     override fun onRequestUndo() {
-        analytics.logEvent("undo_clicked", null)
+      //analytics.logEvent("undo_clicked", null)
         view.showUndoRequestConfirmation()
     }
 
     override fun onUndoRequestConfirmed() {
-        analytics.logEvent("undo_requested", null)
+      //analytics.logEvent("undo_requested", null)
         gameConnection?.requestUndo(game?.moves?.size ?: 0)
     }
 
     override fun onUndoRejected() {
-        analytics.logEvent("undo_rejected", null)
+      //analytics.logEvent("undo_rejected", null)
     }
 
     override fun onChatClicked() {
-        analytics.logEvent("chat_clicked", null)
+      //analytics.logEvent("chat_clicked", null)
         view.showChat()
     }
 
@@ -921,35 +918,35 @@ class GamePresenter(
     }
 
     override fun onResignConfirmed() {
-        analytics.logEvent("resign_confirmed", null)
+      //analytics.logEvent("resign_confirmed", null)
         gameConnection?.resign()
     }
 
 
     override fun onPassConfirmed() {
-        analytics.logEvent("pass_confirmed", null)
+      //analytics.logEvent("pass_confirmed", null)
         gameConnection?.submitMove(Point(-1, -1))
     }
 
     override fun onPassClicked() {
-        analytics.logEvent("pass_clicked", null)
+      //analytics.logEvent("pass_clicked", null)
         view.showPassConfirmation()
     }
 
     override fun onPauseClicked() {
-        analytics.logEvent("pause_clicked", null)
+      //analytics.logEvent("pause_clicked", null)
         gameConnection?.pause()
         game?.let { refreshUI(it) }
     }
 
     override fun onResumeClicked() {
-        analytics.logEvent("resume_clicked", null)
+      //analytics.logEvent("resume_clicked", null)
         gameConnection?.resume()
         game?.let { refreshUI(it) }
     }
 
     override fun onResignClicked() {
-        analytics.logEvent("resign_clicked", null)
+      //analytics.logEvent("resign_clicked", null)
         view.showResignConfirmation()
     }
 
@@ -957,11 +954,11 @@ class GamePresenter(
         game?.let { game ->
             when (currentState) {
                 ANALYSIS -> {
-                    analytics.logEvent("next_analytics_clicked", null)
+                  //analytics.logEvent("next_analytics_clicked", null)
                     variationCurrentMove = (variationCurrentMove + 1).coerceIn(-1, variation.size - 1)
                 }
                 HISTORY -> {
-                    analytics.logEvent("next_history_clicked", null)
+                  //analytics.logEvent("next_history_clicked", null)
                     game.moves?.let { moves ->
                         currentShownMove = (currentShownMove + 1).coerceIn(0, moves.size)
                         if (currentShownMove == moves.size) {
@@ -981,11 +978,11 @@ class GamePresenter(
         game?.let { game ->
             when (currentState) {
                 ANALYSIS -> {
-                    analytics.logEvent("previous_analytics_clicked", null)
+                  //analytics.logEvent("previous_analytics_clicked", null)
                     variationCurrentMove = (variationCurrentMove - 1).coerceIn(-1, variation.size - 1)
                 }
                 PLAYING, HISTORY, FINISHED -> {
-                    analytics.logEvent("previous_history_clicked", null)
+                  //analytics.logEvent("previous_history_clicked", null)
                     currentState = HISTORY
                     game.moves?.let { moves ->
                         currentShownMove--
@@ -1014,7 +1011,7 @@ class GamePresenter(
     }
 
     override fun onAnalyzeButtonClicked() {
-        analytics.logEvent("analyze_clicked", null)
+      //analytics.logEvent("analyze_clicked", null)
         currentState = ANALYSIS
         analysisPosition = currentPosition.clone()
         currentShownMove = game?.moves?.size ?: currentShownMove
@@ -1024,7 +1021,7 @@ class GamePresenter(
     }
 
     override fun onAnalysisDisabledButtonClicked() {
-        analytics.logEvent("analysis_disabled_clicked", null)
+      //analytics.logEvent("analysis_disabled_clicked", null)
         view.showAnalysisDisabledDialog()
     }
 

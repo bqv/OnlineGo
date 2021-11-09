@@ -3,7 +3,6 @@ package io.zenandroid.onlinego.gamelogic
 import android.graphics.Point
 import android.util.Log
 import androidx.core.util.lruCache
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.local.Game
@@ -117,7 +116,6 @@ object RulesManager {
             val newPos = makeMove(pos, turn, Point(move[0], move[1]))
             if(newPos == null) {
                 Log.e(this.javaClass.simpleName, "Server returned an invalid move!!! gameId=${game.id} move=$index")
-                FirebaseCrashlytics.getInstance().log("E/RulesManager: Server returned an invalid move!!! gameId=${game.id} move=$index")
                 return@forEachIndexed
             }
             pos = newPos
