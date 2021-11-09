@@ -1,7 +1,6 @@
 package io.zenandroid.onlinego.data.ogs
 
 import android.util.Log
-import com.facebook.stetho.okhttp3.StethoInterceptor
 import io.zenandroid.onlinego.BuildConfig
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import okhttp3.OkHttpClient
@@ -16,7 +15,6 @@ class HTTPConnectionFactory(
         OkHttpClient.Builder()
                 .followRedirects(false)
                 .cookieJar(userSessionRepository.cookieJar)
-                .addStethoInterceptor()
                 .addNetworkInterceptor { chain ->
                     var request = chain.request()
                     val csrftoken = userSessionRepository.cookieJar.loadForRequest(request.url).firstOrNull { it.name == "csrftoken" }?.value
@@ -66,11 +64,6 @@ class HTTPConnectionFactory(
                 }
                 .addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
                 .build()
-
-    private fun OkHttpClient.Builder.addStethoInterceptor() =
-            if(BuildConfig.DEBUG) {
-                addNetworkInterceptor(StethoInterceptor())
-            } else this
 
     private fun peekBody(response: okhttp3.Response) = try {
         var bodyBytes = response.peekBody(1024 * 1024).bytes()

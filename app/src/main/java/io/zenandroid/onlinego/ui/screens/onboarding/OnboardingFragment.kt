@@ -26,7 +26,6 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
-import io.zenandroid.onlinego.ui.screens.login.FacebookLoginCallbackActivity
 import io.zenandroid.onlinego.ui.screens.onboarding.OnboardingAction.BackPressed
 import io.zenandroid.onlinego.ui.screens.onboarding.OnboardingAction.SocialPlatformLoginFailed
 import io.zenandroid.onlinego.ui.screens.onboarding.Page.LoginMethod
@@ -68,7 +67,6 @@ class OnboardingFragment : Fragment() {
                         state?.loginSuccessful == true -> {
                             findNavController().navigate(R.id.onboarding_to_mygames)
                         }
-                        state?.loginMethod == LoginMethod.FACEBOOK -> doFacebookFlow()
                         else -> {
                             OnlineGoTheme {
                                 Screen(it, viewModel::onAction)
@@ -87,31 +85,6 @@ class OnboardingFragment : Fragment() {
                 viewModel.onAction(BackPressed)
             }
         })
-    }
-
-    private fun doFacebookFlow() {
-      //FirebaseCrashlytics.getInstance().setCustomKey("LOGIN_METHOD", "FACEBOOK")
-        val url = "https://online-go.com/login/facebook/"
-        val request = Request.Builder()
-            .url(url)
-            .get()
-            .build()
-        Single.fromCallable { client.newCall(request).execute() }
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({ response ->
-                requireActivity().packageManager.setComponentEnabledSetting(
-                    ComponentName(requireContext(), FacebookLoginCallbackActivity::class.java),
-                    PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
-                    PackageManager.DONT_KILL_APP
-                )
-
-                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(response.header("Location"))))
-            }, {
-              //FirebaseCrashlytics.getInstance().recordException(it)
-                Toast.makeText(context, it.message, Toast.LENGTH_LONG).show()
-                viewModel.onAction(SocialPlatformLoginFailed)
-            }).addToDisposable(subscriptions)
     }
 
     override fun onPause() {

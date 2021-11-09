@@ -27,25 +27,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".ui.screens.login.FacebookLoginCallbackActivity"
-            android:noHistory="true"
-            android:launchMode="singleInstance"
-            android:theme="@style/Theme.AppCompat.Translucent"
-            android:enabled="false"
-            android:exported="true"
-            >
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data
-                    android:scheme="https"
-                    android:host="online-go.com"
-                    android:path="/complete/facebook/"
-                    />
-            </intent-filter>
-        </activity>
 
         <meta-data
             android:name="preloaded_fonts"

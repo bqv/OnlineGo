@@ -8,7 +8,6 @@ import androidx.emoji.text.FontRequestEmojiCompatConfig
 import androidx.core.provider.FontRequest
 import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
-import com.facebook.stetho.Stetho
 import com.jakewharton.threetenabp.AndroidThreeTen
 import io.reactivex.Completable
 import io.reactivex.exceptions.UndeliverableException
@@ -35,9 +34,6 @@ class OnlineGoApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        if(BuildConfig.DEBUG) {
-            Stetho.initializeWithDefaults(this)
-        }
 
         startKoin {
             androidContext(this@OnlineGoApplication)

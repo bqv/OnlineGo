@@ -1,7 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
-apply plugin: 'com.google.gms.google-services'
 apply plugin: 'koin'
 
 // Create a variable called keystorePropertiesFile, and initialize it to your
@@ -119,8 +118,8 @@ dependencies {
 
     implementation "androidx.lifecycle:lifecycle-extensions:2.2.0"
 
-    implementation 'com.facebook.stetho:stetho:1.5.1'
-    implementation 'com.facebook.stetho:stetho-okhttp3:1.5.1'
+    implementation 'com.google.code.findbugs:jsr305:3.0.2'
+    implementation 'androidx.annotation:annotation:1.1.0'
 
     // groupie
     implementation 'com.xwray:groupie:2.8.1'

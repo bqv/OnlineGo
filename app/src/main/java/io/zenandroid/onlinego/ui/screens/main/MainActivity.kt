@@ -31,7 +31,6 @@ import io.zenandroid.onlinego.notifications.SynchronizeGamesWork
 import io.zenandroid.onlinego.ui.screens.game.GAME_HEIGHT
 import io.zenandroid.onlinego.ui.screens.game.GAME_ID
 import io.zenandroid.onlinego.ui.screens.game.GAME_WIDTH
-import io.zenandroid.onlinego.ui.screens.login.FacebookLoginCallbackActivity
 import io.zenandroid.onlinego.ui.screens.newchallenge.ChallengeParams
 import io.zenandroid.onlinego.ui.screens.newchallenge.NewAutomatchChallengeBottomSheet
 import io.zenandroid.onlinego.ui.screens.newchallenge.NewChallengeBottomSheet
@@ -87,12 +86,6 @@ class MainActivity : AppCompatActivity(), MainContract.View {
 
         createNotificationChannel()
         scheduleNotificationJob()
-
-        packageManager.setComponentEnabledSetting(
-            ComponentName(this, FacebookLoginCallbackActivity::class.java),
-            PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
-            PackageManager.DONT_KILL_APP
-        )
 
         BoardView.preloadResources(resources)
     }

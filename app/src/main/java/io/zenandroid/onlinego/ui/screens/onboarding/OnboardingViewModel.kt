@@ -146,15 +146,6 @@ class OnboardingViewModel(
         }
     }
 
-    fun onGoogleTokenReceived(token: String) {
-        ogsRestService.loginWithGoogle(token)
-            .doOnComplete { ogsWebSocketService.ensureSocketConnected() }
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribeOn(Schedulers.io())
-            .subscribe(this::onLoginSuccess, this::onPasswordLoginFailure)
-            .addToDisposable(subscriptions)
-    }
-
 }
 
 private val pages = arrayOf(
@@ -182,13 +173,13 @@ private val pages = arrayOf(
     ),
     MultipleChoicePage(
         "What log in method do you want to use?",
-        listOf("Google Sign-in", "Facebook Sign-in", "Username and password")
+        listOf("Username and password")
     ),
     Page.LoginPage
 )
 
 sealed class Page {
-    enum class LoginMethod { FACEBOOK, PASSWORD }
+    enum class LoginMethod { PASSWORD }
 
     data class OnboardingPage(
         val art: Int,
