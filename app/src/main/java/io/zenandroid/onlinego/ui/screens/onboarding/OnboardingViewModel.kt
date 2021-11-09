@@ -188,7 +188,7 @@ private val pages = arrayOf(
 )
 
 sealed class Page {
-    enum class LoginMethod { GOOGLE, FACEBOOK, PASSWORD }
+    enum class LoginMethod { FACEBOOK, PASSWORD }
 
     data class OnboardingPage(
         val art: Int,

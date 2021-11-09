@@ -120,17 +120,6 @@
             />
 
         <Button
-            android:id="@+id/googleSignInButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Google Sign-in"
-            android:visibility="gone"
-            tools:visibility="visible"
-            android:background="@drawable/button_shape_default_rounded"
-            android:layout_marginTop="4dp"
-            android:textColor="@color/loginText"
-            />
-        <Button
             android:id="@+id/facebookSignInButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

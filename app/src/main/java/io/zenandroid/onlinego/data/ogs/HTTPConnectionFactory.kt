@@ -2,7 +2,6 @@ package io.zenandroid.onlinego.data.ogs
 
 import android.util.Log
 import com.facebook.stetho.okhttp3.StethoInterceptor
-import com.google.android.gms.common.util.IOUtils
 import io.zenandroid.onlinego.BuildConfig
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import okhttp3.OkHttpClient
@@ -74,11 +73,12 @@ class HTTPConnectionFactory(
             } else this
 
     private fun peekBody(response: okhttp3.Response) = try {
-        val bodyBytes = response.peekBody(1024 * 1024).bytes()
-        if(IOUtils.isGzipByteBuffer(bodyBytes))
-            String(IOUtils.toByteArray(GZIPInputStream(ByteArrayInputStream(bodyBytes))))
-        else
-            String(bodyBytes)
+        var bodyBytes = response.peekBody(1024 * 1024).bytes()
+        try {
+            bodyBytes = GZIPInputStream(ByteArrayInputStream(bodyBytes)).use { it.readBytes() }
+        } catch (t: Exception) {
+        }
+        String(bodyBytes)
     } catch (t: Throwable) {
       //FirebaseCrashlytics.getInstance().recordException(t)
         "<<<Error trying to log body of response ${t.javaClass.name} ${t.message}>>>"

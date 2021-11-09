@@ -20,11 +20,6 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.google.accompanist.pager.ExperimentalPagerApi
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.common.Scopes
-import com.google.android.gms.common.api.ApiException
-import com.google.android.gms.common.api.Scope
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -51,18 +46,6 @@ class OnboardingFragment : Fragment() {
         .followRedirects(false)
         .build()
     private val subscriptions = CompositeDisposable()
-    private val googleFlow = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-        try {
-            GoogleSignIn.getSignedInAccountFromIntent(it.data).getResult(ApiException::class.java)?.serverAuthCode?.let {
-                viewModel.onGoogleTokenReceived(it)
-            }
-        } catch (e: ApiException) {
-            Log.w("OnboardingFragment", "signInResult:failed code=" + e.statusCode)
-          //FirebaseCrashlytics.getInstance().recordException(e)
-            Toast.makeText(requireContext(), "signInResult:failed code=" + e.statusCode, Toast.LENGTH_LONG).show()
-            viewModel.onAction(SocialPlatformLoginFailed)
-        }
-    }
 
     @ExperimentalPagerApi
     override fun onCreateView(
@@ -86,7 +69,6 @@ class OnboardingFragment : Fragment() {
                             findNavController().navigate(R.id.onboarding_to_mygames)
                         }
                         state?.loginMethod == LoginMethod.FACEBOOK -> doFacebookFlow()
-                        state?.loginMethod == LoginMethod.GOOGLE -> doGoogleFlow()
                         else -> {
                             OnlineGoTheme {
                                 Screen(it, viewModel::onAction)
@@ -130,15 +112,6 @@ class OnboardingFragment : Fragment() {
                 Toast.makeText(context, it.message, Toast.LENGTH_LONG).show()
                 viewModel.onAction(SocialPlatformLoginFailed)
             }).addToDisposable(subscriptions)
-    }
-
-    private fun doGoogleFlow() {
-      //FirebaseCrashlytics.getInstance().setCustomKey("LOGIN_METHOD", "GOOGLE")
-        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestServerAuthCode("870935345166-6j2s6i9adl64ms3ta4k9n4flkqjhs229.apps.googleusercontent.com")
-            .requestScopes(Scope(Scopes.OPEN_ID), Scope(Scopes.EMAIL), Scope(Scopes.PROFILE))
-            .build()
-        googleFlow.launch(GoogleSignIn.getClient(requireActivity(), gso).signInIntent)
     }
 
     override fun onPause() {
