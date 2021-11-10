@@ -62,21 +62,6 @@ class SupporterFragment : Fragment(), SupporterContract.View {
 
     override fun renderState(state: State) {
         binding.apply {
-            state.subscribeTitleText?.let {
-                subscribeTitle.text = it
-            }
-
-            state.subscribeButtonText?.let {
-                subscribeButton.text = it
-            }
-
-            subscribeButton.isEnabled = state.subscribeButtonEnabled
-            subscribeButton.alpha = if (state.subscribeButtonEnabled) 1f else .3f
-
-            loadingProgressView.showIf(state.loading)
-            loadingProgressScrim.showIf(state.loading)
-
-            cancelButton.showIf(false)
         }
     }
 }

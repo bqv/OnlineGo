@@ -50,7 +50,6 @@
         android:elevation="1dp"
         android:background="@color/colorToolbarBackground"
         app:layout_constraintTop_toBottomOf="@id/backButton"
-        app:layout_constraintBottom_toTopOf="@id/bottomBar"
         >
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -188,176 +187,23 @@
                 app:tint="@color/colorText"
                 />
             <TextView
-                android:id="@+id/text11"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="FAQs"
-                android:textColor="#9B9B9B"
-                android:textSize="12sp"
-                android:textStyle="bold"
-                android:layout_marginTop="36dp"
-                app:layout_constraintTop_toBottomOf="@id/text10"
-                />
-            <TextView
-                android:id="@+id/text12"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="What is the money used for?"
-                style="@style/SupporterFAQTitle"
-                app:layout_constraintTop_toBottomOf="@id/text11"
-                />
-            <TextView
-                android:id="@+id/text13"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="The money enables our main developer, who is a professiosnal Android contractor, to take time off between contracts to work on this project. In the future, he could dedicate full-time to improving the app at a much faster pace."
-                style="@style/SupporterFAQContent"
-                app:layout_constraintTop_toBottomOf="@id/text12"
-                />
-            <TextView
                 android:id="@+id/text14"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Are there any supporter-only features?"
+                android:text="How can I donate?"
                 style="@style/SupporterFAQTitle"
-                app:layout_constraintTop_toBottomOf="@id/text13"
+                app:layout_constraintTop_toBottomOf="@id/text10"
+                app:layout_constraintLeft_toLeftOf="@id/text10"
                 />
             <TextView
                 android:id="@+id/text15"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="No, because we believe that everyone should have access to a professionally made Android app for GO. Support is entirely optional."
+                android:text="See the Google Play edition for details. This version has been stripped of anti-free dependencies."
                 style="@style/SupporterFAQContent"
                 app:layout_constraintTop_toBottomOf="@id/text14"
-                />
-            <TextView
-                android:id="@+id/text16"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Can I change or cancel my subscription?"
-                style="@style/SupporterFAQTitle"
-                app:layout_constraintTop_toBottomOf="@id/text15"
-                />
-            <TextView
-                android:id="@+id/text17"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Yes, at any time, either from this page or from the 'Subscriptions' page in Google Play."
-                style="@style/SupporterFAQContent"
-                app:layout_constraintTop_toBottomOf="@id/text16"
-                />
-            <TextView
-                android:id="@+id/text18"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Are there any other methods of payment?"
-                style="@style/SupporterFAQTitle"
-                app:layout_constraintTop_toBottomOf="@id/text17"
-                />
-            <TextView
-                android:id="@+id/text19"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Apps distributed through Google Play are required to use Google Pay, as Google charges 30% of the proceeds. We are not allowed to offer any alternative means of payment in-app."
-                style="@style/SupporterFAQContent"
-                app:layout_constraintTop_toBottomOf="@id/text18"
+                app:layout_constraintLeft_toLeftOf="@id/text10"
                 />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
-    <LinearLayout
-        android:id="@+id/bottomBar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:orientation="vertical"
-        android:background="@color/colorToolbarBackground"
-        android:elevation="16dp"
-        >
-        <TextView
-            android:id="@+id/subscribeTitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textAlignment="center"
-            android:textSize="14sp"
-            android:layout_marginTop="16dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            android:text="Select your monthly contribution"
-            />
-        <com.google.android.material.slider.Slider
-            android:id="@+id/amountSlider"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            style="@style/RedSlider"
-            android:valueFrom="0f"
-            android:valueTo="2f"
-            android:stepSize="1"
-            android:value="0"
-            android:layout_marginLeft="8dp"
-            android:layout_marginRight="8dp"
-            />
-        <TextView
-            android:id="@+id/valueLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="12sp"
-            android:text="£1.19"
-            android:layout_marginRight="16dp"
-            android:layout_marginTop="-16dp"
-            android:layout_gravity="right"
-            />
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/subscribeButton"
-            android:layout_width="match_parent"
-            android:layout_height="36dp"
-            android:text="Become a Supporter"
-            android:layout_marginTop="16dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            android:layout_marginBottom="16dp"
-            style="@style/SupporterButton"
-            />
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/cancelButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            android:layout_marginTop="-16dp"
-            android:text="Cancel subscription"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
-            android:textAllCaps="false"
-            android:textColor="@color/colorAccent"
-            android:layout_gravity="center"
-            android:visibility="gone"
-            tools:visibility="visible"
-            />
-
-    </LinearLayout>
-    <View
-        android:id="@+id/loadingProgressScrim"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintTop_toTopOf="@id/bottomBar"
-        app:layout_constraintBottom_toBottomOf="@id/bottomBar"
-        app:layout_constraintLeft_toLeftOf="@id/bottomBar"
-        app:layout_constraintRight_toRightOf="@id/bottomBar"
-        android:elevation="16dp"
-        android:clickable="true"
-        android:background="@color/colorToolbarBackground"
-        tools:visibility="gone"
-        />
-    <com.google.android.material.progressindicator.LinearProgressIndicator
-        android:id="@+id/loadingProgressView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="@id/bottomBar"
-        app:layout_constraintBottom_toBottomOf="@id/bottomBar"
-        app:layout_constraintLeft_toLeftOf="@id/bottomBar"
-        app:layout_constraintRight_toRightOf="@id/bottomBar"
-        app:indicatorColor="@color/colorAccent"
-        android:indeterminate="true"
-        android:elevation="16dp"
-        tools:visibility="gone"
-        />
 </androidx.constraintlayout.widget.ConstraintLayout>
