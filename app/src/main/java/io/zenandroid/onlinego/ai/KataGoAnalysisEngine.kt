@@ -11,11 +11,13 @@ import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.katago.Query
 import io.zenandroid.onlinego.data.model.katago.Response
 import io.zenandroid.onlinego.data.model.katago.RootInfo
+import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.gamelogic.Util
 import java.io.*
 import java.lang.RuntimeException
 import java.util.*
 import java.util.concurrent.atomic.AtomicLong
+import org.koin.core.context.GlobalContext
 
 object KataGoAnalysisEngine {
     var started = false
@@ -30,6 +32,8 @@ object KataGoAnalysisEngine {
     private val filesDir = OnlineGoApplication.instance.filesDir
     private val netFile = File(filesDir, "katagonet.gz")
     private val cfgFile = File(filesDir, "katago.cfg")
+
+    private val settingsRepository: SettingsRepository by GlobalContext.get().inject()
 
     @Throws(IOException::class)
     @Synchronized
@@ -111,7 +115,7 @@ object KataGoAnalysisEngine {
     fun analyzePosition(
             pos: Position,
             komi: Float? = null,
-            maxVisits: Int? = null,
+            maxVisits: Int? = settingsRepository.maxVisits,
             includeOwnership: Boolean? = null,
             includeMovesOwnership: Boolean? = null,
             includePolicy: Boolean? = null

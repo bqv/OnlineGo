@@ -31,6 +31,7 @@ import io.zenandroid.onlinego.databinding.FragmentSettingsBinding
 import io.zenandroid.onlinego.ui.screens.main.MainActivity
 import io.zenandroid.onlinego.ui.views.BoardView
 import io.zenandroid.onlinego.utils.processGravatarURL
+import it.sephiroth.android.library.numberpicker.*
 import org.koin.android.ext.android.inject
 
 class SettingsFragment : Fragment() {
@@ -119,6 +120,11 @@ class SettingsFragment : Fragment() {
             ranks.apply {
                 isChecked = settingsRepository.showRanks
                 setOnCheckedChangeListener { _, isChecked -> settingsRepository.showRanks = isChecked }
+            }
+
+            maxVisits.apply {
+                setProgress(settingsRepository.maxVisits)
+                doOnProgressChanged { _, progress, _ -> settingsRepository.maxVisits = progress }
             }
 
             val currentTheme = settingsRepository.appTheme

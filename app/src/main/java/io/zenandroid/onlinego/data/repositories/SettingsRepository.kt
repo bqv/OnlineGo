@@ -7,6 +7,7 @@ private const val APP_THEME = "app_theme"
 private const val SHOW_RANKS = "show_ranks"
 private const val SHOW_COORDINATES = "show_coordinates"
 private const val VIBRATE = "vibrate_on_move"
+private const val MAX_VISITS = "max_ai_visits"
 
 class SettingsRepository {
     private val prefs = PreferenceManager.getDefaultSharedPreferences(OnlineGoApplication.instance.baseContext)
@@ -26,4 +27,8 @@ class SettingsRepository {
     var vibrate: Boolean
         get() = prefs.getBoolean(VIBRATE, true)
         set(value) = prefs.edit().putBoolean(VIBRATE, value).apply()
+
+    var maxVisits: Int
+        get() = prefs.getInt(MAX_VISITS, 30)
+        set(value) = prefs.edit().putInt(MAX_VISITS, value).apply()
 }

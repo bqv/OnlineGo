@@ -24,7 +24,6 @@ class AIMoveMiddleware : Middleware<AiGameState, AiGameAction> {
                 .flatMapSingle { (_, state) ->
                     KataGoAnalysisEngine.analyzePosition(
                             pos = state.position!!,
-                            maxVisits = 20,
                             komi = state.position.komi,
                             includeOwnership = false,
                             includeMovesOwnership = false

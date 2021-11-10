@@ -51,7 +51,6 @@ class GameTurnMiddleware : Middleware<AiGameState, AiGameAction> {
                     .flatMapSingle { (_, state) ->
                         KataGoAnalysisEngine.analyzePosition(
                                 pos = state.position!!,
-                                maxVisits = 10,
                                 komi = state.position.komi,
                                 includeOwnership = true
                         )

@@ -20,7 +20,6 @@ class OwnershipMiddleware : Middleware<AiGameState, AiGameAction> {
                     } else {
                         KataGoAnalysisEngine.analyzePosition(
                                 pos = state.position!!,
-                                maxVisits = 30,
                                 komi = state.position.komi,
                                 includeOwnership = true
                         ).map {

@@ -17,7 +17,6 @@ class HintMiddleware : Middleware<AiGameState, AiGameAction> {
                 .flatMapSingle { (_, state) ->
                     KataGoAnalysisEngine.analyzePosition(
                             pos = state.position!!,
-                            maxVisits = 30,
                             komi = state.position.komi,
                             includeOwnership = false
                     ).map {
