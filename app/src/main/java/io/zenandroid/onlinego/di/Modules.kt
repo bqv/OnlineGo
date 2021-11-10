@@ -9,7 +9,6 @@ import io.zenandroid.onlinego.data.db.Database
 import io.zenandroid.onlinego.data.ogs.*
 import io.zenandroid.onlinego.data.repositories.*
 import io.zenandroid.onlinego.mvi.Store
-import io.zenandroid.onlinego.playstore.PlayStoreService
 import io.zenandroid.onlinego.ui.screens.joseki.*
 import io.zenandroid.onlinego.ui.screens.learn.LearnViewModel
 import io.zenandroid.onlinego.ui.screens.localai.AiGameReducer
@@ -170,15 +169,10 @@ private val espressoModule = module {
     single<CountingIdlingResource> { NOOPIdlingResource() }
 }
 
-private val playStoreModule = module {
-    single { PlayStoreService(get()) }
-}
-
 val allKoinModules = listOf(
         repositoriesModule,
         serverConnectionModule,
         databaseModule,
         viewModelsModule,
-        espressoModule,
-        playStoreModule
+        espressoModule
 )

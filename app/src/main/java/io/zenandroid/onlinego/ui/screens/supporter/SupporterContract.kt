@@ -11,7 +11,5 @@ interface SupporterContract {
     interface Presenter {
         fun subscribe()
         fun unsubscribe()
-        fun onSubscribeClick()
-        fun onUserDragSlider(value: Float)
     }
 }

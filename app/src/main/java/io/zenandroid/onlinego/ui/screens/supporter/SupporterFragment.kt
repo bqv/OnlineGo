@@ -28,10 +28,6 @@ class SupporterFragment : Fragment(), SupporterContract.View {
         super.onViewCreated(view, savedInstanceState)
 
         binding.apply {
-            subscribeButton.setOnClickListener {
-                presenter.onSubscribeClick()
-              //FirebaseAnalytics.getInstance(requireContext()).logEvent("start_subscription_flow", null)
-            }
             backButton.setOnClickListener { activity?.onBackPressed() }
             scrollView.viewTreeObserver.addOnScrollChangedListener {
                 if (scrollView != null) {
@@ -42,19 +38,8 @@ class SupporterFragment : Fragment(), SupporterContract.View {
                     }
                 }
             }
-            amountSlider.addOnChangeListener { _, value, fromUser ->
-                if (fromUser) {
-                    presenter.onUserDragSlider(value)
-                }
-            }
-            cancelButton.setOnClickListener {
-                requireActivity().startActivity(Intent(Intent.ACTION_VIEW).apply {
-                    data = "https://play.google.com/store/account/subscriptions?package=io.zenandroid.onlinego".toUri()
-                })
-              //FirebaseAnalytics.getInstance(requireContext()).logEvent("cancel_subscription", null)
-            }
         }
-        presenter = SupporterPresenter(this, get())
+        presenter = SupporterPresenter(this)
 
       //FirebaseAnalytics.getInstance(requireContext()).setCurrentScreen(requireActivity(), javaClass.simpleName, javaClass.simpleName)
     }
@@ -77,21 +62,6 @@ class SupporterFragment : Fragment(), SupporterContract.View {
 
     override fun renderState(state: State) {
         binding.apply {
-            state.numberOfTiers?.let {
-                amountSlider.valueTo = it.toFloat() - 1
-            }
-
-            state.selectedTier?.let {
-                if (amountSlider.value.toInt() != it) {
-                    amountSlider.value = it.toFloat()
-                }
-                valueLabel.text = state.skus?.get(it)?.price ?: ""
-            }
-
-            state.skus?.let {
-                amountSlider.setLabelFormatter { index -> it[index.toInt()].price }
-            }
-
             state.subscribeTitleText?.let {
                 subscribeTitle.text = it
             }
@@ -106,7 +76,7 @@ class SupporterFragment : Fragment(), SupporterContract.View {
             loadingProgressView.showIf(state.loading)
             loadingProgressScrim.showIf(state.loading)
 
-            cancelButton.showIf(state.supporter)
+            cancelButton.showIf(false)
         }
     }
 }
