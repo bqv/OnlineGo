@@ -1,5 +1,6 @@
 package io.zenandroid.onlinego.data.repositories
 
+import android.util.Log
 import com.franmontiel.persistentcookiejar.PersistentCookieJar
 import com.franmontiel.persistentcookiejar.cache.SetCookieCache
 import com.franmontiel.persistentcookiejar.persistence.SharedPrefsCookiePersistor
@@ -27,18 +28,14 @@ class UserSessionRepository {
 
     init {
         uiConfig = PersistenceManager.getUIConfig()
-      //userId?.toString()?.let(FirebaseCrashlytics.getInstance()::setUserId)
+        Log.d("UserSessionRepository", "userId: ${userId?.toString()}")
     }
 
     fun storeUIConfig(uiConfig: UIConfig) {
         this.uiConfig = uiConfig
-<<<<<<< HEAD
         socketService.resendAuth()
-        FirebaseCrashlytics.getInstance().setUserId(uiConfig.user?.id.toString())
-=======
-        socketService.authSent = false
       //FirebaseCrashlytics.getInstance().setUserId(uiConfig.user?.id.toString())
->>>>>>> 285b01a (disable firebase)
+        Log.d("UserSessionRepository", "userId: ${uiConfig.user?.id.toString()}")
         PersistenceManager.storeUIConfig(uiConfig)
     }
 

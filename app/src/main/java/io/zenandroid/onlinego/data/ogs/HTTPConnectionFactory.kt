@@ -36,13 +36,13 @@ class HTTPConnectionFactory(
                     val response = chain.proceed(request)
 
                     if(response.isSuccessful) {
-                      //FirebaseCrashlytics.getInstance().log("HTTP REQUEST ${request.method} ${request.url} -> ${response.code}")
+                        Log.d("HTTPConnectionFactory", "REQUEST ${request.method} ${request.url} -> ${response.code}")
                         //
                         // Note: For some users the server responds with a peculiar answer here, causing Moshi to throw a fit. We will temporarily log this to try and determine
                         // what's going on
                         //
                         if(request.url.encodedPath.endsWith("challenges")) {
-                          //FirebaseCrashlytics.getInstance().log("HTTP REQUEST ${peekBody(response)}")
+                            Log.d("HTTPConnectionFactory", "REQUEST ${peekBody(response)}")
                         }
                     } else {
                         val sessionCookieSent = request.header("Cookie")?.contains("sessionid=") == true
@@ -54,10 +54,10 @@ class HTTPConnectionFactory(
                             else -> "no session cookie"
                         }
                         val sessionCookieInfo = if(sessionCookieSent) "session cookie sent" else "session cookie not sent"
-                      //FirebaseCrashlytics.getInstance().log("E/HTTP_REQUEST: ${request.method} ${request.url} -> ${response.code} ${response.message} [$cookieJarInfo] [$csrftokenInfo] [$sessionCookieInfo] ${peekBody(response)}")
+                        Log.e("HTTPConnectionFactory", "${request.method} ${request.url} -> ${response.code} ${response.message} [$cookieJarInfo] [$csrftokenInfo] [$sessionCookieInfo] ${peekBody(response)}")
 
                         if(!sessionCookieSent && hasSessionCookieInJar && !isSessionCookieExpired) {
-                          //FirebaseCrashlytics.getInstance().recordException(Exception("Possible cookie jar problem"))
+                            Log.e("HTTPConnectionFactory", "Possible cookie jar problem")
                         }
                     }
                     response
@@ -73,7 +73,7 @@ class HTTPConnectionFactory(
         }
         String(bodyBytes)
     } catch (t: Throwable) {
-      //FirebaseCrashlytics.getInstance().recordException(t)
+        Log.e("HTTPConnectionFactory", t.message, t)
         "<<<Error trying to log body of response ${t.javaClass.name} ${t.message}>>>"
     }
 }

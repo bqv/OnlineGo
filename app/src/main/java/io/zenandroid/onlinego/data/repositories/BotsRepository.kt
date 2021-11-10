@@ -1,5 +1,6 @@
 package io.zenandroid.onlinego.data.repositories
 
+import android.util.Log
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.data.model.local.Player
@@ -18,7 +19,7 @@ class BotsRepository(
     override fun onSocketConnected() {
         socketService.connectToBots()
                 .subscribeOn(Schedulers.io())
-                .subscribe(this::storeBots) { /*FirebaseCrashlytics.getInstance().recordException(it)*/ }
+                .subscribe(this::storeBots) { Log.e("BotsRepository", it.toString()) }
                 .addToDisposable(subscriptions)
     }
 

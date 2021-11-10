@@ -1,5 +1,6 @@
 package io.zenandroid.onlinego.data.repositories
 
+import android.util.Log
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
@@ -32,7 +33,7 @@ class ServerNotificationsRepository(
     }
 
     private fun onError(t: Throwable) {
-      //FirebaseCrashlytics.getInstance().recordException(t)
+        Log.e("ServerNotificationsRepository", t.message, t)
     }
 
     fun notificationsObservable() =

@@ -91,7 +91,6 @@ class OnboardingViewModel(
     }
 
     private fun onLoginClicked(state: OnboardingState) {
-      //FirebaseCrashlytics.getInstance().setCustomKey("LOGIN_METHOD", "PASSWORD")
         if(state.isExistingAccount) {
             doLogin(state)
         } else {
@@ -106,14 +105,13 @@ class OnboardingViewModel(
         ogsRestService.login(state.username.trim(), state.password)
             .doOnComplete { ogsWebSocketService.ensureSocketConnected() }
             .observeOn(AndroidSchedulers.mainThread())
-            .doOnComplete { /*analytics.logEvent(FirebaseAnalytics.Event.LOGIN, null)*/ }
+            .doOnComplete { Log.d("OnboardingViewModel", "LOGIN") }
             .subscribe(this::onLoginSuccess, this::onPasswordLoginFailure)
             .addToDisposable(subscriptions)
     }
 
     private fun onCreateAccountSuccess() {
-      //FirebaseCrashlytics.getInstance().setCustomKey("NEW_ACCOUNT", true)
-      //analytics.logEvent(FirebaseAnalytics.Event.SIGN_UP, null)
+        Log.e("OnboardingViewModel", "SIGN_UP")
         doLogin(_state.value!!)
     }
 
@@ -123,7 +121,6 @@ class OnboardingViewModel(
 
     private fun onPasswordLoginFailure(t: Throwable) {
         Log.e(OnboardingViewModel::class.java.simpleName, t.message, t)
-      //FirebaseCrashlytics.getInstance().recordException(t)
         if( (t as? HttpException)?.code() in arrayOf(401, 403) ) {
             _state.value = state.value!!.copy(loginProcessing = false, loginErrorDialogText = "Invalid username or password")
         } else {

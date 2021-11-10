@@ -75,7 +75,7 @@ class SynchronizeGamesWork(val context: Context, params: WorkerParameters) : RxW
     private val userSessionRepository: UserSessionRepository = get().get()
 
     override fun createWork(): Single<Result> {
-      //FirebaseCrashlytics.getInstance().log("I/$TAG: Started checking for active games")
+        Log.i(TAG, "Started checking for active games")
         if (!userSessionRepository.isLoggedIn()) {
             Log.v(TAG, "Not logged in, giving up")
             return Single.just(Result.failure())
@@ -90,11 +90,10 @@ class SynchronizeGamesWork(val context: Context, params: WorkerParameters) : RxW
     private fun <T : Any> Single<T>.reschedule(): Single<T> {
         return this.doFinally {
             try {
-              //FirebaseCrashlytics.getInstance().log("I/$TAG: Enqueue work")
+                Log.i(TAG, "Enqueue work")
                 schedule()
             } catch (e: Exception) {
                 Log.e(TAG, e.message, e)
-              //FirebaseCrashlytics.getInstance().recordException(e)
             }
         }
     }

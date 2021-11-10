@@ -4,6 +4,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -55,7 +56,7 @@ class SettingsFragment : Fragment() {
             aboutButton.setOnClickListener {
                 AwesomeInfoDialog(context)
                         .setTitle("About")
-                        .setMessage("MrAlex's OnlineGo client for OGS server. Version ${BuildConfig.VERSION_NAME}.")
+                        .setMessage("MrAlex's OnlineGo client for OGS server. Version onlinego.skydroid.fron.io-${BuildConfig.VERSION_NAME}.")
                         .setDialogBodyBackgroundColor(R.color.colorOffWhite)
                         .setDialogIconAndColor(R.drawable.ic_dialog_info, R.color.white)
                         .setCancelable(true)
@@ -84,7 +85,7 @@ class SettingsFragment : Fragment() {
                         .setNegativeButtonbackgroundColor(R.color.colorPrimaryDark)
                         .setNegativeButtonTextColor(R.color.white)
                         .setPositiveButtonClick {
-                          //context?.let { FirebaseAnalytics.getInstance(it).logEvent("logout_clicked", null) }
+                            context?.let { Log.d("SettingsFragment", "logout_clicked") }
                             userSessionRepository.logOut()
                             (activity as? MainActivity)?.showLogin()
                         }

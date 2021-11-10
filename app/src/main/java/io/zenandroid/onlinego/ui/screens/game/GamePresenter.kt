@@ -909,7 +909,7 @@ class GamePresenter(
     private fun rescheduleTimerTick(newTimerTick: Long?) {
         timerDisposable?.dispose()
         newTimerTick?.let {
-          //FirebaseCrashlytics.getInstance().log("GamePresenter: Scheduling timer with interval $newTimerTick milliseconds")
+            Log.i("GamePresenter", "Scheduling timer with interval $newTimerTick milliseconds")
             timerDisposable = Observable.interval(it, TimeUnit.MILLISECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { clockTick(game) }

@@ -190,8 +190,7 @@ class MyGamesViewModel(
                     alertDialogTitle = "Bot rejected challenge",
                     alertDialogText = "This might happen because the opponent's maintainer has set some conditions on the challenge parameters. $message"
                 )
-              //analytics.logEvent("bot_refused_challenge", null)
-              //FirebaseCrashlytics.getInstance().log("Bot refused challenge. $message")
+                Log.i("MyGamesViewModel", "Bot refused challenge. $message")
             } else {
                 _state.value = _state.value?.copy(
                     alertDialogTitle = "Opponent rejected challenge",
@@ -204,13 +203,11 @@ class MyGamesViewModel(
     private fun onError(t: Throwable) {
         if(t is retrofit2.HttpException) {
             if(t.code() in arrayOf(401, 403)) {
-              //FirebaseCrashlytics.getInstance().setCustomKey("AUTO_LOGOUT", System.currentTimeMillis())
+                Log.d("MyGamesViewModel", "AUTO_LOGOUT: ${System.currentTimeMillis()}")
                 userSessionRepository.logOut()
                 _state.value = _state.value?.copy(
                     userIsLoggedOut = true
                 )
-            } else {
-              //FirebaseCrashlytics.getInstance().recordException(Exception(t.response()?.errorBody()?.string(), t))
             }
         } else {
             if(t is com.squareup.moshi.JsonDataException) {
@@ -219,7 +216,6 @@ class MyGamesViewModel(
                     alertDialogText = "An error occurred white talking to the OGS Server. This usually means the website devs have changed something in the API. Please report this error as the app will probably not work until we adapt to this change."
                 )
             }
-          //FirebaseCrashlytics.getInstance().recordException(t)
         }
 
         Log.e("MyGamesViewModel", t.message, t)

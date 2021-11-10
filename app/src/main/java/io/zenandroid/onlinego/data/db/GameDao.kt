@@ -1,5 +1,6 @@
 package io.zenandroid.onlinego.data.db
 
+import android.util.Log
 import androidx.room.*
 import io.reactivex.Flowable
 import io.reactivex.Maybe
@@ -113,7 +114,7 @@ abstract class GameDao {
         val newGames = games.filter { candidate ->
             existingGames.find { it.id == candidate.id } == null
         }
-      //FirebaseCrashlytics.getInstance().log("Inserting ${newGames.size} games out of ${games.size}")
+        Log.i("GameDao", "Inserting ${newGames.size} games out of ${games.size}")
         insertAllGamesInternal(newGames)
 
         val updatedGames = mutableListOf<Game>()
@@ -133,7 +134,7 @@ abstract class GameDao {
             }
         }
 
-      //FirebaseCrashlytics.getInstance().log("Updating ${existingGames.size} games out of ${games.size}")
+        Log.i("GameDao", "Updating ${existingGames.size} games out of ${games.size}")
         updateGames(updatedGames)
     }
 

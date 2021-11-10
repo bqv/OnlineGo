@@ -1,5 +1,6 @@
 package io.zenandroid.onlinego.data.model.local
 
+import android.util.Log
 import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.Ignore
@@ -113,7 +114,7 @@ data class Game(
                 is Double -> gamedata.ranked != 0.0
                 is Boolean -> gamedata.ranked as Boolean
                 else -> {
-                  //FirebaseCrashlytics.getInstance().log("gamedata.ranked has unexpected value: ${gamedata.ranked}")
+                    Log.w("Game", "gamedata.ranked has unexpected value: ${gamedata.ranked}")
                     null
                 }
             }

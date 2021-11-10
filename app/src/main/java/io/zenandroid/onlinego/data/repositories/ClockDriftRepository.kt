@@ -48,7 +48,6 @@ class ClockDriftRepository(
 
     private fun onError(t: Throwable) {
         Log.e(this::class.java.canonicalName, t.message, t)
-      //FirebaseCrashlytics.getInstance().recordException(t)
     }
 
     private fun onPong(pong: NetPong) {
@@ -61,7 +60,7 @@ class ClockDriftRepository(
 
             Log.v(this::class.java.canonicalName, "latency=$latency drift=$drift")
         } else {
-          //FirebaseCrashlytics.getInstance().log("W/ClockDriftRepository: Got pong with invalid payload $pong")
+            Log.w("ClockDriftRepository", "Got pong with invalid payload $pong")
         }
     }
 }

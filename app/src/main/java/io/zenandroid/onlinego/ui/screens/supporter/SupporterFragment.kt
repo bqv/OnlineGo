@@ -3,6 +3,7 @@ package io.zenandroid.onlinego.ui.screens.supporter
 import android.content.Intent
 import android.content.res.Resources
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -40,13 +41,10 @@ class SupporterFragment : Fragment(), SupporterContract.View {
             }
         }
         presenter = SupporterPresenter(this)
-
-      //FirebaseAnalytics.getInstance(requireContext()).setCurrentScreen(requireActivity(), javaClass.simpleName, javaClass.simpleName)
     }
 
     override fun onResume() {
         super.onResume()
-      //analytics.setCurrentScreen(requireActivity(), javaClass.simpleName, javaClass.simpleName)
         presenter.subscribe()
     }
 
@@ -56,7 +54,7 @@ class SupporterFragment : Fragment(), SupporterContract.View {
     }
 
     override fun showError(t: Throwable) {
-      //FirebaseCrashlytics.getInstance().recordException(t)
+        Log.e("SupporterFragment", t.message, t)
         Toast.makeText(requireContext(), t.message, Toast.LENGTH_LONG).show()
     }
 

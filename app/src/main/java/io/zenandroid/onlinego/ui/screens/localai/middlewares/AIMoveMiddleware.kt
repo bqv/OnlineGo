@@ -1,5 +1,6 @@
 package io.zenandroid.onlinego.ui.screens.localai.middlewares
 
+import android.util.Log
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.withLatestFrom
 import io.reactivex.schedulers.Schedulers
@@ -37,7 +38,7 @@ class AIMoveMiddleware : Middleware<AiGameState, AiGameAction> {
                                     aiQuickEstimation = selectedMove
                                 }
                                 if(newPos == null) {
-                                  //FirebaseCrashlytics.getInstance().recordException(Exception("KataGO wants to play move ${selectedMove.move} ($move), but RulesManager rejects it as invalid"))
+                                    Log.e("AIMoveMiddleware", "KataGO wants to play move ${selectedMove.move} ($move), but RulesManager rejects it as invalid")
                                     AIError
                                 } else {
                                     AIMove(newPos)

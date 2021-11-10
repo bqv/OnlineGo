@@ -79,7 +79,7 @@ class OGSWebSocketService(
         if(userSessionRepository.requiresUIConfigRefresh()) {
             restService.fetchUIConfig()
                     .subscribeOn(Schedulers.io())
-                    .subscribe({}, { /*FirebaseCrashlytics.getInstance().log("E/$TAG: Failed to refresh UIConfig $it")*/ })
+                    .subscribe({}, { Log.e(TAG, "Failed to refresh UIConfig $it") })
         }
         socket.connect()
     }
@@ -131,7 +131,7 @@ class OGSWebSocketService(
             return moshi.adapter(T::class.java).fromJson(string.toString())
         } catch (e: JsonEncodingException) {
             val up = Exception("Error parsing JSON: $string", e)
-          //FirebaseCrashlytics.getInstance().recordException(up)
+            Log.e("OGSWebSocketService", up.message, up)
             throw up
         }
     }
@@ -244,9 +244,9 @@ class OGSWebSocketService(
                 Log.i(TAG, "Received event: $event, ${params[0]}")
 
                 if(params.size != 1) {
-                  //FirebaseCrashlytics.getInstance().recordException(Exception("Unexpected response (${params.size} params) while listening for event $event: parameter list is ${params.joinToString("|||")}"))
+                    Log.e(TAG, "Unexpected response (${params.size} params) while listening for event $event: parameter list is ${params.joinToString("|||")}")
                 } else if(params[0] == event) {
-                  //FirebaseCrashlytics.getInstance().recordException(Exception("Unexpected response (params[0] == event) while listening for event $event: parameter list is ${params.joinToString("|||")}"))
+                    Log.e(TAG, "Unexpected response (params[0] == event) while listening for event $event: parameter list is ${params.joinToString("|||")}")
                 }
 
                 if(params[0] != null) {
@@ -254,7 +254,7 @@ class OGSWebSocketService(
                     val response = if(params[0] == event && params.size > 1) params[1] else params[0]
                     emitter.onNext(response)
                 } else {
-                  //FirebaseCrashlytics.getInstance().recordException(Exception("Unexpected null parameter for event $event"))
+                    Log.e(TAG, "Unexpected null parameter for event $event")
                     emitter.onNext("")
                 }
             }

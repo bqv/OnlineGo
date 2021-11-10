@@ -42,7 +42,7 @@ class ActiveGamesRepository(
 
     private fun onNotification(game: OGSGame) {
         if(gameDao.getGameMaybe(game.id).blockingGet() == null) {
-          //FirebaseCrashlytics.getInstance().log("ActiveGameRepository: New game found from active_game notification ${game.id}")
+            Log.i("ActiveGameRepository", "New game found from active_game notification ${game.id}")
             restService.fetchGame(game.id)
                     .subscribeOn(Schedulers.io())
                     .observeOn(Schedulers.single())
@@ -260,7 +260,7 @@ class ActiveGamesRepository(
             restService.fetchActiveGames()
                     .map { it.map (Game.Companion::fromOGSGame)}
                     .doOnSuccess(gameDao::insertAllGames)
-                    .doOnSuccess { /*FirebaseCrashlytics.getInstance().log("overview returned ${it.size} games")*/ }
+                    .doOnSuccess { Log.i("ActiveGamesRepository", "overview returned ${it.size} games") }
                     .map { it.map(Game::id) }
                     .map { gameDao.getGamesThatShouldBeFinished(userSessionRepository.userId, it) }
                     .doOnSuccess (this::updateGamesThatFinishedSinceLastUpdate)
@@ -268,7 +268,7 @@ class ActiveGamesRepository(
                     .ignoreElement()
 
     private fun updateGamesThatFinishedSinceLastUpdate(gameIds: List<Long>) {
-      //FirebaseCrashlytics.getInstance().log("Found ${gameIds.size} games that are neither active nor marked as finished")
+        Log.i("ActiveGamesRepository", "Found ${gameIds.size} games that are neither active nor marked as finished")
         val games = mutableListOf<Game>()
         gameIds.forEach {
             var backoffMillis = 10000L
@@ -287,10 +287,7 @@ class ActiveGamesRepository(
 
                     // request is throttled
                     if(e is retrofit2.HttpException && e.code() == 429) {
-                      //FirebaseCrashlytics.getInstance().apply {
-                      //    setCustomKey("HIT_RATE_LIMITER", true)
-                      //    log("Hit rate limiter backing off $backoffMillis milliseconds")
-                      //}
+                        Log.e("ActiveGamesReporitory", "Hit rate limiter backing off $backoffMillis milliseconds")
                         Thread.sleep(backoffMillis)
                         backoffMillis *= 2
                     } else {
@@ -312,10 +309,9 @@ class ActiveGamesRepository(
         if(t is retrofit2.HttpException) {
             message = "$request: ${t.response()?.errorBody()?.string()}"
             if(t.code() == 429) {
-              //FirebaseCrashlytics.getInstance().setCustomKey("HIT_RATE_LIMITER", true)
+                Log.d("ActiveGamesRepository", "HIT_RATE_LIMITER")
             }
         }
-      //FirebaseCrashlytics.getInstance().recordException(Exception(message, t))
         Log.e("ActiveGameRespository", message, t)
     }
 }

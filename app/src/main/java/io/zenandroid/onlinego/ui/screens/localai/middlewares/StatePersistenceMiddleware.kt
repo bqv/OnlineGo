@@ -44,7 +44,6 @@ class StatePersistenceMiddleware : Middleware<AiGameState, AiGameAction> {
                         val newState = stateAdapter.fromJson(json)
                         newState?.let { RestoredState(it) }
                                 ?: run {
-                                  //FirebaseCrashlytics.getInstance().recordException(Exception("Cannot deserialize state"))
                                     Log.e("StatePersistenceMiddlew", "Cannot deserialize state")
                                     ShowNewGameDialog
                                 }

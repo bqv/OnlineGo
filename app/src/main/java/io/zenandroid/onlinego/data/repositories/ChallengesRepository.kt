@@ -48,7 +48,6 @@ class ChallengesRepository(
 
     fun onError(throwable: Throwable) {
         Log.e(TAG, throwable.message, throwable)
-      //FirebaseCrashlytics.getInstance().recordException(throwable)
     }
 
     override fun onSocketDisconnected() {
