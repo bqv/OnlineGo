@@ -20,7 +20,7 @@ android {
         applicationId "io.zenandroid.onlinego"
         minSdkVersion 21
         targetSdkVersion 31
-        versionCode 46
+        versionCode 47
         versionName "2021.11.09.${versionCode}"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
@@ -119,7 +119,7 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-extensions:2.2.0"
 
     implementation 'com.google.code.findbugs:jsr305:3.0.2'
-    implementation 'androidx.annotation:annotation:1.1.0'
+    implementation 'androidx.annotation:annotation:1.0.0'
 
     // groupie
     implementation 'com.xwray:groupie:2.8.1'
