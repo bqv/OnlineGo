@@ -196,10 +196,10 @@
                         android:layout_width="0dp"
                         android:layout_height="64dp"
                         android:layout_weight="2"
-                        android:text="Max AI Playouts"
+                        android:text="Max AI playouts"
                         android:lineSpacingExtra="4dp"
                         android:gravity="center_vertical"
-                        android:drawableLeft="@drawable/ic_theme"
+                        android:drawableLeft="@drawable/ic_branch_blue"
                         android:paddingLeft="24dp"
                         android:drawablePadding="24dp"
                         android:fontFamily="sans-serif-medium"
@@ -220,6 +220,18 @@
                         style="@style/NumberPicker"
                         />
                 </LinearLayout>
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/detailedAnalysis"
+                    android:layout_width="match_parent"
+                    android:layout_height="64dp"
+                    android:text="Detailed AI analysis"
+                    android:paddingRight="12dp"
+                    android:paddingLeft="24dp"
+                    android:drawablePadding="24dp"
+                    android:drawableLeft="@drawable/ic_thinking_blue"
+                    android:fontFamily="sans-serif-medium"
+                    android:checked="true"
+                    />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
         <TextView

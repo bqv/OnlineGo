@@ -127,6 +127,11 @@ class SettingsFragment : Fragment() {
                 doOnProgressChanged { _, progress, _ -> settingsRepository.maxVisits = progress }
             }
 
+            detailedAnalysis.apply {
+                isChecked = settingsRepository.detailedAnalysis
+                setOnCheckedChangeListener { _, isChecked -> settingsRepository.detailedAnalysis = isChecked }
+            }
+
             val currentTheme = settingsRepository.appTheme
             themeButton.apply {
                 text = buildSpannedString {

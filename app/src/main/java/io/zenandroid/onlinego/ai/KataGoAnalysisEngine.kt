@@ -17,7 +17,7 @@ import java.io.*
 import java.lang.RuntimeException
 import java.util.*
 import java.util.concurrent.atomic.AtomicLong
-import org.koin.core.context.GlobalContext
+import org.koin.core.context.GlobalContext.get
 
 object KataGoAnalysisEngine {
     var started = false
@@ -33,7 +33,7 @@ object KataGoAnalysisEngine {
     private val netFile = File(filesDir, "katagonet.gz")
     private val cfgFile = File(filesDir, "katago.cfg")
 
-    private val settingsRepository: SettingsRepository by GlobalContext.get().inject()
+    private val settingsRepository: SettingsRepository by get().inject()
 
     @Throws(IOException::class)
     @Synchronized
