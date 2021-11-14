@@ -9,6 +9,7 @@ import io.zenandroid.onlinego.data.model.ogs.UIConfig
 
 private const val UICONFIG_KEY = "UICONFIG_KEY"
 private const val VISITED_JOSEKI = "VISITED_JOSEKI"
+private const val VISITED_PUZZLES = "VISITED_PUZZLES"
 private const val WHATS_NEW = "WHATS_NEW"
 
 /**
@@ -37,6 +38,14 @@ object PersistenceManager {
         set(value) {
             if(field != value) {
                 prefs.edit { putBoolean(VISITED_JOSEKI, value) }
+            }
+            field = value
+        }
+
+    var visitedPuzzleDirectory: Boolean = prefs.getBoolean(VISITED_PUZZLES, false)
+        set(value) {
+            if(field != value) {
+                prefs.edit { putBoolean(VISITED_PUZZLES, value) }
             }
             field = value
         }

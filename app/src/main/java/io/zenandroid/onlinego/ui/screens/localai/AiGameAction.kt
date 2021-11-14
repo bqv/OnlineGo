@@ -4,7 +4,7 @@ import android.graphics.Point
 import io.zenandroid.onlinego.data.model.Position
 
 sealed class AiGameAction {
-    object ViewReady: AiGameAction()
+    class ViewReady(val loadPos: Position? = null): AiGameAction()
     object ViewPaused: AiGameAction()
     class RestoredState(val state: AiGameState): AiGameAction()
 

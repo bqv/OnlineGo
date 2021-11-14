@@ -69,20 +69,20 @@ class MainActivity : AppCompatActivity(), MainContract.View {
 
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.fragment_container) as NavHostFragment
         binding.bottomNavigation.setupWithNavController(navHostFragment.navController)
-        navHostFragment.navController.addOnDestinationChangedListener { _, destination, arguments ->
-            binding.apply {
-                bottomNavigation.apply {
-                    showIf(
-                        destination.id in arrayOf(
-                            R.id.myGames,
-                            R.id.learn,
-                            R.id.settings
-                        ) || (destination.id == R.id.stats && arguments?.isEmpty != false)
-                    )
-                    setOnNavigationItemReselectedListener { }
-                }
-            }
-        }
+      //navHostFragment.navController.addOnDestinationChangedListener { _, destination, arguments ->
+      //    binding.apply {
+      //        bottomNavigation.apply {
+      //            showIf(
+      //                destination.id in arrayOf(
+      //                    R.id.myGames,
+      //                    R.id.learn,
+      //                    R.id.settings
+      //                ) || (destination.id == R.id.stats && arguments?.isEmpty != false)
+      //            )
+      //            setOnNavigationItemReselectedListener { }
+      //        }
+      //    }
+      //}
 
         createNotificationChannel()
         scheduleNotificationJob()

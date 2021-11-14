@@ -36,16 +36,23 @@
         android:name="io.zenandroid.onlinego.ui.screens.learn.LearnFragment"
         android:label="LearnFragment" >
         <action
+            android:id="@+id/action_learnFragment_to_tutorialFragment"
+            app:destination="@id/tutorialFragment" />
+        <action
             android:id="@+id/action_learnFragment_to_josekiExplorerFragment"
             app:destination="@id/josekiExplorerFragment" />
         <action
-            android:id="@+id/action_learnFragment_to_tutorialFragment"
-            app:destination="@id/tutorialFragment" />
+            android:id="@+id/action_learnFragment_to_puzzleDirectoryFragment"
+            app:destination="@id/puzzleDirectoryFragment" />
     </fragment>
     <fragment
         android:id="@+id/josekiExplorerFragment"
         android:name="io.zenandroid.onlinego.ui.screens.joseki.JosekiExplorerFragment"
         android:label="JosekiExplorerFragment" />
+    <fragment
+        android:id="@+id/puzzleDirectoryFragment"
+        android:name="io.zenandroid.onlinego.ui.screens.puzzle.PuzzleDirectoryFragment"
+        android:label="PuzzleDirectoryFragment" />
     <fragment
         android:id="@+id/gameFragment"
         android:name="io.zenandroid.onlinego.ui.screens.game.GameFragment"

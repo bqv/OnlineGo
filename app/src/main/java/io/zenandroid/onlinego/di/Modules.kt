@@ -22,6 +22,9 @@ import io.zenandroid.onlinego.ui.screens.newchallenge.selectopponent.searchplaye
 import io.zenandroid.onlinego.ui.screens.newchallenge.selectopponent.searchplayer.SearchPlayerState
 import io.zenandroid.onlinego.ui.screens.newchallenge.selectopponent.searchplayer.SearchPlayerViewModel
 import io.zenandroid.onlinego.ui.screens.onboarding.OnboardingViewModel
+import io.zenandroid.onlinego.ui.screens.puzzle.PuzzleDirectoryReducer
+import io.zenandroid.onlinego.ui.screens.puzzle.PuzzleDirectoryState
+import io.zenandroid.onlinego.ui.screens.puzzle.PuzzleDirectoryViewModel
 import io.zenandroid.onlinego.ui.screens.tutorial.TutorialViewModel
 import io.zenandroid.onlinego.utils.CountingIdlingResource
 import io.zenandroid.onlinego.utils.CustomConverterFactory
@@ -55,6 +58,7 @@ private val repositoriesModule = module {
     single { ChatRepository(get(), get()) }
     single { FinishedGamesRepository(get(), get(), get()) }
     single { JosekiRepository(get(), get()) }
+    single { PuzzleCollectionRepository(get(), get()) }
     single { PlayersRepository(get(), get(), get()) }
     single { ServerNotificationsRepository(get()) }
     single { SettingsRepository() }
@@ -125,6 +129,21 @@ private val viewModelsModule = module {
                                 io.zenandroid.onlinego.ui.screens.joseki.AnalyticsMiddleware()
                         ),
                         JosekiExplorerState()
+                )
+        )
+    }
+
+    viewModel {
+        PuzzleDirectoryViewModel(
+                Store(
+                        PuzzleDirectoryReducer(),
+                        listOf(
+                              //LoadPositionMiddleware(get()),
+                              //HotTrackMiddleware(),
+                              //TriggerLoadingMiddleware(),
+                              //io.zenandroid.onlinego.ui.screens.puzzle.AnalyticsMiddleware()
+                        ),
+                        PuzzleDirectoryState()
                 )
         )
     }
