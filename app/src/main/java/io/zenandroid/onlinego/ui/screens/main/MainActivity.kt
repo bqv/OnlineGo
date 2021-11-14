@@ -9,9 +9,11 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Color
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.util.Log
 import android.os.Looper
 import android.view.MenuItem
 import android.widget.Toast
@@ -127,6 +129,23 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         )
 
         BoardView.preloadResources(resources)
+
+        intent?.data?.let { data ->
+            // Figure out what to do based on the intent type
+            if (intent?.scheme?.startsWith("http") == true) {
+                // Handle intents with remote data ...
+                Log.d("MainActivity", "Recieved remote intent ${data}")
+                navHostFragment.navController.navigate(R.id.aiGameFragment, Bundle().apply {
+                    putString("SGF_REMOTE", data.toString())
+                })
+            } else if (intent?.type == "application/x-go-sgf") {
+                // Handle intents with local data ...
+                Log.d("MainActivity", "Recieved local intent ${data}")
+                navHostFragment.navController.navigate(R.id.aiGameFragment, Bundle().apply {
+                    putString("SGF_LOCAL", data.toString())
+                })
+            }
+        }
     }
 
     private fun scheduleNotificationJob() {
