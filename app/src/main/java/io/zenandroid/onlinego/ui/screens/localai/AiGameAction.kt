@@ -2,9 +2,10 @@ package io.zenandroid.onlinego.ui.screens.localai
 
 import android.graphics.Point
 import io.zenandroid.onlinego.data.model.Position
+import io.zenandroid.onlinego.data.model.local.SgfData
 
 sealed class AiGameAction {
-    class ViewReady(val loadPos: Position? = null): AiGameAction()
+    class ViewReady(val loadData: SgfData?): AiGameAction()
     object ViewPaused: AiGameAction()
     class RestoredState(val state: AiGameState): AiGameAction()
 
