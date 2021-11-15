@@ -5,7 +5,7 @@ import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.local.SgfData
 
 sealed class AiGameAction {
-    class ViewReady(val loadData: SgfData?): AiGameAction()
+    class ViewReady(val loadData: SgfData?, val savedData: String?): AiGameAction()
     object ViewPaused: AiGameAction()
     class RestoredState(val state: AiGameState): AiGameAction()
 
