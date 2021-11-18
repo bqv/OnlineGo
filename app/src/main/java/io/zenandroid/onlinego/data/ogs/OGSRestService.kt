@@ -247,6 +247,9 @@ class OGSRestService(
     fun getPuzzle(id: Long): Single<Puzzle> =
         restApi.getPuzzle(puzzleId = id)
 
+    fun getPuzzleSolutions(id: Long): Single<PagedResult<PuzzleSolution>> =
+        restApi.getPuzzleSolutions(puzzleId = id)
+
     fun getPuzzleRating(id: Long): Single<PuzzleRating> =
         restApi.getPuzzleRating(puzzleId = id)
 

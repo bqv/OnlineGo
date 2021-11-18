@@ -91,7 +91,7 @@ interface OGSRestAPI {
     @GET("termination-api/my/game-chat-history-since/{last_message_id}")
     fun getMessages(@Path("last_message_id") lastMessageId: String): Single<List<Chat>>
 
-    @GET("api/v1/puzzles/collections")
+    @GET("api/v1/puzzles/collections?ordering=-rating,-rating_count")
     fun getPuzzleCollections(
             @Query("page_size") pageSize: Int = 1000,
             @Query("puzzle_count__gt") minimumCount: Int,
@@ -106,6 +106,9 @@ interface OGSRestAPI {
 
     @GET("api/v1/puzzles/{puzzle_id}")
     fun getPuzzle(@Path("puzzle_id") puzzleId: Long): Single<Puzzle>
+
+    @GET("api/v1/puzzles/{puzzle_id}/solutions")
+    fun getPuzzleSolutions(@Path("puzzle_id") puzzleId: Long): Single<PagedResult<PuzzleSolution>>
 
     @GET("api/v1/puzzles/{puzzle_id}/rate")
     fun getPuzzleRating(@Path("puzzle_id") puzzleId: Long): Single<PuzzleRating>
