@@ -334,9 +334,5 @@ sealed class Action {
     class ChallengeDeclined(val challenge: Challenge): Action()
     class AutomatchCancelled(val automatch: OGSAutomatch): Action()
     class LoadMoreHistoricGames(val game: Game?): Action()
-<<<<<<< HEAD
     object ViewResumed: Action()
 }
-=======
-}
->>>>>>> 285b01a (disable firebase)

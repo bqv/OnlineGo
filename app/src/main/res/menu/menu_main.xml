@@ -5,6 +5,16 @@
         android:title="Play"
         android:icon="@drawable/ic_board_filled"
         />
+    <!--item
+        android:id="@+id/navigation_challenges"
+        android:title="Challenges"
+        android:icon="@drawable/ic_challenge"
+        /-->
+    <!--item
+        android:id="@+id/spectate"
+        android:title="Spectate"
+        android:icon="@drawable/ic_eye_black_24dp"
+        /-->
     <item
         android:id="@id/learn"
         android:title="Learn"
@@ -20,19 +30,9 @@
         android:title="Settings"
         android:icon="@drawable/ic_settings_filled"
         />
-    <!--<item-->
-        <!--android:id="@+id/navigation_spectate"-->
-        <!--android:title="Spectate"-->
-        <!--android:icon="@drawable/ic_eye_black_24dp"-->
-        <!--/>-->
-    <!--<item-->
-        <!--android:id="@+id/navigation_challenges"-->
-        <!--android:title="Challenges"-->
-        <!--android:icon="@drawable/ic_challenge"-->
-        <!--/>-->
-    <!--<item-->
-        <!--android:id="@+id/navigation_more"-->
-        <!--android:title="More"-->
-        <!--android:icon="@drawable/ic_more"-->
-        <!--/>-->
+    <!--item
+        android:id="@+id/navigation_more"
+        android:title="More"
+        android:icon="@drawable/ic_more"
+        /-->
 </menu>

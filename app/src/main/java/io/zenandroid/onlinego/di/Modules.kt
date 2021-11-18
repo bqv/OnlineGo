@@ -25,6 +25,7 @@ import io.zenandroid.onlinego.ui.screens.onboarding.OnboardingViewModel
 import io.zenandroid.onlinego.ui.screens.puzzle.PuzzleDirectoryReducer
 import io.zenandroid.onlinego.ui.screens.puzzle.PuzzleDirectoryState
 import io.zenandroid.onlinego.ui.screens.puzzle.PuzzleDirectoryViewModel
+import io.zenandroid.onlinego.ui.screens.puzzle.PuzzleFetchMiddleware
 import io.zenandroid.onlinego.ui.screens.tutorial.TutorialViewModel
 import io.zenandroid.onlinego.utils.CountingIdlingResource
 import io.zenandroid.onlinego.utils.CustomConverterFactory
@@ -58,7 +59,7 @@ private val repositoriesModule = module {
     single { ChatRepository(get(), get()) }
     single { FinishedGamesRepository(get(), get(), get()) }
     single { JosekiRepository(get(), get()) }
-    single { PuzzleCollectionRepository(get(), get()) }
+    single { PuzzleRepository(get(), get()) }
     single { PlayersRepository(get(), get(), get()) }
     single { ServerNotificationsRepository(get()) }
     single { SettingsRepository() }
@@ -135,13 +136,15 @@ private val viewModelsModule = module {
 
     viewModel {
         PuzzleDirectoryViewModel(
+                PuzzleRepository(get(), get()),
+                OGSRestService(get(), get(), get(), get()),
                 Store(
                         PuzzleDirectoryReducer(),
                         listOf(
-                              //LoadPositionMiddleware(get()),
+                                PuzzleFetchMiddleware(get()),
                               //HotTrackMiddleware(),
                               //TriggerLoadingMiddleware(),
-                              //io.zenandroid.onlinego.ui.screens.puzzle.AnalyticsMiddleware()
+                                io.zenandroid.onlinego.ui.screens.puzzle.AnalyticsMiddleware()
                         ),
                         PuzzleDirectoryState()
                 )
@@ -180,7 +183,7 @@ private val viewModelsModule = module {
     }
 
     viewModel {
-        MyGamesViewModel(get(), get(), get(), get(), get(), get(), get(), get())
+        MyGamesViewModel(get(), get(), get(), get(), get(), get(), get(), get(), get())
     }
 }
 

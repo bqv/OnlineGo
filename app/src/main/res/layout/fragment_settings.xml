@@ -199,7 +199,7 @@
                         android:text="Max AI playouts"
                         android:lineSpacingExtra="4dp"
                         android:gravity="center_vertical"
-                        android:drawableLeft="@drawable/ic_branch_blue"
+                        android:drawableLeft="@drawable/ic_branch_inverted"
                         android:paddingLeft="24dp"
                         android:drawablePadding="24dp"
                         android:fontFamily="sans-serif-medium"
@@ -228,7 +228,7 @@
                     android:paddingRight="12dp"
                     android:paddingLeft="24dp"
                     android:drawablePadding="24dp"
-                    android:drawableLeft="@drawable/ic_thinking_blue"
+                    android:drawableLeft="@drawable/ic_thinking_inverted"
                     android:fontFamily="sans-serif-medium"
                     android:checked="true"
                     />

@@ -92,19 +92,22 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         BoardView.preloadResources(resources)
 
         intent?.data?.let { data ->
-            // Figure out what to do based on the intent type
-            if (intent?.scheme?.startsWith("http") == true) {
-                // Handle intents with remote data ...
-                Log.d("MainActivity", "Recieved remote intent ${data}")
-                navHostFragment.navController.navigate(R.id.aiGameFragment, Bundle().apply {
-                    putString("SGF_REMOTE", data.toString())
-                })
-            } else if (intent?.type == "application/x-go-sgf") {
-                // Handle intents with local data ...
-                Log.d("MainActivity", "Recieved local intent ${data}")
-                navHostFragment.navController.navigate(R.id.aiGameFragment, Bundle().apply {
-                    putString("SGF_LOCAL", data.toString())
-                })
+            if (intent?.type == "application/x-go-sgf") {
+                if (intent?.scheme?.startsWith("http") == true) {
+                    // Handle intents with remote data ...
+                    Log.d("MainActivity", "Recieved remote intent ${data}")
+                    navHostFragment.navController.navigate(R.id.aiGameFragment, Bundle().apply {
+                        putString("SGF_REMOTE", data.toString())
+                    })
+                } else {
+                    // Handle intents with local data ...
+                    Log.d("MainActivity", "Recieved local intent ${data}")
+                    navHostFragment.navController.navigate(R.id.aiGameFragment, Bundle().apply {
+                        putString("SGF_LOCAL", data.toString())
+                    })
+                }
+            } else {
+                Log.d("MainActivity", "Recieved view intent ${data}")
             }
         }
     }

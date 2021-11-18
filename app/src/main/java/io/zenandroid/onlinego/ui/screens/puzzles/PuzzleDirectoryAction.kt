@@ -1,18 +1,19 @@
 package io.zenandroid.onlinego.ui.screens.puzzle
 
 import android.graphics.Point
-import io.zenandroid.onlinego.data.model.ogs.JosekiPosition
+import io.zenandroid.onlinego.data.model.ogs.Puzzle
+import io.zenandroid.onlinego.data.model.ogs.PuzzleCollection
 
 sealed class PuzzleDirectoryAction {
     object ViewReady: PuzzleDirectoryAction()
 
     class DataLoadingError(
-            val e: Throwable
+        val e: Throwable
     ): PuzzleDirectoryAction()
 
-    class PositionLoaded(val position: JosekiPosition): PuzzleDirectoryAction()
-    class LoadPosition(val id: Long?): PuzzleDirectoryAction()
-    class StartDataLoading(val id: Long?): PuzzleDirectoryAction()
+    class PuzzleLoaded(val puzzle: Puzzle): PuzzleDirectoryAction()
+    class LoadPuzzle(val id: Long): PuzzleDirectoryAction()
+    class WaitPuzzle(val id: Long): PuzzleDirectoryAction()
     class ShowCandidateMove(val placement: Point?): PuzzleDirectoryAction()
     object Finish: PuzzleDirectoryAction()
 

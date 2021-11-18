@@ -217,7 +217,7 @@ object RulesManager {
         return pos
     }
 
-    private fun newPosition(width: Int, height: Int, initialState: InitialState?): Position {
+    fun newPosition(width: Int, height: Int, initialState: InitialState?): Position {
         val pos = Position(width, height)
         initialState?.let {
             it.white?.let {

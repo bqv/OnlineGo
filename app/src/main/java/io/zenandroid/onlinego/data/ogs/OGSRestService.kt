@@ -23,9 +23,8 @@ class OGSRestService(
         val userSessionRepository: UserSessionRepository
 ) {
 
-    fun fetchUIConfig(): Completable {
-        return restApi.uiConfig().doOnSuccess(userSessionRepository::storeUIConfig).ignoreElement()
-    }
+    fun fetchUIConfig(): Completable =
+        restApi.uiConfig().doOnSuccess(userSessionRepository::storeUIConfig).ignoreElement()
 
     fun login(username: String, password: String): Completable {
         idlingResource.increment()
@@ -212,7 +211,48 @@ class OGSRestService(
     fun getPlayerProfile(id: Long): Single<OGSPlayer> =
             restApi.getPlayerProfile(id)
 
-    fun getPlayerStats(id: Long): Single<Glicko2History> {
-        return restApi.getPlayerStats(id)
+    fun getPlayerStats(id: Long): Single<Glicko2History> =
+            restApi.getPlayerStats(id)
+
+    fun getPuzzleCollections(minCount: Int? = null, namePrefix: String? = null): Single<List<PuzzleCollection>> {
+        var page = 0
+
+        fun fetchPage(): Single<PagedResult<PuzzleCollection>> = restApi.getPuzzleCollections(
+            minimumCount = minCount ?: 0,
+            namePrefix = namePrefix ?: "",
+            page = ++page
+        )
+
+        fun iterate(result: Single<PagedResult<PuzzleCollection>> = fetchPage()): Single<List<PuzzleCollection>> {
+            return result.flatMap { pre ->
+                if (pre.next == null) {
+                    Single.just(pre.results)
+                } else {
+                    iterate(fetchPage()).map { post ->
+                        pre.results.plus(post)
+                    }
+                }
+            }
+        }
+
+        return iterate()
     }
+
+    fun getPuzzleCollection(id: Long): Single<PuzzleCollection> =
+        restApi.getPuzzleCollection(collectionId = id)
+
+    fun getPuzzleCollectionContents(id: Long): Single<List<Puzzle>> =
+        restApi.getPuzzleCollectionContents(collectionId = id)
+
+    fun getPuzzle(id: Long): Single<Puzzle> =
+        restApi.getPuzzle(puzzleId = id)
+
+    fun getPuzzleRating(id: Long): Single<PuzzleRating> =
+        restApi.getPuzzleRating(puzzleId = id)
+
+    fun markPuzzleSolved(id: Long, solution: PuzzleSolution): Completable =
+        restApi.markPuzzleSolved(puzzleId = id, request = solution)
+
+    fun ratePuzzle(id: Long, rating: Int): Completable =
+        restApi.ratePuzzle(puzzleId = id, request = PuzzleRating(rating = rating))
 }

@@ -1,7 +1,6 @@
 package io.zenandroid.onlinego.data.repositories
 
 import android.util.Log
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.disposables.CompositeDisposable
@@ -56,7 +55,7 @@ class ChatRepository(
 
     fun fetchRecentChatMessages() {
         restApi.getMessages(lastRESTFetchedChatId)
-            .map { it.map { Message.fromOGSMessage(it, it.game_id) } }
+            .map { it.map { Message.fromOGSMessage(it, it.game_id, gameDao.getGame(it.game_id!!).blockingGet().width) } }
             .subscribe(
                 gameDao::insertMessagesFromRest,
                 { onError(it, "fetchRecentChatMessages") }
@@ -79,10 +78,10 @@ class ChatRepository(
         if(t is retrofit2.HttpException) {
             message = "$request: ${t.response()?.errorBody()?.string()}"
             if(t.code() == 429) {
-                FirebaseCrashlytics.getInstance().setCustomKey("HIT_RATE_LIMITER", true)
+              //FirebaseCrashlytics.getInstance().setCustomKey("HIT_RATE_LIMITER", true)
             }
         }
-        FirebaseCrashlytics.getInstance().recordException(Exception(message, t))
+      //FirebaseCrashlytics.getInstance().recordException(Exception(message, t))
         Log.e("ChatRepository", message, t)
     }
 
