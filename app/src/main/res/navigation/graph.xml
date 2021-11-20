@@ -58,6 +58,10 @@
         android:name="io.zenandroid.onlinego.ui.screens.puzzle.PuzzleFragment"
         android:label="PuzzleFragment" />
     <fragment
+        android:id="@+id/tsumegoFragment"
+        android:name="io.zenandroid.onlinego.ui.screens.puzzle.TsumegoFragment"
+        android:label="TsumegoFragment" />
+    <fragment
         android:id="@+id/gameFragment"
         android:name="io.zenandroid.onlinego.ui.screens.game.GameFragment"
         android:label="GameFragment" >

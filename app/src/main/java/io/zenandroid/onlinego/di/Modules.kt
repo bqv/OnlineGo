@@ -22,16 +22,7 @@ import io.zenandroid.onlinego.ui.screens.newchallenge.selectopponent.searchplaye
 import io.zenandroid.onlinego.ui.screens.newchallenge.selectopponent.searchplayer.SearchPlayerState
 import io.zenandroid.onlinego.ui.screens.newchallenge.selectopponent.searchplayer.SearchPlayerViewModel
 import io.zenandroid.onlinego.ui.screens.onboarding.OnboardingViewModel
-import io.zenandroid.onlinego.ui.screens.puzzle.PuzzleDirectoryReducer
-import io.zenandroid.onlinego.ui.screens.puzzle.PuzzleDirectoryState
-import io.zenandroid.onlinego.ui.screens.puzzle.PuzzleDirectoryViewModel
-import io.zenandroid.onlinego.ui.screens.puzzle.PuzzleDirectoryFetchMiddleware
-import io.zenandroid.onlinego.ui.screens.puzzle.DirectoryAnalyticsMiddleware
-import io.zenandroid.onlinego.ui.screens.puzzle.PuzzleReducer
-import io.zenandroid.onlinego.ui.screens.puzzle.PuzzleState
-import io.zenandroid.onlinego.ui.screens.puzzle.PuzzleViewModel
-import io.zenandroid.onlinego.ui.screens.puzzle.PuzzleFetchMiddleware
-import io.zenandroid.onlinego.ui.screens.puzzle.PuzzleAnalyticsMiddleware
+import io.zenandroid.onlinego.ui.screens.puzzle.*
 import io.zenandroid.onlinego.ui.screens.tutorial.TutorialViewModel
 import io.zenandroid.onlinego.utils.CountingIdlingResource
 import io.zenandroid.onlinego.utils.CustomConverterFactory
@@ -148,8 +139,6 @@ private val viewModelsModule = module {
                         PuzzleDirectoryReducer(),
                         listOf(
                                 PuzzleDirectoryFetchMiddleware(get()),
-                              //HotTrackMiddleware(),
-                              //TriggerLoadingMiddleware(),
                                 DirectoryAnalyticsMiddleware()
                         ),
                         PuzzleDirectoryState()
@@ -165,11 +154,27 @@ private val viewModelsModule = module {
                         PuzzleReducer(),
                         listOf(
                                 PuzzleFetchMiddleware(get()),
-                              //HotTrackMiddleware(),
-                              //TriggerLoadingMiddleware(),
                                 PuzzleAnalyticsMiddleware()
                         ),
                         PuzzleState()
+                ),
+                params.get()
+        )
+    }
+
+    viewModel { params ->
+        TsumegoViewModel(
+                PuzzleRepository(get(), get()),
+                OGSRestService(get(), get(), get(), get()),
+                Store(
+                        TsumegoReducer(),
+                        listOf(
+                              //TsumegoFetchMiddleware(get()),
+                              //HotTrackMiddleware(),
+                              //TriggerLoadingMiddleware(),
+                              //TsumegoAnalyticsMiddleware()
+                        ),
+                        TsumegoState()
                 ),
                 params.get()
         )

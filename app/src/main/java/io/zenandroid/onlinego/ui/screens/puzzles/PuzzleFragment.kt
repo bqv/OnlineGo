@@ -248,16 +248,15 @@ class PuzzleFragment : Fragment(), MviView<PuzzleState, PuzzleAction> {
     }
 
     private fun navigateToTsumegoScreen(puzzle: Puzzle) {
-        Toast.makeText(requireContext(), "${puzzle.id}", Toast.LENGTH_LONG).show()
-      //findNavController()?.navigate(
-      //    R.id.tsumegoFragment,
-      //    bundleOf(
-      //        PUZZLE_ID to puzzle.id,
-      //    ),
-      //    NavOptions.Builder()
-      //        .setLaunchSingleTop(true)
-      //        .build()
-      //)
+        findNavController()?.navigate(
+            R.id.tsumegoFragment,
+            bundleOf(
+                PUZZLE_ID to puzzle.id,
+            ),
+            NavOptions.Builder()
+                .setLaunchSingleTop(true)
+                .build()
+        )
     }
 
     override fun onPause() {
