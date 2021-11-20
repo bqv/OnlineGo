@@ -2,6 +2,7 @@ package io.zenandroid.onlinego.data.repositories
 
 import android.util.Log
 import io.reactivex.Flowable
+import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.plusAssign
@@ -21,7 +22,7 @@ class PuzzleRepository(
     private val customMarkPattern = "<(.):([A-H]|[J-T]\\d{1,2})>".toPattern()
     private val headerWithMissingSpaceRegex = "#(?!\\s|#)".toRegex()
 
-    fun getAllPuzzleCollections(): Flowable<List<PuzzleCollection>> {
+    fun getAllPuzzleCollections(trigger: Observable<Unit>): Flowable<List<PuzzleCollection>> {
         /*
         disposable += restService.getPuzzleCollections()
                 .subscribe(this::saveCollectionsToDB, this::onError)
@@ -36,9 +37,8 @@ class PuzzleRepository(
                     it.next_moves = dao.getChildrenPositions(it.node_id ?: 0).map(this::extractLabelsFromDescription)
                 }
                 .distinctUntilChanged()
-        */ return restService.getPuzzleCollections()
-            .doOnSuccess { it.forEach{c -> Log.d("PuzzleRepository", c.toString())} }
-            .toFlowable()
+        */ return restService.getPuzzleCollections(trigger)
+            .doOnNext { it.forEach{c -> Log.d("PuzzleRepository", c.toString())} }
     }
 
     fun getPuzzleCollection(id: Long): Flowable<PuzzleCollection> {

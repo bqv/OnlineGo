@@ -8,7 +8,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
-import io.reactivex.subjects.PublishSubject
 import io.zenandroid.onlinego.data.model.ogs.Puzzle
 import io.zenandroid.onlinego.data.model.ogs.PuzzleCollection
 import io.zenandroid.onlinego.data.ogs.OGSRestService
@@ -17,16 +16,16 @@ import io.zenandroid.onlinego.mvi.MviView
 import io.zenandroid.onlinego.mvi.Store
 import io.zenandroid.onlinego.utils.addToDisposable
 
-class PuzzleDirectoryViewModel (
+class PuzzleViewModel (
     private val puzzleRepository: PuzzleRepository,
     private val restService: OGSRestService,
-    private val store: Store<PuzzleDirectoryState, PuzzleDirectoryAction>
+    private val store: Store<PuzzleState, PuzzleAction>,
+    private val collectionId: Long
     ): ViewModel()
 {
-    private val _state = MutableLiveData(PuzzleDirectoryState())
-    val state: LiveData<PuzzleDirectoryState> = _state
+    private val _state = MutableLiveData(PuzzleState())
+    val state: LiveData<PuzzleState> = _state
     private val subscriptions = CompositeDisposable()
-    private val loadPageTrigger = PublishSubject.create<Unit>()
 
     private val wiring = store.wire()
     private var viewBinding: Disposable? = null
@@ -36,22 +35,20 @@ class PuzzleDirectoryViewModel (
     }
 
     init {
-        puzzleRepository.getAllPuzzleCollections(loadPageTrigger)
+        puzzleRepository.getPuzzleCollection(collectionId)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread()) // TODO: remove?
-            .subscribe(this::addCollections, this::onError)
+            .subscribe(this::setCollection, this::onError)
             .addToDisposable(subscriptions)
     }
 
-    private fun addCollections(nextCollections: List<PuzzleCollection>) {
-        _state.value = _state.value?.let {
-            it.copy(
-                collections = it.collections.plus(nextCollections)
-            )
-        }
+    private fun setCollection(collection: PuzzleCollection) {
+        _state.value = _state.value?.copy(
+            collection = collection
+        )
     }
 
-    fun bind(view: MviView<PuzzleDirectoryState, PuzzleDirectoryAction>) {
+    fun bind(view: MviView<PuzzleState, PuzzleAction>) {
         viewBinding = store.bind(view)
     }
 
@@ -59,11 +56,8 @@ class PuzzleDirectoryViewModel (
         viewBinding?.dispose()
     }
 
-    fun loadNextPage() {
-        loadPageTrigger.onNext(Unit)
-    }
-
     private fun onError(t: Throwable) {
+        android.widget.Toast.makeText(org.koin.core.context.GlobalContext.get().get<android.content.Context>(), "Error: ${t.message}", android.widget.Toast.LENGTH_LONG).show()
         Log.e(this::class.java.canonicalName, t.message, t)
     }
 }

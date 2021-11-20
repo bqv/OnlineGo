@@ -4,6 +4,9 @@ import android.util.Log
 import com.squareup.moshi.Moshi
 import io.reactivex.Completable
 import io.reactivex.Single
+import io.reactivex.Observable
+import io.reactivex.Flowable
+import io.reactivex.BackpressureStrategy
 import io.zenandroid.onlinego.data.model.ogs.*
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.ui.screens.newchallenge.ChallengeParams
@@ -214,7 +217,7 @@ class OGSRestService(
     fun getPlayerStats(id: Long): Single<Glicko2History> =
             restApi.getPlayerStats(id)
 
-    fun getPuzzleCollections(minCount: Int? = null, namePrefix: String? = null): Single<List<PuzzleCollection>> {
+    fun getPuzzleCollections(trigger: Observable<Unit>, minCount: Int? = null, namePrefix: String? = null): Flowable<List<PuzzleCollection>> {
         var page = 0
 
         fun fetchPage(): Single<PagedResult<PuzzleCollection>> = restApi.getPuzzleCollections(
@@ -223,19 +226,20 @@ class OGSRestService(
             page = ++page
         )
 
-        fun iterate(result: Single<PagedResult<PuzzleCollection>> = fetchPage()): Single<List<PuzzleCollection>> {
-            return result.flatMap { pre ->
-                if (pre.next == null) {
-                    Single.just(pre.results)
-                } else {
-                    iterate(fetchPage()).map { post ->
-                        pre.results.plus(post)
+        fun unfold(result: Single<PagedResult<PuzzleCollection>> = fetchPage()): Observable<List<PuzzleCollection>> {
+            return result.toObservable().flatMap { pre ->
+                Observable.just(pre.results).let {
+                    if (pre.next == null) {
+                        it
+                    } else {
+                        it.concatWith(trigger.take(1).map { emptyList<PuzzleCollection>() }.ignoreElements())
+                            .concatWith(unfold(fetchPage()))
                     }
                 }
             }
         }
 
-        return iterate()
+        return unfold().toFlowable(BackpressureStrategy.BUFFER)
     }
 
     fun getPuzzleCollection(id: Long): Single<PuzzleCollection> =

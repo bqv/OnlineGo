@@ -25,7 +25,13 @@ import io.zenandroid.onlinego.ui.screens.onboarding.OnboardingViewModel
 import io.zenandroid.onlinego.ui.screens.puzzle.PuzzleDirectoryReducer
 import io.zenandroid.onlinego.ui.screens.puzzle.PuzzleDirectoryState
 import io.zenandroid.onlinego.ui.screens.puzzle.PuzzleDirectoryViewModel
+import io.zenandroid.onlinego.ui.screens.puzzle.PuzzleDirectoryFetchMiddleware
+import io.zenandroid.onlinego.ui.screens.puzzle.DirectoryAnalyticsMiddleware
+import io.zenandroid.onlinego.ui.screens.puzzle.PuzzleReducer
+import io.zenandroid.onlinego.ui.screens.puzzle.PuzzleState
+import io.zenandroid.onlinego.ui.screens.puzzle.PuzzleViewModel
 import io.zenandroid.onlinego.ui.screens.puzzle.PuzzleFetchMiddleware
+import io.zenandroid.onlinego.ui.screens.puzzle.PuzzleAnalyticsMiddleware
 import io.zenandroid.onlinego.ui.screens.tutorial.TutorialViewModel
 import io.zenandroid.onlinego.utils.CountingIdlingResource
 import io.zenandroid.onlinego.utils.CustomConverterFactory
@@ -141,13 +147,31 @@ private val viewModelsModule = module {
                 Store(
                         PuzzleDirectoryReducer(),
                         listOf(
-                                PuzzleFetchMiddleware(get()),
+                                PuzzleDirectoryFetchMiddleware(get()),
                               //HotTrackMiddleware(),
                               //TriggerLoadingMiddleware(),
-                                io.zenandroid.onlinego.ui.screens.puzzle.AnalyticsMiddleware()
+                                DirectoryAnalyticsMiddleware()
                         ),
                         PuzzleDirectoryState()
                 )
+        )
+    }
+
+    viewModel { params ->
+        PuzzleViewModel(
+                PuzzleRepository(get(), get()),
+                OGSRestService(get(), get(), get(), get()),
+                Store(
+                        PuzzleReducer(),
+                        listOf(
+                                PuzzleFetchMiddleware(get()),
+                              //HotTrackMiddleware(),
+                              //TriggerLoadingMiddleware(),
+                                PuzzleAnalyticsMiddleware()
+                        ),
+                        PuzzleState()
+                ),
+                params.get()
         )
     }
 

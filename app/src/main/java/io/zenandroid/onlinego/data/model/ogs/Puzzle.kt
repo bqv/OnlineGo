@@ -6,10 +6,10 @@ import org.threeten.bp.Instant
 data class MoveTree (
     val y: Int,
     val x: Int,
-    val correct_answer: Boolean,
-    val wrong_answer: Boolean,
-    val text: String,
-    val branches: List<MoveTree>
+    val correct_answer: Boolean?,
+    val wrong_answer: Boolean?,
+    val text: String?,
+    val branches: List<MoveTree>?
 )
 
 data class PuzzleData (

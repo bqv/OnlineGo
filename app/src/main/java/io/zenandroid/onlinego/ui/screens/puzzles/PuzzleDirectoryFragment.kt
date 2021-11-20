@@ -65,6 +65,10 @@ import io.zenandroid.onlinego.mvi.MviView
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.utils.PersistenceManager
 import io.zenandroid.onlinego.utils.convertCountryCodeToEmojiFlag
+import io.zenandroid.onlinego.utils.nullIfEmpty
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.collect
 import org.commonmark.node.*
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -73,11 +77,6 @@ import org.threeten.bp.temporal.ChronoUnit.*
 
 private const val TAG = "PuzzleDirectoryFragment"
 
-@ExperimentalAnimationApi
-@ExperimentalMaterialApi
-@ExperimentalFoundationApi
-@ExperimentalPagerApi
-@ExperimentalComposeUiApi
 class PuzzleDirectoryFragment : Fragment(), MviView<PuzzleDirectoryState, PuzzleDirectoryAction> {
     private val puzzleRepository: io.zenandroid.onlinego.data.repositories.PuzzleRepository = org.koin.core.context.GlobalContext.get().get()
     private val settingsRepository: SettingsRepository by inject()
@@ -104,6 +103,11 @@ class PuzzleDirectoryFragment : Fragment(), MviView<PuzzleDirectoryState, Puzzle
         )
     }
 
+    @ExperimentalAnimationApi
+    @ExperimentalMaterialApi
+    @ExperimentalFoundationApi
+    @ExperimentalPagerApi
+    @ExperimentalComposeUiApi
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return ComposeView(requireContext()).apply {
             setViewCompositionStrategy(
@@ -111,7 +115,19 @@ class PuzzleDirectoryFragment : Fragment(), MviView<PuzzleDirectoryState, Puzzle
             )
             setContent {
                 OnlineGoTheme {
+                    val state by viewModel.state.observeAsState()
+
                     val listState = rememberLazyListState()
+                    val loadMore = remember {
+                        val buffer = 20
+                        derivedStateOf {
+                            val layoutInfo = listState.layoutInfo
+                            val totalItemsNumber = layoutInfo.totalItemsCount
+                            val lastVisibleItemIndex = (layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0) + 1
+
+                            lastVisibleItemIndex > (totalItemsNumber - buffer)
+                        }
+                    }
                     LazyColumn (
                         state = listState,
                         modifier = Modifier.fillMaxHeight()
@@ -134,149 +150,155 @@ class PuzzleDirectoryFragment : Fragment(), MviView<PuzzleDirectoryState, Puzzle
                             )
                         }
 
-                        items(items = puzzleRepository.getAllPuzzleCollections().blockingFirst()) {
-                            Surface(
-                                shape = MaterialTheme.shapes.medium,
-                                modifier = Modifier
-                                    .height(150.dp)
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 8.dp, vertical = 4.dp)
-                            ) {
-                                Row(modifier = Modifier
-                                        .clickable { -> navigateToPuzzleScreen(it) }) {
-                                    Column(modifier = Modifier
-                                            .padding(horizontal = 10.dp, vertical = 10.dp)) {
-                                        it.starting_puzzle.let {
-                                            val pos = RulesManager.newPosition(it.width, it.height, it.initial_state)
-                                            Board(
-                                                boardWidth = it.width,
-                                                boardHeight = it.height,
-                                                position = pos,
-                                                drawCoordinates = false,
-                                                interactive = false,
-                                                drawShadow = false,
-                                                fadeInLastMove = false,
-                                                fadeOutRemovedStones = false,
-                                                modifier = Modifier
-                                                    .weight(1f)
-                                                    .clip(MaterialTheme.shapes.small)
-                                            )
-                                        }
-                                        Spacer(modifier = Modifier.height(2.dp))
-                                        Row(modifier = Modifier.height(16.dp)
-                                                .align(Alignment.CenterHorizontally)) {
-                                            RatingBar(
-                                                rating = it.rating,
-                                                modifier = Modifier
-                                                    .align(Alignment.CenterVertically)
-                                            )
-                                            Spacer(modifier = Modifier.width(2.dp))
-                                            val rating_count = when {
-                                                it.rating_count < 1000 -> "${it.rating_count}"
-                                                else -> "${it.rating_count / 1000}k"
-                                            }
-                                            Text(
-                                                text = "($rating_count)",
-                                                color = MaterialTheme.colors.onBackground,
-                                                fontSize = 14.sp
-                                            )
-                                        }
-                                    }
-                                    Column(modifier = Modifier.weight(1f)
-                                            .padding(bottom = 8.dp, end = 4.dp)) {
-                                        Column(modifier = Modifier.padding(8.dp)) {
-                                            Text(
-                                                text = it.name,
-                                                style = TextStyle.Default.copy(
-                                                    fontSize = 16.sp,
-                                                    fontWeight = FontWeight.Bold
-                                                )
-                                            )
-                                            val private = if(it.private) "(private)" else ""
-                                            val ago = "${DAYS.between(it.created, now())} days ago"
-                                            it.owner?.let {
-                                                val flag = convertCountryCodeToEmojiFlag(it.country)
-                                                Text(
-                                                    text = "by ${it.username} $flag $private - $ago",
-                                                    style = TextStyle.Default.copy(
-                                                        fontSize = 12.sp,
-                                                        fontWeight = FontWeight.Light
-                                                    )
+                        state?.collections?.nullIfEmpty()?.let { collections ->
+                            items(items = collections) {
+                                Surface(
+                                    shape = MaterialTheme.shapes.medium,
+                                    modifier = Modifier
+                                        .height(150.dp)
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                                ) {
+                                    Row(modifier = Modifier
+                                            .clickable { -> navigateToCollectionScreen(it) }) {
+                                        Column(modifier = Modifier
+                                                .padding(horizontal = 10.dp, vertical = 10.dp)) {
+                                            it.starting_puzzle.let {
+                                                val pos = RulesManager.newPosition(it.width, it.height, it.initial_state)
+                                                Board(
+                                                    boardWidth = it.width,
+                                                    boardHeight = it.height,
+                                                    position = pos,
+                                                    drawCoordinates = false,
+                                                    interactive = false,
+                                                    drawShadow = false,
+                                                    fadeInLastMove = false,
+                                                    fadeOutRemovedStones = false,
+                                                    modifier = Modifier
+                                                        .weight(1f)
+                                                        .clip(MaterialTheme.shapes.small)
                                                 )
                                             }
-                                        }
-                                        Row {
-                                            Spacer(modifier = Modifier.width(24.dp))
-                                            Column(modifier = Modifier.weight(1f)) {
-                                                Text(
-                                                    text = "Count",
-                                                    fontSize = 14.sp,
-                                                    fontWeight = FontWeight.Bold
+                                            Spacer(modifier = Modifier.height(2.dp))
+                                            Row(modifier = Modifier.height(16.dp)
+                                                    .align(Alignment.CenterHorizontally)) {
+                                                RatingBar(
+                                                    rating = it.rating,
+                                                    modifier = Modifier
+                                                        .align(Alignment.CenterVertically)
                                                 )
-                                                Text(
-                                                    text = "${it.puzzle_count} puzzle(s)",
-                                                    fontSize = 12.sp,
-                                                    fontWeight = FontWeight.Medium
-                                                )
-                                            }
-                                            Column(modifier = Modifier.weight(1f)) {
-                                                fun rankToString(rank: Int) = when {
-                                                    rank < 30 -> "${30 - rank}k"
-                                                    else -> "${rank - 29}d"
+                                                Spacer(modifier = Modifier.width(2.dp))
+                                                val rating_count = when {
+                                                    it.rating_count < 1000 -> "${it.rating_count}"
+                                                    else -> "${it.rating_count / 1000}k"
                                                 }
                                                 Text(
-                                                    text = "Rank",
-                                                    fontSize = 14.sp,
-                                                    fontWeight = FontWeight.Bold
-                                                )
-                                                Text(
-                                                    text =
-                                                        if(it.min_rank == it.max_rank)
-                                                            "${rankToString(it.min_rank)}"
-                                                        else
-                                                            "${rankToString(it.min_rank)} to ${rankToString(it.max_rank)}",
-                                                    fontSize = 12.sp,
-                                                    fontWeight = FontWeight.Medium
+                                                    text = "($rating_count)",
+                                                    color = MaterialTheme.colors.onBackground,
+                                                    fontSize = 14.sp
                                                 )
                                             }
                                         }
-                                        Spacer(modifier = Modifier.weight(1f))
-                                        Row(modifier = Modifier
-                                                .align(Alignment.End)
-                                            ) {
-                                            val solveRate = (it.solved_count*100f) / it.attempt_count
-                                            Text(
-                                                text = "${it.view_count} views, solved ${it.solved_count} times of ${it.attempt_count} (${"%.2f".format(solveRate)}%)",
-                                                fontSize = 12.sp,
-                                                fontStyle = FontStyle.Italic,
-                                                fontWeight = FontWeight.Light,
-                                                color = MaterialTheme.colors.onBackground,
-                                            )
+                                        Column(modifier = Modifier.weight(1f)
+                                                .padding(bottom = 8.dp, end = 4.dp)) {
+                                            Column(modifier = Modifier.padding(8.dp)) {
+                                                Text(
+                                                    text = it.name,
+                                                    style = TextStyle.Default.copy(
+                                                        fontSize = 16.sp,
+                                                        fontWeight = FontWeight.Bold
+                                                    )
+                                                )
+                                                val private = if(it.private) "(private)" else ""
+                                                val ago = "${DAYS.between(it.created, now())} days ago"
+                                                it.owner?.let {
+                                                    val flag = convertCountryCodeToEmojiFlag(it.country)
+                                                    Text(
+                                                        text = "by ${it.username} $flag $private - $ago",
+                                                        style = TextStyle.Default.copy(
+                                                            fontSize = 12.sp,
+                                                            fontWeight = FontWeight.Light
+                                                        )
+                                                    )
+                                                }
+                                            }
+                                            Row {
+                                                Spacer(modifier = Modifier.width(24.dp))
+                                                Column(modifier = Modifier.weight(1f)) {
+                                                    Text(
+                                                        text = "Count",
+                                                        fontSize = 14.sp,
+                                                        fontWeight = FontWeight.Bold
+                                                    )
+                                                    Text(
+                                                        text = "${it.puzzle_count} puzzle(s)",
+                                                        fontSize = 12.sp,
+                                                        fontWeight = FontWeight.Medium
+                                                    )
+                                                }
+                                                Column(modifier = Modifier.weight(1f)) {
+                                                    fun rankToString(rank: Int) = when {
+                                                        rank < 30 -> "${30 - rank}k"
+                                                        else -> "${rank - 29}d"
+                                                    }
+                                                    Text(
+                                                        text = "Rank",
+                                                        fontSize = 14.sp,
+                                                        fontWeight = FontWeight.Bold
+                                                    )
+                                                    Text(
+                                                        text =
+                                                            if(it.min_rank == it.max_rank)
+                                                                "${rankToString(it.min_rank)}"
+                                                            else
+                                                                "${rankToString(it.min_rank)} to ${rankToString(it.max_rank)}",
+                                                        fontSize = 12.sp,
+                                                        fontWeight = FontWeight.Medium
+                                                    )
+                                                }
+                                            }
+                                            Spacer(modifier = Modifier.weight(1f))
+                                            Row(modifier = Modifier
+                                                    .align(Alignment.End)
+                                                ) {
+                                                val solveRate = (it.solved_count*100f) / it.attempt_count
+                                                Text(
+                                                    text = "${it.view_count} views, solved ${it.solved_count} times of ${it.attempt_count} (${"%.2f".format(solveRate)}%)",
+                                                    fontSize = 12.sp,
+                                                    fontStyle = FontStyle.Italic,
+                                                    fontWeight = FontWeight.Light,
+                                                    color = MaterialTheme.colors.onBackground,
+                                                )
+                                            }
                                         }
                                     }
                                 }
                             }
+                        } ?: run {
+                            item {
+                                Box(
+                                    contentAlignment = Alignment.Center,
+                                    modifier = Modifier.fillParentMaxSize()
+                                        .padding(horizontal = 8.dp, vertical = 4.dp),
+                                ) {
+                                    Text(
+                                        text = "Loading...",
+                                        color = MaterialTheme.colors.onBackground,
+                                    )
+                                }
+                            }
                         }
-                      //if(state.myTurnGames.isNotEmpty()) {
-                      //    if(state.myTurnGames.size > 10) {
-                      //        item {
-                      //            Header("Your turn")
-                      //        }
-                      //        items (items = state.myTurnGames) {
-                      //            SmallGameItem(game = it, state.userId, onAction = onAction)
-                      //        }
-                      //    } else {
-                      //        item {
-                      //            MyTurnCarousel(state.myTurnGames, state.userId, onAction)
-                      //        }
-                      //    }
-                      //}
 
-                      //items(items = state.challenges) {
-                      //    ChallengeItem(it, state.userId, onAction)
-                      //}
                         item {
                             Spacer(modifier = Modifier.height(8.dp))
+                        }
+                    }
+                    LaunchedEffect(loadMore) {
+                        snapshotFlow { loadMore.value }
+                        .distinctUntilChanged()
+                        .filter { it }
+                        .collect {
+                            viewModel.loadNextPage()
                         }
                     }
                 }
@@ -296,17 +318,16 @@ class PuzzleDirectoryFragment : Fragment(), MviView<PuzzleDirectoryState, Puzzle
         currentState = state
     }
 
-    private fun navigateToPuzzleScreen(collection: PuzzleCollection) {
-        Toast.makeText(requireContext(), "${collection.id}", Toast.LENGTH_LONG).show()
-      //findNavController()?.navigate(
-      //    R.id.puzzleFragment,
-      //    bundleOf(
-      //        COLLECTION_ID to collection.id,
-      //    ),
-      //    NavOptions.Builder()
-      //        .setLaunchSingleTop(true)
-      //        .build()
-      //)
+    private fun navigateToCollectionScreen(collection: PuzzleCollection) {
+        findNavController()?.navigate(
+            R.id.puzzleFragment,
+            bundleOf(
+                COLLECTION_ID to collection.id,
+            ),
+            NavOptions.Builder()
+                .setLaunchSingleTop(true)
+                .build()
+        )
     }
 
     override fun onPause() {

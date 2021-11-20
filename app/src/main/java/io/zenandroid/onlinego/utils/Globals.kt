@@ -273,3 +273,6 @@ fun computeTimeLeft(
         timeLeft = timeLeft
     )
 }
+
+fun <T> List<T>.nullIfEmpty(): List<T>?
+        = if(this.isEmpty()) null else this
