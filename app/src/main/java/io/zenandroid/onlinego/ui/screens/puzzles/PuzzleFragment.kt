@@ -82,10 +82,15 @@ const val COLLECTION_ID = "COLLECTION_ID"
 
 private const val TAG = "PuzzleFragment"
 
+@ExperimentalAnimationApi
+@ExperimentalMaterialApi
+@ExperimentalFoundationApi
+@ExperimentalPagerApi
+@ExperimentalComposeUiApi
 class PuzzleFragment : Fragment(), MviView<PuzzleState, PuzzleAction> {
     private val settingsRepository: SettingsRepository by inject()
     private val viewModel: PuzzleViewModel by viewModel {
-        parametersOf(requireArguments().getLong(COLLECTION_ID))
+        parametersOf(arguments!!.getLong(COLLECTION_ID))
     }
 
     private val internalActions = PublishSubject.create<PuzzleAction>()
@@ -109,11 +114,6 @@ class PuzzleFragment : Fragment(), MviView<PuzzleState, PuzzleAction> {
         )
     }
 
-    @ExperimentalAnimationApi
-    @ExperimentalMaterialApi
-    @ExperimentalFoundationApi
-    @ExperimentalPagerApi
-    @ExperimentalComposeUiApi
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return ComposeView(requireContext()).apply {
             setViewCompositionStrategy(
@@ -161,15 +161,13 @@ class PuzzleFragment : Fragment(), MviView<PuzzleState, PuzzleAction> {
                                     Surface(
                                         shape = MaterialTheme.shapes.medium,
                                         modifier = Modifier
-                                            .height(150.dp)
                                             .fillMaxWidth()
                                             .padding(horizontal = 8.dp, vertical = 4.dp)
                                     ) {
-                                        Row(modifier = Modifier
-                                                .clickable { -> navigateToTsumegoScreen(it) }) {
-                                            Spacer(modifier = Modifier.weight(1f))
-                                            Column(modifier = Modifier
-                                                    .padding(horizontal = 10.dp, vertical = 10.dp)) {
+                                        Column(modifier = Modifier
+                                                .clickable { -> navigateToTsumegoScreen(it) }
+                                                .padding(horizontal = 10.dp, vertical = 10.dp)) {
+                                            Row {
                                                 it.puzzle.let {
                                                     val pos = RulesManager.newPosition(it.width, it.height, it.initial_state)
                                                     Board(
@@ -183,35 +181,22 @@ class PuzzleFragment : Fragment(), MviView<PuzzleState, PuzzleAction> {
                                                         fadeOutRemovedStones = false,
                                                         modifier = Modifier
                                                             .weight(1f)
+                                                            .fillMaxWidth()
                                                             .clip(MaterialTheme.shapes.small)
                                                     )
                                                 }
-                                                Text(
-                                                    text = it.name,
-                                                    style = TextStyle.Default.copy(
-                                                        fontSize = 16.sp,
-                                                        fontWeight = FontWeight.Bold
-                                                    )
-                                                )
                                             }
-                                            Spacer(modifier = Modifier.weight(1f))
+                                            Spacer(modifier = Modifier.height(8.dp))
+                                            Text(
+                                                text = it.name,
+                                                style = TextStyle.Default.copy(
+                                                    fontSize = 16.sp,
+                                                    fontWeight = FontWeight.Bold
+                                                )
+                                            )
                                         }
                                     }
                                 }
-                              //if(state.myTurnGames.isNotEmpty()) {
-                              //    if(state.myTurnGames.size > 10) {
-                              //        item {
-                              //            Header("Your turn")
-                              //        }
-                              //        items (items = state.myTurnGames) {
-                              //            SmallGameItem(game = it, state.userId, onAction = onAction)
-                              //        }
-                              //    } else {
-                              //        item {
-                              //            MyTurnCarousel(state.myTurnGames, state.userId, onAction)
-                              //        }
-                              //    }
-                              //}
 
                                 item {
                                     Spacer(modifier = Modifier.height(8.dp))
@@ -248,7 +233,7 @@ class PuzzleFragment : Fragment(), MviView<PuzzleState, PuzzleAction> {
     }
 
     private fun navigateToTsumegoScreen(puzzle: Puzzle) {
-        findNavController()?.navigate(
+        findNavController().navigate(
             R.id.tsumegoFragment,
             bundleOf(
                 PUZZLE_ID to puzzle.id,
@@ -274,9 +259,4 @@ class PuzzleFragment : Fragment(), MviView<PuzzleState, PuzzleAction> {
         super.onAttach(context)
         requireActivity().onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
     }
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-    }
-
 }

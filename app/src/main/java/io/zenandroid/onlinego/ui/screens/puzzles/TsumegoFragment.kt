@@ -18,7 +18,6 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.material.*
@@ -31,6 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy.DisposeOnLifecycleDestroyed
@@ -58,7 +58,6 @@ import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
-import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.utils.showIf
 import io.zenandroid.onlinego.ui.composables.Board
 import io.zenandroid.onlinego.ui.composables.RatingBar
@@ -89,7 +88,7 @@ private const val TAG = "TsumegoFragment"
 class TsumegoFragment : Fragment(), MviView<TsumegoState, TsumegoAction> {
     private val settingsRepository: SettingsRepository by inject()
     private val viewModel: TsumegoViewModel by viewModel {
-        parametersOf(requireArguments().getLong(PUZZLE_ID))
+        parametersOf(arguments!!.getLong(PUZZLE_ID))
     }
 
     private val internalActions = PublishSubject.create<TsumegoAction>()
@@ -155,37 +154,35 @@ class TsumegoFragment : Fragment(), MviView<TsumegoState, TsumegoAction> {
                         )
 
                         state?.puzzle?.let {
-                            val listState = rememberLazyListState()
                             Surface(
                                 shape = MaterialTheme.shapes.medium,
                                 modifier = Modifier.fillMaxSize()
                             ) {
-                                state?.let { state ->
                                 val listener = { action: TsumegoAction ->
                                     Toast.makeText(requireContext(), action.toString(), Toast.LENGTH_SHORT).show()
+                                    internalActions.onNext(action)
                                 }
                                 Column(modifier = Modifier
                                         .padding(horizontal = 10.dp, vertical = 10.dp)) {
                                     it.puzzle.let {
-                                        val pos = RulesManager.newPosition(it.width, it.height, it.initial_state)
                                         Board(
                                             boardWidth = it.width,
                                             boardHeight = it.height,
-                                            position = pos,
+                                            position = state!!.boardPosition,
                                             drawCoordinates = settingsRepository.showCoordinates,
                                             interactive = true,
                                             drawShadow = false,
                                             fadeInLastMove = false,
                                             fadeOutRemovedStones = false,
-                                            removedStones = state.removedStones,
-                                            candidateMove = state.hoveredCell,
+                                            removedStones = state!!.removedStones,
+                                            candidateMove = state!!.hoveredCell,
                                             candidateMoveType = StoneType.BLACK,
-                                            onTapMove = { if (state.boardInteractive) listener(BoardCellHovered(it)) },
-                                            onTapUp = { if (state.boardInteractive) listener(BoardCellTapped(it)) },
+                                            onTapMove = { if (state!!.boardInteractive) listener(BoardCellHovered(it)) },
+                                            onTapUp = { if (state!!.boardInteractive) viewModel.makeMove(it) },
                                             modifier = Modifier
                                                 .fillMaxWidth()
                                                 .padding(12.dp)
-                                              //.shadow(6.dp, MaterialTheme.shapes.large)
+                                                .shadow(6.dp, MaterialTheme.shapes.large)
                                                 .clip(MaterialTheme.shapes.small)
                                         )
                                         Row {
@@ -196,45 +193,49 @@ class TsumegoFragment : Fragment(), MviView<TsumegoState, TsumegoAction> {
                                                 viewModel.hasPreviousPuzzle
                                             }
                                             if(hasPreviousState.value == true) {
-                                            Row(modifier = Modifier.weight(1f)) {
-                                                Image(painter = painterResource(R.drawable.ic_navigate_previous),
-                                                    modifier = Modifier
-                                                        .align(Alignment.CenterVertically)
-                                                        .padding(start = 18.dp),
-                                                    contentDescription = null
-                                                )
-                                                TextButton(onClick = { viewModel.previousPuzzle() },
+                                                Row(modifier = Modifier.weight(1f)) {
+                                                    Image(painter = painterResource(R.drawable.ic_navigate_previous),
                                                         modifier = Modifier
                                                             .align(Alignment.CenterVertically)
-                                                            .padding(all = 4.dp)) {
-                                                    Text("PREVIOUS", color = MaterialTheme.colors.secondary, fontWeight = FontWeight.Bold)
+                                                            .padding(start = 18.dp),
+                                                        contentDescription = null
+                                                    )
+                                                    TextButton(onClick = { viewModel.previousPuzzle() },
+                                                            modifier = Modifier
+                                                                .align(Alignment.CenterVertically)
+                                                                .padding(all = 4.dp)) {
+                                                        Text("PREVIOUS", color = MaterialTheme.colors.secondary, fontWeight = FontWeight.Bold)
+                                                    }
+                                                    Spacer(modifier = Modifier.weight(1f))
                                                 }
-                                                Spacer(modifier = Modifier.weight(1f))
-                                            }
                                             }
 
                                             if(hasNextState.value == true) {
-                                            Row(modifier = Modifier.weight(1f)) {
-                                                Spacer(modifier = Modifier.weight(1f))
-                                                TextButton(onClick = { viewModel.nextPuzzle() },
+                                                Row(modifier = Modifier.weight(1f)) {
+                                                    Spacer(modifier = Modifier.weight(1f))
+                                                    TextButton(onClick = { viewModel.nextPuzzle() },
+                                                            modifier = Modifier
+                                                                .align(Alignment.CenterVertically)
+                                                                .padding(all = 4.dp)) {
+                                                        Text("NEXT", color = MaterialTheme.colors.secondary, fontWeight = FontWeight.Bold)
+                                                    }
+                                                    Image(painter = painterResource(R.drawable.ic_navigate_next),
                                                         modifier = Modifier
                                                             .align(Alignment.CenterVertically)
-                                                            .padding(all = 4.dp)) {
-                                                    Text("NEXT", color = MaterialTheme.colors.secondary, fontWeight = FontWeight.Bold)
+                                                            .padding(start = 18.dp),
+                                                        contentDescription = null
+                                                    )
                                                 }
-                                                Image(painter = painterResource(R.drawable.ic_navigate_next),
-                                                    modifier = Modifier
-                                                        .align(Alignment.CenterVertically)
-                                                        .padding(start = 18.dp),
-                                                    contentDescription = null
-                                                )
-                                            }
                                             }
                                         }
-                                        Row(modifier = Modifier
+                                        var boxState = rememberScrollState()
+                                        Box(modifier = Modifier.verticalScroll(state = boxState)
                                                 .weight(1f)) {
                                             Text(
-                                                text = it.puzzle_description,
+                                                text = state!!.nodeStack.let { stack ->
+                                                    stack.lastOrNull()?.text
+                                                        ?: stack.dropLast(1).lastOrNull()?.text
+                                                } ?: it.puzzle_description,
                                                 textAlign = TextAlign.Center,
                                                 style = MaterialTheme.typography.body2,
                                                 fontSize = 16.sp,
@@ -248,9 +249,9 @@ class TsumegoFragment : Fragment(), MviView<TsumegoState, TsumegoAction> {
                                                 modifier = Modifier
                                                     .fillMaxWidth()
                                                     .padding(horizontal = 12.dp, vertical = 16.dp)) {
-                                                if (state.retryButtonVisible) {
+                                                if (state!!.retryButtonVisible) {
                                                     OutlinedButton(
-                                                            onClick = { listener.invoke(RetryPressed) },
+                                                            onClick = { viewModel.resetPuzzle() },
                                                             modifier = Modifier.weight(1f)) {
                                                         Icon(imageVector = Icons.Filled.Refresh,
                                                             tint = MaterialTheme.colors.onSurface,
@@ -261,36 +262,15 @@ class TsumegoFragment : Fragment(), MviView<TsumegoState, TsumegoAction> {
                                                             modifier = Modifier.padding(start = 8.dp))
                                                     }
                                                 }
-                                                if (state.nextButtonVisible) {
-                                                    Button(onClick = { listener.invoke(NextPressed) },
+                                                if (state!!.continueButtonVisible) {
+                                                    Button(onClick = { viewModel.nextPuzzle() },
                                                             modifier = Modifier.weight(1f)) {
-                                                        Text(text = "NEXT")
+                                                        Text(text = "CONTINUE")
                                                     }
                                                 }
                                             }
-
-                                        Row(modifier = Modifier.align(Alignment.Center)) {
-                                            Snackbar(
-                                                    visible = state.node?.success == true,
-                                                    text = "Nice one!",
-                                                    button = "NEXT",
-                                                    icon = R.drawable.ic_check_circle,
-                                                    tint = MaterialTheme.colors.secondary,
-                                                    listener = { listener.invoke(NextPressed) }
-                                            )
-
-                                            Snackbar(
-                                                    visible = state.node?.failed == true,
-                                                    text = state.node?.message ?: "That's not quite right!",
-                                                    button = "RETRY",
-                                                    icon = R.drawable.ic_x_circle,
-                                                    tint = MaterialTheme.colors.secondary,
-                                                    listener = { listener.invoke(RetryPressed) }
-                                            )
-                                        }
                                         }
                                     }
-                                }
                                 }
                             }
                         } ?: run {
@@ -314,9 +294,9 @@ class TsumegoFragment : Fragment(), MviView<TsumegoState, TsumegoAction> {
     override val actions: Observable<TsumegoAction>
         get() =
             Observable.merge(
-                    listOf(
-                            internalActions
-                    )
+                listOf(
+                        internalActions
+                )
             ).startWith(ViewReady)
 
     override fun render(state: TsumegoState) {
@@ -325,7 +305,7 @@ class TsumegoFragment : Fragment(), MviView<TsumegoState, TsumegoAction> {
 
     private fun navigateToNextTsumegoScreen(puzzle: Puzzle) {
         Toast.makeText(requireContext(), "${puzzle.id}", Toast.LENGTH_LONG).show()
-        findNavController()?.navigate(
+        findNavController().navigate(
             R.id.tsumegoFragment,
             bundleOf(
                 PUZZLE_ID to puzzle.id,
@@ -350,49 +330,5 @@ class TsumegoFragment : Fragment(), MviView<TsumegoState, TsumegoAction> {
     override fun onAttach(context: Context) {
         super.onAttach(context)
         requireActivity().onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
-    }
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-    }
-}
-
-@ExperimentalAnimationApi
-@Composable
-private fun Snackbar(visible: Boolean, text: String, button: String, @DrawableRes icon: Int, tint: Color, modifier: Modifier = Modifier, listener: () -> Unit) {
-    AnimatedVisibility(
-        visible = visible,
-        enter = fadeIn() + slideInVertically(initialOffsetY = { it }),
-        exit = fadeOut() + slideOutVertically(targetOffsetY = { it }),
-        modifier = modifier,
-    ) {
-        Surface(
-                elevation = 4.dp,
-                border = BorderStroke(width = .5.dp, Color.LightGray),
-                shape = MaterialTheme.shapes.medium,
-                modifier = Modifier
-                    .clickable(onClick = {})
-                    .padding(horizontal = 8.dp, vertical = 4.dp)
-        ) {
-            Row(modifier = Modifier.fillMaxWidth()) {
-                Image(painter = painterResource(icon),
-                        modifier = Modifier
-                            .align(Alignment.CenterVertically)
-                            .padding(start = 18.dp),
-                    contentDescription = null
-                )
-                Text(text = text,
-                    modifier = Modifier
-                        .weight(1f)
-                        .align(Alignment.CenterVertically)
-                        .padding(start = 24.dp)
-                )
-                TextButton(onClick = listener, modifier = Modifier
-                        .align(Alignment.CenterVertically)
-                        .padding(all = 4.dp)) {
-                    Text(button, color = tint, fontWeight = FontWeight.Bold)
-                }
-            }
-        }
     }
 }

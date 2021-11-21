@@ -428,11 +428,11 @@ private fun doMeasurements(width: Int, height: Int, boardWidth: Int, boardHeight
     val halfCell = cellSize / 2f
     val stoneRadius = (cellSize / 2f - stoneSpacing).toInt()
 
-    val whiteBitmap = if(width == 0) null else {
+    val whiteBitmap = if(width <= 0) null else {
         convertVectorIntoBitmap(whiteStone, ceil(cellSize - 2 * stoneSpacing).toInt())
     }
 
-    val blackBitmap = if(width == 0) null else {
+    val blackBitmap = if(width <= 0) null else {
         convertVectorIntoBitmap(blackStone, ceil(cellSize - 2 * stoneSpacing).toInt())
     }
 
@@ -457,7 +457,7 @@ private fun doMeasurements(width: Int, height: Int, boardWidth: Int, boardHeight
 }
 
 private fun convertVectorIntoBitmap(vector: VectorDrawableCompat, width: Int): ImageBitmap {
-    val bitmap = Bitmap.createBitmap(width, width, Bitmap.Config.ARGB_8888)
+    val bitmap = Bitmap.createBitmap(width.coerceAtLeast(1), width.coerceAtLeast(1), Bitmap.Config.ARGB_8888)
     val canvas = android.graphics.Canvas(bitmap)
     vector.setBounds(0, 0, canvas.width, canvas.height)
     vector.draw(canvas)

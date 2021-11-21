@@ -4,8 +4,8 @@ import android.graphics.Point
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.ogs.Puzzle
 import io.zenandroid.onlinego.data.model.ogs.PuzzleCollection
+import io.zenandroid.onlinego.data.model.ogs.MoveTree
 import io.zenandroid.onlinego.data.model.StoneType
-import io.zenandroid.onlinego.data.model.local.*
 
 data class TsumegoState (
         val puzzle: Puzzle? = null,
@@ -19,10 +19,10 @@ data class TsumegoState (
         val previousButtonEnabled: Boolean = false,
         val nextButtonEnabled: Boolean = false,
         val passButtonEnabled: Boolean = false,
-        val node: Node? = null,
+        val nodeStack: ArrayDeque<MoveTree?> = ArrayDeque(),
         val removedStones: Map<Point, StoneType>? = null,
         val hoveredCell: Point? = null,
         val boardInteractive: Boolean = true,
-        val retryButtonVisible: Boolean = true,
-        val nextButtonVisible: Boolean = false
+        val retryButtonVisible: Boolean = false,
+        val continueButtonVisible: Boolean = false
 )

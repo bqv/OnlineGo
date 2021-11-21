@@ -3,13 +3,25 @@ package io.zenandroid.onlinego.data.model.ogs
 import io.zenandroid.onlinego.data.model.local.InitialState
 import org.threeten.bp.Instant
 
+data class MarkData (
+    val letter: String?,
+    val transient_letter: String?,
+)
+
+data class Mark (
+    val y: Int,
+    val x: Int,
+    val marks: MarkData
+)
+
 data class MoveTree (
     val y: Int,
     val x: Int,
     val correct_answer: Boolean?,
     val wrong_answer: Boolean?,
     val text: String?,
-    val branches: List<MoveTree>?
+    val branches: List<MoveTree>?,
+    val marks: List<Mark>?
 )
 
 data class PuzzleData (
