@@ -2,6 +2,7 @@ package io.zenandroid.onlinego.ui.composables
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.runtime.Composable
@@ -21,7 +22,8 @@ import kotlin.math.sin
 fun RatingBar(
     rating: Float,
     modifier: Modifier = Modifier,
-    color: Color = Color(0xFFFFD700)
+    color: Color = Color(0xFFFFD700),
+    onTap: ((Int) -> Unit)? = null
 ) {
     Row(modifier = modifier.wrapContentSize()) {
         (1..5).forEach { step ->
@@ -30,7 +32,7 @@ fun RatingBar(
                 step.rem(rating) < 1 -> rating - (step - 1f)
                 else -> 0f
             }
-            RatingStar(stepRating, color)
+            RatingStar(stepRating, color, onTap = { onTap?.let { it(step) } ?: Unit })
         }
     }
 }
@@ -39,13 +41,15 @@ fun RatingBar(
 private fun RatingStar(
     rating: Float,
     ratingColor: Color = Color.Yellow,
-    backgroundColor: Color = Color.Gray
+    backgroundColor: Color = Color.Gray,
+    onTap: (() -> Unit)? = null
 ) {
     BoxWithConstraints(
         modifier = Modifier
             .fillMaxHeight()
             .aspectRatio(1f)
             .clip(starShape)
+            .clickable { onTap?.let { it() } ?: Unit }
     ) {
         Canvas(modifier = Modifier.size(maxHeight)) {
             drawRect(

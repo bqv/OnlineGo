@@ -19,6 +19,7 @@ import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.ogs.MoveTree
 import io.zenandroid.onlinego.data.model.ogs.PlayCategory
+import io.zenandroid.onlinego.data.model.ogs.PuzzleRating
 import io.zenandroid.onlinego.data.model.ogs.Puzzle
 import io.zenandroid.onlinego.data.model.ogs.PuzzleCollection
 import io.zenandroid.onlinego.data.ogs.OGSRestService
@@ -87,11 +88,13 @@ class TsumegoViewModel (
             nodeStack = ArrayDeque(listOf(puzzle.puzzle.move_tree))
         )
 
-        restService.getPuzzleCollectionContents(puzzle.collection!!.id)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread()) // TODO: remove?
-            .subscribe(this::setCollection, this::onError)
-            .addToDisposable(subscriptions)
+        if(collectionPuzzles.size == 0) {
+            restService.getPuzzleCollectionContents(puzzle.collection!!.id)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread()) // TODO: remove?
+                .subscribe(this::setCollection, this::onError)
+                .addToDisposable(subscriptions)
+        }
     }
 
     private fun setCollection(puzzles: List<Puzzle>) {
@@ -113,52 +116,13 @@ class TsumegoViewModel (
         val index = cursor.let { it + 1 }
         cursor = index
         val puzzle = collectionPuzzles.get(index)
-        _state.value = _state.value?.copy(
-            puzzle = puzzle,
-            boardPosition = puzzle.puzzle.let {
-                RulesManager.newPosition(it.width, it.height, it.initial_state).also { pos ->
-                    pos.customMarks.addAll(it.move_tree.marks?.map {
-                        Position.Mark(Point(it.x, it.y), it.marks.let {
-                            it.letter ?: it.transient_letter
-                        }, PlayCategory.LABEL)
-                    } ?: emptyList())
-                }.also {
-                    when(puzzle.puzzle.initial_player) {
-                        "white" -> StoneType.WHITE
-                        "black" -> StoneType.BLACK
-                        else -> null
-                    }?.let { side -> it.nextToMove = side }
-                }
-            },
-            continueButtonVisible = false,
-            retryButtonVisible = false,
-            nodeStack = ArrayDeque(listOf(puzzle.puzzle.move_tree))
-        )
+        setPuzzle(puzzle)
+        fetchRating()
     }
 
     fun resetPuzzle() {
         val puzzle = _state.value?.puzzle!!
-        _state.value = _state.value?.copy(
-            puzzle = puzzle,
-            boardPosition = puzzle.puzzle.let {
-                RulesManager.newPosition(it.width, it.height, it.initial_state).also { pos ->
-                    pos.customMarks.addAll(it.move_tree.marks?.map {
-                        Position.Mark(Point(it.x, it.y), it.marks.let {
-                            it.letter ?: it.transient_letter
-                        }, PlayCategory.LABEL)
-                    } ?: emptyList())
-                }.also {
-                    when(puzzle.puzzle.initial_player) {
-                        "white" -> StoneType.WHITE
-                        "black" -> StoneType.BLACK
-                        else -> null
-                    }?.let { side -> it.nextToMove = side }
-                }
-            },
-            continueButtonVisible = false,
-            retryButtonVisible = false,
-            nodeStack = ArrayDeque(listOf(puzzle.puzzle.move_tree))
-        )
+        setPuzzle(puzzle)
     }
 
     fun previousPuzzle() {
@@ -167,27 +131,8 @@ class TsumegoViewModel (
         val index = cursor.let { it - 1 }
         cursor = index
         val puzzle = collectionPuzzles.get(index)
-        _state.value = _state.value?.copy(
-            puzzle = puzzle,
-            boardPosition = puzzle.puzzle.let {
-                RulesManager.newPosition(it.width, it.height, it.initial_state).also { pos ->
-                    pos.customMarks.addAll(it.move_tree.marks?.map {
-                        Position.Mark(Point(it.x, it.y), it.marks.let {
-                            it.letter ?: it.transient_letter
-                        }, PlayCategory.LABEL)
-                    } ?: emptyList())
-                }.also {
-                    when(puzzle.puzzle.initial_player) {
-                        "white" -> StoneType.WHITE
-                        "black" -> StoneType.BLACK
-                        else -> null
-                    }?.let { side -> it.nextToMove = side }
-                }
-            },
-            continueButtonVisible = false,
-            retryButtonVisible = false,
-            nodeStack = ArrayDeque(listOf(puzzle.puzzle.move_tree))
-        )
+        setPuzzle(puzzle)
+        fetchRating()
     }
 
     fun makeMove(move: Point) {
@@ -290,6 +235,32 @@ class TsumegoViewModel (
         _state.value = _state.value?.copy(
             boardPosition = position,
             boardInteractive = true
+        )
+    }
+
+    fun rate(value: Int) {
+        restService.ratePuzzle(_state.value?.puzzle?.id!!, value)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread()) // TODO: remove?
+            .subscribe({ updateRating(value) }, this::onError)
+            .addToDisposable(subscriptions)
+    }
+
+    fun fetchRating() {
+        restService.getPuzzleRating(_state.value?.puzzle?.id!!)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread()) // TODO: remove?
+            .subscribe({ updateRating(it.rating) }, { updateRating(-1) })
+            .addToDisposable(subscriptions)
+    }
+
+    fun updateRating(value: Int) {
+        _state.value = _state.value?.copy(
+            puzzle = _state.value?.puzzle?.copy(
+                playerRating = PuzzleRating(
+                    rating = value
+                )
+            )
         )
     }
 

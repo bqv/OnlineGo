@@ -251,7 +251,7 @@ class TsumegoFragment : Fragment(), MviView<TsumegoState, TsumegoAction> {
                                             )
                                         }
 
-                                        Box {
+                                        Column {
                                             Row(horizontalArrangement = Arrangement.SpaceAround,
                                                 modifier = Modifier
                                                     .fillMaxWidth()
@@ -274,6 +274,18 @@ class TsumegoFragment : Fragment(), MviView<TsumegoState, TsumegoAction> {
                                                             modifier = Modifier.weight(1f)) {
                                                         Text(text = "CONTINUE")
                                                     }
+                                                }
+                                            }
+                                            if (state!!.continueButtonVisible || (state!!.puzzle?.playerRating?.rating ?: 0) > 0) {
+                                                Row(modifier = Modifier.height(32.dp)
+                                                            .align(Alignment.CenterHorizontally)
+                                                        ) {
+                                                    RatingBar(
+                                                        rating = state!!.puzzle?.playerRating?.rating?.toFloat() ?: 0f,
+                                                        onTap = { viewModel.rate(it) },
+                                                        modifier = Modifier
+                                                            .align(Alignment.CenterVertically)
+                                                    )
                                                 }
                                             }
                                         }
