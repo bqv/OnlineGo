@@ -20,6 +20,7 @@ import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.ogs.MoveTree
 import io.zenandroid.onlinego.data.model.ogs.PlayCategory
 import io.zenandroid.onlinego.data.model.ogs.PuzzleRating
+import io.zenandroid.onlinego.data.model.ogs.PuzzleSolution
 import io.zenandroid.onlinego.data.model.ogs.Puzzle
 import io.zenandroid.onlinego.data.model.ogs.PuzzleCollection
 import io.zenandroid.onlinego.data.ogs.OGSRestService
@@ -32,6 +33,8 @@ import io.zenandroid.onlinego.utils.addToDisposable
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.threeten.bp.Instant.now
+import org.threeten.bp.temporal.ChronoUnit.*
 
 class TsumegoViewModel (
     private val puzzleRepository: PuzzleRepository,
@@ -65,7 +68,7 @@ class TsumegoViewModel (
             .addToDisposable(subscriptions)
     }
 
-    private fun setPuzzle(puzzle: Puzzle) {
+    private fun setPuzzle(puzzle: Puzzle, attempts: Int = 1) {
         _state.value = _state.value?.copy(
             puzzle = puzzle,
             boardPosition = puzzle.puzzle.let {
@@ -83,11 +86,14 @@ class TsumegoViewModel (
                     }?.let { side -> it.nextToMove = side }
                 }
             },
+            attemptCount = attempts,
+            sgfMoves = "",
             continueButtonVisible = false,
             retryButtonVisible = false,
             nodeStack = ArrayDeque(listOf(puzzle.puzzle.move_tree))
         )
 
+        fetchSolutions()
         if(collectionPuzzles.size == 0) {
             restService.getPuzzleCollectionContents(puzzle.collection!!.id)
                 .subscribeOn(Schedulers.io())
@@ -122,7 +128,8 @@ class TsumegoViewModel (
 
     fun resetPuzzle() {
         val puzzle = _state.value?.puzzle!!
-        setPuzzle(puzzle)
+        val attempts = _state.value!!.attemptCount + 1
+        setPuzzle(puzzle, attempts)
     }
 
     fun previousPuzzle() {
@@ -154,7 +161,10 @@ class TsumegoViewModel (
                     position.nextToMove = position.nextToMove.opponent
                     var nodeStack = _state.value!!.nodeStack
                     nodeStack.addLast(node)
+                    var moveString = _state.value!!.sgfMoves
+                    moveString += Util.getSGFCoordinates(move)
                     node.branches?.randomOrNull()?.let {
+                        val reply = Point(it.x, it.y)
                         nodeStack.addLast(it)
                         _state.value = _state.value?.copy(
                             boardPosition = position.also { pos ->
@@ -165,13 +175,13 @@ class TsumegoViewModel (
                                 } ?: emptyList())
                             },
                             nodeStack = nodeStack,
+                            sgfMoves = moveString,
                             continueButtonVisible = if(it.correct_answer == true) true
                                 else _state.value!!.continueButtonVisible,
-                            retryButtonVisible = true,
-                            hoveredCell = null,
                         )
                         delay(600)
-                        position = RulesManager.makeMove(position, position.nextToMove, Point(it.x, it.y))
+                        moveString += Util.getSGFCoordinates(reply)
+                        position = RulesManager.makeMove(position, position.nextToMove, reply)
                             ?: throw RuntimeException("Invalid move ${it.toString()}")
                         position.nextToMove = position.nextToMove.opponent
                     }
@@ -184,6 +194,7 @@ class TsumegoViewModel (
                             } ?: emptyList())
                         },
                         nodeStack = nodeStack,
+                        sgfMoves = moveString,
                         continueButtonVisible = if(node.correct_answer == true) true
                             else _state.value!!.continueButtonVisible,
                         retryButtonVisible = true,
@@ -235,6 +246,34 @@ class TsumegoViewModel (
         _state.value = _state.value?.copy(
             boardPosition = position,
             boardInteractive = true
+        )
+    }
+
+    fun markSolved() {
+        val record = _state.value!!.let { PuzzleSolution(
+            puzzle = it.puzzle!!.id,
+            time_elapsed = it.startTime?.let { MILLIS.between(it, now()) } ?: 0,
+            attempts = it.attemptCount,
+            solution = it.sgfMoves,
+        ) }
+        restService.markPuzzleSolved(_state.value?.puzzle?.id!!, record)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread()) // TODO: remove?
+            .subscribe({ updateSolutions(_state.value!!.solutions.plus(record)) }, this::onError)
+            .addToDisposable(subscriptions)
+    }
+
+    fun fetchSolutions() {
+        restService.getPuzzleSolutions(_state.value?.puzzle?.id!!)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread()) // TODO: remove?
+            .subscribe(this::updateSolutions, this::onError)
+            .addToDisposable(subscriptions)
+    }
+
+    fun updateSolutions(solutions: List<PuzzleSolution>) {
+        _state.value = _state.value?.copy(
+            solutions = solutions
         )
     }
 

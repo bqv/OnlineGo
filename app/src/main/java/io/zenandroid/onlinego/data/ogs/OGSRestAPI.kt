@@ -108,7 +108,9 @@ interface OGSRestAPI {
     fun getPuzzle(@Path("puzzle_id") puzzleId: Long): Single<Puzzle>
 
     @GET("api/v1/puzzles/{puzzle_id}/solutions")
-    fun getPuzzleSolutions(@Path("puzzle_id") puzzleId: Long): Single<PagedResult<PuzzleSolution>>
+    fun getPuzzleSolutions(
+            @Path("puzzle_id") puzzleId: Long,
+            @Query("player_id") playerId: Long): Single<PagedResult<PuzzleSolution>>
 
     @GET("api/v1/puzzles/{puzzle_id}/rate")
     fun getPuzzleRating(@Path("puzzle_id") puzzleId: Long): Single<PuzzleRating>

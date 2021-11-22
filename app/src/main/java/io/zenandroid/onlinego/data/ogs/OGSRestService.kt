@@ -226,7 +226,7 @@ class OGSRestService(
             page = ++page
         )
 
-        fun unfold(result: Single<PagedResult<PuzzleCollection>> = fetchPage()): Observable<List<PuzzleCollection>> {
+        fun unfold(result: Single<PagedResult<PuzzleCollection>>): Observable<List<PuzzleCollection>> {
             return result.toObservable().flatMap { pre ->
                 Observable.just(pre.results).let {
                     if (pre.next == null) {
@@ -239,7 +239,7 @@ class OGSRestService(
             }
         }
 
-        return unfold().toFlowable(BackpressureStrategy.BUFFER)
+        return unfold(fetchPage()).toFlowable(BackpressureStrategy.BUFFER)
     }
 
     fun getPuzzleCollection(id: Long): Single<PuzzleCollection> =
@@ -251,8 +251,26 @@ class OGSRestService(
     fun getPuzzle(id: Long): Single<Puzzle> =
         restApi.getPuzzle(puzzleId = id)
 
-    fun getPuzzleSolutions(id: Long): Single<PagedResult<PuzzleSolution>> =
-        restApi.getPuzzleSolutions(puzzleId = id)
+    fun getPuzzleSolutions(id: Long): Single<List<PuzzleSolution>> {
+        var page = 0
+
+        fun fetchPage(): Single<PagedResult<PuzzleSolution>> = restApi.getPuzzleSolutions(
+            puzzleId = id,
+            playerId = userSessionRepository.userId!!
+        )
+
+        fun unfold(result: Single<PagedResult<PuzzleSolution>>): Single<List<PuzzleSolution>> {
+            return result.flatMap { pre ->
+                if (pre.next == null) {
+                    Single.just(pre.results)
+                } else {
+                    unfold(fetchPage()).map { pre.results.plus(it) }
+                }
+            }
+        }
+
+        return unfold(fetchPage())
+    }
 
     fun getPuzzleRating(id: Long): Single<PuzzleRating> =
         restApi.getPuzzleRating(puzzleId = id)

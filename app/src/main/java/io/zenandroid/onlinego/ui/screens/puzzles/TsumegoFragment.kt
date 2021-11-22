@@ -72,6 +72,9 @@ import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.utils.PersistenceManager
 import io.zenandroid.onlinego.utils.convertCountryCodeToEmojiFlag
 import io.zenandroid.onlinego.utils.nullIfEmpty
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.collect
 import org.commonmark.node.*
 import org.koin.android.ext.android.inject
 import org.koin.android.ext.android.get
@@ -126,6 +129,11 @@ class TsumegoFragment : Fragment(), MviView<TsumegoState, TsumegoAction> {
                 OnlineGoTheme {
                     val state by viewModel.state.observeAsState()
 
+                    val solved = remember {
+                        derivedStateOf {
+                            state?.continueButtonVisible ?: false
+                        }
+                    }
                     Column (
                         modifier = Modifier.fillMaxHeight()
                     ) {
@@ -141,8 +149,16 @@ class TsumegoFragment : Fragment(), MviView<TsumegoState, TsumegoAction> {
                             title = {
                                 Text(
                                     text = titleState.value,
-                                    fontSize = 18.sp
+                                    fontSize = 18.sp,
+                                    modifier = Modifier.weight(1f)
                                 )
+                                if(state?.solutions?.size ?: 0 > 0) {
+                                    Image(painter = painterResource(R.drawable.ic_check_circle),
+                                        modifier = Modifier
+                                            .padding(start = 18.dp),
+                                        contentDescription = "Solved"
+                                    )
+                                }
                             },
                             elevation = 1.dp,
                             navigationIcon = {
@@ -303,6 +319,14 @@ class TsumegoFragment : Fragment(), MviView<TsumegoState, TsumegoAction> {
                                     color = MaterialTheme.colors.onBackground,
                                 )
                             }
+                        }
+                    }
+                    LaunchedEffect(solved) {
+                        snapshotFlow { solved.value }
+                        .distinctUntilChanged()
+                        .filter { it }
+                        .collect {
+                            viewModel.markSolved()
                         }
                     }
                 }
