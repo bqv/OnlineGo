@@ -17,6 +17,7 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
+import io.zenandroid.onlinego.data.model.ogs.MoveTree
 import io.zenandroid.onlinego.data.model.ogs.PlayCategory
 import io.zenandroid.onlinego.data.model.ogs.Puzzle
 import io.zenandroid.onlinego.data.model.ogs.PuzzleCollection
@@ -211,7 +212,13 @@ class TsumegoViewModel (
                     node.branches?.randomOrNull()?.let {
                         nodeStack.addLast(it)
                         _state.value = _state.value?.copy(
-                            boardPosition = position,
+                            boardPosition = position.also { pos ->
+                                pos.customMarks.addAll(node.marks?.map {
+                                    Position.Mark(Point(it.x, it.y), it.marks.let {
+                                        it.letter ?: it.transient_letter
+                                    }, PlayCategory.LABEL)
+                                } ?: emptyList())
+                            },
                             nodeStack = nodeStack,
                             continueButtonVisible = if(it.correct_answer == true) true
                                 else _state.value!!.continueButtonVisible,
@@ -224,7 +231,13 @@ class TsumegoViewModel (
                         position.nextToMove = position.nextToMove.opponent
                     }
                     _state.value = _state.value?.copy(
-                        boardPosition = position,
+                        boardPosition = position.also { pos ->
+                            pos.customMarks.addAll(node.marks?.map {
+                                Position.Mark(Point(it.x, it.y), it.marks.let {
+                                    it.letter ?: it.transient_letter
+                                }, PlayCategory.LABEL)
+                            } ?: emptyList())
+                        },
                         nodeStack = nodeStack,
                         continueButtonVisible = if(node.correct_answer == true) true
                             else _state.value!!.continueButtonVisible,
@@ -233,7 +246,6 @@ class TsumegoViewModel (
                     )
                 }
             } ?: run launch@{
-              //android.widget.Toast.makeText(org.koin.core.context.GlobalContext.get().get<android.content.Context>(), "No branch at ${Util.getGTPCoordinates(move, state.value!!.puzzle!!.puzzle.height)} (${move})", android.widget.Toast.LENGTH_SHORT).show()
                 var position = state.value?.boardPosition!!
                 position = RulesManager.makeMove(position, position.nextToMove, move)
                     ?: run {
@@ -254,6 +266,31 @@ class TsumegoViewModel (
             }
             Log.d("MoveTree", state.value!!.nodeStack.last()?.branches?.toString() ?: "")
         }
+    }
+
+    fun addBoardHints() {
+        _state.value = _state.value?.copy(
+            boardInteractive = false
+        )
+        fun isHappyPath(node: MoveTree): Boolean
+            = node.correct_answer == true || node.branches?.any { isHappyPath(it) } == true
+        val moves = _state.value?.nodeStack?.last()?.branches?.map {
+            if(isHappyPath(it)) {
+                if(it.correct_answer == true) {
+                    Position.Mark(Point(it.x, it.y), "️", PlayCategory.IDEAL)
+                } else {
+                    Position.Mark(Point(it.x, it.y), "️", PlayCategory.GOOD)
+                }
+            } else {
+                Position.Mark(Point(it.x, it.y), "", PlayCategory.MISTAKE)
+            }
+        } ?: emptyList()
+        var position = _state.value?.boardPosition!!
+        position.customMarks.addAll(moves)
+        _state.value = _state.value?.copy(
+            boardPosition = position,
+            boardInteractive = true
+        )
     }
 
     fun bind(view: MviView<TsumegoState, TsumegoAction>) {

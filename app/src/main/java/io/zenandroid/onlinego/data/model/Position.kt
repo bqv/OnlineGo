@@ -149,6 +149,7 @@ class Position(
         if (blackCapturedCount != other.blackCapturedCount) return false
         if (nextToMove != other.nextToMove) return false
         if (komi != other.komi) return false
+        if (customMarks.size != other.customMarks.size) return false
 
         return true
     }

@@ -170,14 +170,14 @@ class TsumegoFragment : Fragment(), MviView<TsumegoState, TsumegoAction> {
                                             boardHeight = it.height,
                                             position = state!!.boardPosition,
                                             drawCoordinates = settingsRepository.showCoordinates,
-                                            interactive = true,
+                                            interactive = state!!.boardInteractive,
                                             drawShadow = false,
                                             fadeInLastMove = false,
                                             fadeOutRemovedStones = false,
                                             removedStones = state!!.removedStones,
                                             candidateMove = state!!.hoveredCell,
                                             candidateMoveType = StoneType.BLACK,
-                                            onTapMove = { if (state!!.boardInteractive) listener(BoardCellHovered(it)) },
+                                          //onTapMove = { if (state!!.boardInteractive) listener(BoardCellHovered(it)) },
                                             onTapUp = { if (state!!.boardInteractive) viewModel.makeMove(it) },
                                             modifier = Modifier
                                                 .fillMaxWidth()
@@ -192,8 +192,8 @@ class TsumegoFragment : Fragment(), MviView<TsumegoState, TsumegoAction> {
                                             val hasPreviousState = remember {
                                                 viewModel.hasPreviousPuzzle
                                             }
-                                            if(hasPreviousState.value == true) {
-                                                Row(modifier = Modifier.weight(1f)) {
+                                            Row(modifier = Modifier.weight(1f)) {
+                                                if(hasPreviousState.value == true) {
                                                     Image(painter = painterResource(R.drawable.ic_navigate_previous),
                                                         modifier = Modifier
                                                             .align(Alignment.CenterVertically)
@@ -210,8 +210,15 @@ class TsumegoFragment : Fragment(), MviView<TsumegoState, TsumegoAction> {
                                                 }
                                             }
 
-                                            if(hasNextState.value == true) {
-                                                Row(modifier = Modifier.weight(1f)) {
+                                            TextButton(onClick = { viewModel.addBoardHints() },
+                                                    modifier = Modifier
+                                                        .align(Alignment.CenterVertically)
+                                                        .padding(all = 4.dp)) {
+                                                Text("HINT", color = state!!.nodeStack.lastOrNull()?.let { MaterialTheme.colors.secondary } ?: MaterialTheme.colors.onBackground, fontWeight = FontWeight.Bold)
+                                            }
+
+                                            Row(modifier = Modifier.weight(1f)) {
+                                                if(hasNextState.value == true) {
                                                     Spacer(modifier = Modifier.weight(1f))
                                                     TextButton(onClick = { viewModel.nextPuzzle() },
                                                             modifier = Modifier
