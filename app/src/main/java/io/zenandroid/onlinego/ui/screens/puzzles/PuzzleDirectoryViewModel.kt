@@ -8,6 +8,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
+import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import io.zenandroid.onlinego.data.model.ogs.Puzzle
 import io.zenandroid.onlinego.data.model.ogs.PuzzleCollection
@@ -61,6 +62,17 @@ class PuzzleDirectoryViewModel (
 
     fun loadNextPage() {
         loadPageTrigger.onNext(Unit)
+    }
+
+    private var loadedAllPages = false
+    fun loadAllPages() {
+        if (loadedAllPages) return
+        loadedAllPages = true
+        Observable.just(Unit)
+            .repeat()
+            .subscribeOn(Schedulers.io())
+            .subscribe({ loadPageTrigger.onNext(Unit) })
+            .addToDisposable(subscriptions)
     }
 
     private fun onError(t: Throwable) {

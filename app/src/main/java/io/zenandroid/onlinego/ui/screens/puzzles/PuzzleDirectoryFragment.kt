@@ -61,6 +61,7 @@ import io.zenandroid.onlinego.ui.composables.Board
 import io.zenandroid.onlinego.ui.composables.RatingBar
 import io.zenandroid.onlinego.ui.screens.main.MainActivity
 import io.zenandroid.onlinego.ui.screens.puzzle.PuzzleDirectoryAction.*
+import io.zenandroid.onlinego.ui.screens.puzzle.PuzzleDirectorySort.*
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.ogs.PuzzleCollection
@@ -69,6 +70,9 @@ import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.utils.PersistenceManager
 import io.zenandroid.onlinego.utils.convertCountryCodeToEmojiFlag
 import io.zenandroid.onlinego.utils.nullIfEmpty
+import kotlin.reflect.KClass
+import kotlin.reflect.full.createInstance
+import kotlin.reflect.full.safeCast
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.collect
@@ -132,11 +136,14 @@ class PuzzleDirectoryFragment : Fragment(), MviView<PuzzleDirectoryState, Puzzle
                         }
                     }
                     val filterText = remember { mutableStateOf(TextFieldValue()) }
+                    val sortField = remember { mutableStateOf<PuzzleDirectorySort>(RatingSort(false)) }
                     var resultCollections = remember { derivedStateOf {
                         filterText.value.text.lowercase().let { query ->
+                            if(query != "") viewModel.loadAllPages()
                             state?.collections
                                 ?.filter { it.name.lowercase().contains(query)
                                         || it.owner.username.lowercase().contains(query) }
+                                ?.sortedWith(sortField.value.compare)
                         } ?: state?.collections
                     } }
 
@@ -160,40 +167,77 @@ class PuzzleDirectoryFragment : Fragment(), MviView<PuzzleDirectoryState, Puzzle
                                 },
                                 backgroundColor = MaterialTheme.colors.surface
                             )
-                            Row(
-                                modifier = Modifier.fillMaxWidth().fillMaxHeight(),
-                              //verticalArrangement = Arrangement.Center,
-                              //horizontalAlignment = Alignment.CenterHorizontally,
-                            ) {
-                                TextField(
-                                    value = filterText.value,
-                                    onValueChange = { filterText.value = it },
-                                    placeholder = { Text(text = "Search") },
-                                    modifier = Modifier.padding(all = 16.dp).fillMaxWidth(),
-                                    keyboardOptions = KeyboardOptions(
-                                        capitalization = KeyboardCapitalization.None,
-                                        autoCorrect = true,
-                                        keyboardType = KeyboardType.Text,
-                                    ),
-                                    textStyle = TextStyle(color = MaterialTheme.colors.onSurface,
-                                        fontSize = 15.sp,
-                                        fontFamily = FontFamily.SansSerif),
-                                    maxLines = 2,
-                                  //activeColor = MaterialTheme.colors.primary,
-                                    singleLine = true,
-                                  //inactiveColor = MaterialTheme.colors.background,
-                                  //backgroundColor = MaterialTheme.colors.surface,
-                                    leadingIcon = {
-                                        Icon(imageVector = Icons.Filled.Search,
-                                             tint = MaterialTheme.colors.primary,
-                                             contentDescription = null)
-                                    },
-                                    trailingIcon = {
-                                        Icon(imageVector = Icons.Filled.Cancel,
-                                             tint = MaterialTheme.colors.primary,
-                                             contentDescription = null)
-                                    },
-                                )
+                            Box(modifier = Modifier.background(MaterialTheme.colors.background)) {
+                                Column(modifier = Modifier.padding(all = 16.dp).background(MaterialTheme.colors.surface)) {
+                                    TextField(
+                                        value = filterText.value,
+                                        onValueChange = { filterText.value = it },
+                                        placeholder = { Text(text = "Search") },
+                                        modifier = Modifier.fillMaxWidth(),
+                                        keyboardOptions = KeyboardOptions(
+                                            capitalization = KeyboardCapitalization.None,
+                                            autoCorrect = true,
+                                            keyboardType = KeyboardType.Text,
+                                        ),
+                                        textStyle = TextStyle(color = MaterialTheme.colors.onSurface,
+                                            fontSize = 15.sp,
+                                            fontFamily = FontFamily.SansSerif),
+                                        maxLines = 2,
+                                        singleLine = true,
+                                        leadingIcon = {
+                                            Icon(imageVector = Icons.Filled.Search,
+                                                 tint = MaterialTheme.colors.primary,
+                                                 contentDescription = null)
+                                        },
+                                        trailingIcon = {
+                                            IconButton(onClick = { filterText.value = TextFieldValue() }) {
+                                                Icon(imageVector = Icons.Filled.Cancel,
+                                                     tint = MaterialTheme.colors.primary,
+                                                     contentDescription = null)
+                                            }
+                                        },
+                                    )
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+                                    ) {
+                                        @Composable
+                                        fun <T : PuzzleDirectorySort> ratingButton(type: KClass<T>, name: String) {
+                                            val sorting = type.safeCast(sortField.value)
+                                            Spacer(modifier = Modifier.weight(1f))
+                                            TextButton(onClick = {
+                                                viewModel.loadAllPages()
+                                                sortField.value = sorting?.reversed ?: type.createInstance()
+                                            }) {
+                                                Text(
+                                                    text = name,
+                                                    color = if(sorting == null) MaterialTheme.colors.secondary
+                                                            else MaterialTheme.colors.primary,
+                                                    fontSize = 12.sp)
+                                                Icon(
+                                                    imageVector = if(sorting?.asc == false) Icons.Filled.ExpandMore
+                                                                  else Icons.Filled.ExpandLess,
+                                                    tint = if(sorting == null) MaterialTheme.colors.secondary
+                                                           else MaterialTheme.colors.primary,
+                                                    modifier = Modifier
+                                                       .align(Alignment.CenterVertically),
+                                                    contentDescription = null)
+                                            }
+                                        }
+                                        Text(
+                                            text = "Sort:",
+                                            color = MaterialTheme.colors.onBackground,
+                                            fontSize = 14.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            modifier = Modifier
+                                                .align(Alignment.CenterVertically)
+                                        )
+                                        ratingButton(name = "Name", type = NameSort::class)
+                                        ratingButton(name = "Rating", type = RatingSort::class)
+                                        ratingButton(name = "Count", type = CountSort::class)
+                                        ratingButton(name = "Views", type = ViewsSort::class)
+                                        ratingButton(name = "Rank", type = RankSort::class)
+                                    }
+                                }
                             }
                         }
 

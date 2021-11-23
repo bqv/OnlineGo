@@ -74,9 +74,7 @@ class TsumegoViewModel (
             boardPosition = puzzle.puzzle.let {
                 RulesManager.newPosition(it.width, it.height, it.initial_state).also { pos ->
                     pos.customMarks.addAll(it.move_tree.marks?.map {
-                        Position.Mark(Point(it.x, it.y), it.marks.let {
-                            it.letter ?: it.transient_letter
-                        }, PlayCategory.LABEL)
+                        Position.Mark(Point(it.x, it.y), it.marks.toString(), PlayCategory.LABEL)
                     } ?: emptyList())
                 }.also {
                     when(puzzle.puzzle.initial_player) {
@@ -169,9 +167,7 @@ class TsumegoViewModel (
                         _state.value = _state.value?.copy(
                             boardPosition = position.also { pos ->
                                 pos.customMarks.addAll(node.marks?.map {
-                                    Position.Mark(Point(it.x, it.y), it.marks.let {
-                                        it.letter ?: it.transient_letter
-                                    }, PlayCategory.LABEL)
+                                    Position.Mark(Point(it.x, it.y), it.marks.toString(), PlayCategory.LABEL)
                                 } ?: emptyList())
                             },
                             nodeStack = nodeStack,
@@ -188,9 +184,7 @@ class TsumegoViewModel (
                     _state.value = _state.value?.copy(
                         boardPosition = position.also { pos ->
                             pos.customMarks.addAll(node.marks?.map {
-                                Position.Mark(Point(it.x, it.y), it.marks.let {
-                                    it.letter ?: it.transient_letter
-                                }, PlayCategory.LABEL)
+                                Position.Mark(Point(it.x, it.y), it.marks.toString(), PlayCategory.LABEL)
                             } ?: emptyList())
                         },
                         nodeStack = nodeStack,

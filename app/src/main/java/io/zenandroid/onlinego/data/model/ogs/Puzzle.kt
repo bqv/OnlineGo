@@ -3,15 +3,47 @@ package io.zenandroid.onlinego.data.model.ogs
 import io.zenandroid.onlinego.data.model.local.InitialState
 import org.threeten.bp.Instant
 
+data class PenData (
+    val color: String?,
+    val points: List<Int>?
+)
+
 data class MarkData (
     val letter: String?,
     val transient_letter: String?,
-)
+    val subscript: String?,
+    val color: String?,
+  //val score: String?, // or bool
+    val triangle: Boolean = false,
+    val square: Boolean = false,
+    val circle: Boolean = false,
+    val cross: Boolean = false,
+  //val blue_move: Boolean = false,
+    val chat_triangle: Boolean = false,
+    val sub_triangle: Boolean = false,
+    val remove: Boolean = false,
+    val stone_removed: Boolean = false,
+    val mark_x: Boolean = false,
+    val hint: Boolean = false,
+    val black: Boolean?,
+    val white: Boolean?,
+) {
+    override fun toString(): String {
+        return letter ?: transient_letter ?: subscript ?: color
+        ?: when {
+            triangle || chat_triangle || sub_triangle -> "△"
+            square -> "□"
+            circle -> "○"
+            cross -> "⨯"
+            else -> ""
+        }
+    }
+}
 
 data class Mark (
     val y: Int,
     val x: Int,
-    val marks: MarkData
+    val marks: MarkData,
 )
 
 data class MoveTree (
@@ -21,7 +53,8 @@ data class MoveTree (
     val wrong_answer: Boolean?,
     val text: String?,
     val branches: List<MoveTree>?,
-    val marks: List<Mark>?
+    val marks: List<Mark>?,
+    val pen_marks: List<PenData>?
 )
 
 data class PuzzleData (
