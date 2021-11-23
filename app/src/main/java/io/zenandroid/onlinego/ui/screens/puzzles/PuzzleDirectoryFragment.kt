@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -31,8 +32,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy.DisposeOnLifecycleDestroyed
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.*
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -128,6 +131,15 @@ class PuzzleDirectoryFragment : Fragment(), MviView<PuzzleDirectoryState, Puzzle
                             lastVisibleItemIndex > (totalItemsNumber - buffer)
                         }
                     }
+                    val filterText = remember { mutableStateOf(TextFieldValue()) }
+                    var resultCollections = remember { derivedStateOf {
+                        filterText.value.text.lowercase().let { query ->
+                            state?.collections
+                                ?.filter { it.name.lowercase().contains(query)
+                                        || it.owner.username.lowercase().contains(query) }
+                        } ?: state?.collections
+                    } }
+
                     LazyColumn (
                         state = listState,
                         modifier = Modifier.fillMaxHeight()
@@ -148,9 +160,44 @@ class PuzzleDirectoryFragment : Fragment(), MviView<PuzzleDirectoryState, Puzzle
                                 },
                                 backgroundColor = MaterialTheme.colors.surface
                             )
+                            Row(
+                                modifier = Modifier.fillMaxWidth().fillMaxHeight(),
+                              //verticalArrangement = Arrangement.Center,
+                              //horizontalAlignment = Alignment.CenterHorizontally,
+                            ) {
+                                TextField(
+                                    value = filterText.value,
+                                    onValueChange = { filterText.value = it },
+                                    placeholder = { Text(text = "Search") },
+                                    modifier = Modifier.padding(all = 16.dp).fillMaxWidth(),
+                                    keyboardOptions = KeyboardOptions(
+                                        capitalization = KeyboardCapitalization.None,
+                                        autoCorrect = true,
+                                        keyboardType = KeyboardType.Text,
+                                    ),
+                                    textStyle = TextStyle(color = MaterialTheme.colors.onSurface,
+                                        fontSize = 15.sp,
+                                        fontFamily = FontFamily.SansSerif),
+                                    maxLines = 2,
+                                  //activeColor = MaterialTheme.colors.primary,
+                                    singleLine = true,
+                                  //inactiveColor = MaterialTheme.colors.background,
+                                  //backgroundColor = MaterialTheme.colors.surface,
+                                    leadingIcon = {
+                                        Icon(imageVector = Icons.Filled.Search,
+                                             tint = MaterialTheme.colors.primary,
+                                             contentDescription = null)
+                                    },
+                                    trailingIcon = {
+                                        Icon(imageVector = Icons.Filled.Cancel,
+                                             tint = MaterialTheme.colors.primary,
+                                             contentDescription = null)
+                                    },
+                                )
+                            }
                         }
 
-                        state?.collections?.nullIfEmpty()?.let { collections ->
+                        resultCollections.value?.nullIfEmpty()?.let { collections ->
                             items(items = collections) {
                                 Surface(
                                     shape = MaterialTheme.shapes.medium,
@@ -211,7 +258,7 @@ class PuzzleDirectoryFragment : Fragment(), MviView<PuzzleDirectoryState, Puzzle
                                                 )
                                                 val private = if(it.private) "(private)" else ""
                                                 val ago = "${DAYS.between(it.created, now())} days ago"
-                                                it.owner?.let {
+                                                it.owner.let {
                                                     val flag = convertCountryCodeToEmojiFlag(it.country)
                                                     Text(
                                                         text = "by ${it.username} $flag $private - $ago",
@@ -319,7 +366,7 @@ class PuzzleDirectoryFragment : Fragment(), MviView<PuzzleDirectoryState, Puzzle
     }
 
     private fun navigateToCollectionScreen(collection: PuzzleCollection) {
-        findNavController()?.navigate(
+        findNavController().navigate(
             R.id.puzzleFragment,
             bundleOf(
                 COLLECTION_ID to collection.id,
