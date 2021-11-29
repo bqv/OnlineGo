@@ -38,7 +38,6 @@ import org.threeten.bp.temporal.ChronoUnit.*
 
 class TsumegoViewModel (
     private val puzzleRepository: PuzzleRepository,
-    private val restService: OGSRestService,
     private val store: Store<TsumegoState, TsumegoAction>,
     private val puzzleId: Long
     ): ViewModel()
@@ -66,6 +65,7 @@ class TsumegoViewModel (
             .observeOn(AndroidSchedulers.mainThread()) // TODO: remove?
             .subscribe(this::setPuzzle, this::onError)
             .addToDisposable(subscriptions)
+        fetchRating(puzzleId)
     }
 
     private fun setPuzzle(puzzle: Puzzle, attempts: Int = 1) {
@@ -93,7 +93,7 @@ class TsumegoViewModel (
 
         fetchSolutions()
         if(collectionPuzzles.size == 0) {
-            restService.getPuzzleCollectionContents(puzzle.collection!!.id)
+            puzzleRepository.getPuzzleCollectionContents(puzzle.collection?.id ?: puzzle.puzzle.puzzle_collection.toLong())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread()) // TODO: remove?
                 .subscribe(this::setCollection, this::onError)
@@ -250,37 +250,38 @@ class TsumegoViewModel (
             attempts = it.attemptCount,
             solution = it.sgfMoves,
         ) }
-        restService.markPuzzleSolved(_state.value?.puzzle?.id!!, record)
+        puzzleRepository.markPuzzleSolved(_state.value?.puzzle?.id!!, record)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread()) // TODO: remove?
-            .subscribe({ updateSolutions(_state.value!!.solutions.plus(record)) }, this::onError)
+            .subscribe({ updateSolutions(listOf(record)) }, this::onError)
             .addToDisposable(subscriptions)
     }
 
     fun fetchSolutions() {
-        restService.getPuzzleSolutions(_state.value?.puzzle?.id!!)
+        updateSolutions()
+        puzzleRepository.getPuzzleSolution(_state.value?.puzzle?.id!!)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread()) // TODO: remove?
             .subscribe(this::updateSolutions, this::onError)
             .addToDisposable(subscriptions)
     }
 
-    fun updateSolutions(solutions: List<PuzzleSolution>) {
+    fun updateSolutions(solution: List<PuzzleSolution>? = null) {
         _state.value = _state.value?.copy(
-            solutions = solutions
+            solutions = solution?.let { _state.value!!.solutions.plus(it) } ?: emptyList()
         )
     }
 
     fun rate(value: Int) {
-        restService.ratePuzzle(_state.value?.puzzle?.id!!, value)
+        puzzleRepository.ratePuzzle(_state.value?.puzzle?.id!!, value)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread()) // TODO: remove?
             .subscribe({ updateRating(value) }, this::onError)
             .addToDisposable(subscriptions)
     }
 
-    fun fetchRating() {
-        restService.getPuzzleRating(_state.value?.puzzle?.id!!)
+    fun fetchRating(id: Long? = null) {
+        puzzleRepository.getPuzzleRating(id ?: _state.value?.puzzle?.id!!)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread()) // TODO: remove?
             .subscribe({ updateRating(it.rating) }, { updateRating(-1) })
@@ -289,10 +290,8 @@ class TsumegoViewModel (
 
     fun updateRating(value: Int) {
         _state.value = _state.value?.copy(
-            puzzle = _state.value?.puzzle?.copy(
-                playerRating = PuzzleRating(
-                    rating = value
-                )
+            rating = PuzzleRating(
+                rating = value
             )
         )
     }

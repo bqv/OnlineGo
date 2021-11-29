@@ -27,7 +27,6 @@ class PuzzleDirectoryViewModel (
     private val _state = MutableLiveData(PuzzleDirectoryState())
     val state: LiveData<PuzzleDirectoryState> = _state
     private val subscriptions = CompositeDisposable()
-    private val loadPageTrigger = PublishSubject.create<Unit>()
 
     private val wiring = store.wire()
     private var viewBinding: Disposable? = null
@@ -37,7 +36,7 @@ class PuzzleDirectoryViewModel (
     }
 
     init {
-        puzzleRepository.getAllPuzzleCollections(loadPageTrigger)
+        puzzleRepository.getAllPuzzleCollections()
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread()) // TODO: remove?
             .subscribe(this::addCollections, this::onError)
@@ -47,7 +46,7 @@ class PuzzleDirectoryViewModel (
     private fun addCollections(nextCollections: List<PuzzleCollection>) {
         _state.value = _state.value?.let {
             it.copy(
-                collections = it.collections.plus(nextCollections)
+                collections = it.collections.plus(nextCollections.associate({ it.id to it }))
             )
         }
     }
@@ -58,21 +57,6 @@ class PuzzleDirectoryViewModel (
 
     fun unbind() {
         viewBinding?.dispose()
-    }
-
-    fun loadNextPage() {
-        loadPageTrigger.onNext(Unit)
-    }
-
-    private var loadedAllPages = false
-    fun loadAllPages() {
-        if (loadedAllPages) return
-        loadedAllPages = true
-        Observable.just(Unit)
-            .repeat()
-            .subscribeOn(Schedulers.io())
-            .subscribe({ loadPageTrigger.onNext(Unit) })
-            .addToDisposable(subscriptions)
     }
 
     private fun onError(t: Throwable) {

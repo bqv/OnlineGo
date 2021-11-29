@@ -292,12 +292,12 @@ class TsumegoFragment : Fragment(), MviView<TsumegoState, TsumegoAction> {
                                                     }
                                                 }
                                             }
-                                            if (state!!.continueButtonVisible || (state!!.puzzle?.playerRating?.rating ?: 0) > 0) {
+                                            if (state!!.continueButtonVisible || (state!!.rating?.rating ?: 0) > 0) {
                                                 Row(modifier = Modifier.height(32.dp)
                                                             .align(Alignment.CenterHorizontally)
                                                         ) {
                                                     RatingBar(
-                                                        rating = state!!.puzzle?.playerRating?.rating?.toFloat() ?: 0f,
+                                                        rating = state!!.rating?.rating?.toFloat() ?: 0f,
                                                         onTap = { viewModel.rate(it) },
                                                         modifier = Modifier
                                                             .align(Alignment.CenterVertically)
@@ -344,19 +344,6 @@ class TsumegoFragment : Fragment(), MviView<TsumegoState, TsumegoAction> {
 
     override fun render(state: TsumegoState) {
         currentState = state
-    }
-
-    private fun navigateToNextTsumegoScreen(puzzle: Puzzle) {
-        Toast.makeText(requireContext(), "${puzzle.id}", Toast.LENGTH_LONG).show()
-        findNavController().navigate(
-            R.id.tsumegoFragment,
-            bundleOf(
-                PUZZLE_ID to puzzle.id,
-            ),
-            NavOptions.Builder()
-                .setLaunchSingleTop(true)
-                .build()
-        )
     }
 
     override fun onPause() {

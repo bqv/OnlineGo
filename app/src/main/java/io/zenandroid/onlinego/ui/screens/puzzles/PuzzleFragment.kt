@@ -150,7 +150,7 @@ class PuzzleFragment : Fragment(), MviView<PuzzleState, PuzzleAction> {
                             backgroundColor = MaterialTheme.colors.surface
                         )
 
-                        state?.collection?.puzzles?.nullIfEmpty()?.let { puzzles ->
+                        state?.puzzles?.nullIfEmpty()?.let { puzzles ->
                             val listState = rememberLazyListState()
                             LazyVerticalGrid(
                                 state = listState,

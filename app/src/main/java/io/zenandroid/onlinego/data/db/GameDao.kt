@@ -7,7 +7,12 @@ import io.reactivex.Maybe
 import io.reactivex.Single
 import io.zenandroid.onlinego.data.model.local.*
 import io.zenandroid.onlinego.data.model.ogs.JosekiPosition
+import io.zenandroid.onlinego.data.model.ogs.OGSPlayer
 import io.zenandroid.onlinego.data.model.ogs.Phase
+import io.zenandroid.onlinego.data.model.ogs.Puzzle
+import io.zenandroid.onlinego.data.model.ogs.PuzzleRating
+import io.zenandroid.onlinego.data.model.ogs.PuzzleSolution
+import io.zenandroid.onlinego.data.model.ogs.PuzzleCollection
 
 /**
  * Created by alex on 04/06/2018.
@@ -398,4 +403,37 @@ abstract class GameDao {
             updateChatMetadata(ChatMetadata(0, messages.last().chatId))
         }
     }
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    abstract fun insertPuzzleCollections(collections: List<PuzzleCollection>)
+
+    @Query("SELECT * FROM puzzlecollection")
+    abstract fun getAllPuzzleCollections(): Flowable<List<PuzzleCollection>>
+
+    @Query("SELECT count(*) FROM puzzlecollection")
+    abstract fun getPuzzleCollectionCount(): Single<Int>
+
+    @Query("SELECT * FROM puzzlecollection WHERE id = :collectionId")
+    abstract fun getPuzzleCollection(collectionId: Long): Flowable<PuzzleCollection>
+
+    @Query("SELECT * FROM puzzle WHERE puzzle_puzzle_collection = :collectionId")
+    abstract fun getPuzzleCollectionPuzzles(collectionId: Long): Flowable<List<Puzzle>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    abstract fun insertPuzzles(puzzles: List<Puzzle>)
+
+    @Query("SELECT * FROM puzzle WHERE id = :puzzleId")
+    abstract fun getPuzzle(puzzleId: Long): Flowable<Puzzle>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    abstract fun insertPuzzleRating(rating: PuzzleRating)
+
+    @Query("SELECT * FROM puzzlerating WHERE puzzleId = :puzzleId")
+    abstract fun getPuzzleRating(puzzleId: Long): Flowable<PuzzleRating>
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    abstract fun insertPuzzleSolutions(solutions: List<PuzzleSolution>)
+
+    @Query("SELECT * FROM puzzlesolution WHERE puzzle = :puzzleId")
+    abstract fun getPuzzleSolution(puzzleId: Long): Flowable<List<PuzzleSolution>>
 }

@@ -1,8 +1,14 @@
 package io.zenandroid.onlinego.data.model.ogs
 
-data class PuzzleRating (
+import androidx.room.Entity
+import androidx.room.Ignore
+import androidx.room.PrimaryKey
 
-    var error: String? = null,
-    var rating: Int
+@Entity
+data class PuzzleRating (
+    @PrimaryKey var puzzleId: Long = -1,
+
+    @Ignore var error: String? = null,
+    var rating: Int = 0
 
 )

@@ -165,7 +165,6 @@ private val viewModelsModule = module {
     viewModel { params ->
         TsumegoViewModel(
                 PuzzleRepository(get(), get()),
-                OGSRestService(get(), get(), get(), get()),
                 Store(
                         TsumegoReducer(),
                         listOf(

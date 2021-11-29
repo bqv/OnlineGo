@@ -1,55 +1,39 @@
 package io.zenandroid.onlinego.data.model.ogs
 
+import androidx.room.ColumnInfo
+import androidx.room.Embedded
+import androidx.room.Entity
+import androidx.room.Ignore
+import androidx.room.PrimaryKey
+import androidx.room.Relation
 import io.zenandroid.onlinego.data.model.local.InitialState
+import io.zenandroid.onlinego.data.model.ogs.Puzzle
 import org.threeten.bp.Instant
 
-data class Rating (
-    val rating: Float?,
-    val deviation: Float?,
-    val volatility: Float?
-)
-
-data class PuzzleRatings (
-    val version: Int,
-    val overall: Rating
-)
-
-data class PuzzleOwner (
-    val id: Long,
-    val username: String,
-    val country: String?,
-    val icon: String,
-    val ratings: PuzzleRatings,
-    val ranking: Float?,
-    val professional: Boolean?,
-    val ui_class: String?
-)
-
-data class StartingPuzzle (
-    val id: Long,
-    val initial_state: InitialState,
-    val width: Int,
-    val height: Int
-)
-
+@Entity
 data class PuzzleCollection (
-    val id: Long,
-    val owner: PuzzleOwner,
-    val name: String,
-    val created: Instant?,
-    val private: Boolean,
-    val price: String?,
-    val starting_puzzle: StartingPuzzle,
-    val rating: Float,
-    val rating_count: Int,
-    val puzzle_count: Int,
-    val min_rank: Int,
-    val max_rank: Int,
-    val view_count: Int,
-    val solved_count: Int,
-    val attempt_count: Int,
-    val color_transform_enabled: Boolean,
-    val position_transform_enabled: Boolean,
-
-    var puzzles: List<Puzzle>?
-)
+    @PrimaryKey var id: Long = -1,
+    @Embedded(prefix = "owner_") var owner: OGSPlayer? = null,
+    var name: String = "",
+    var created: Instant? = null,
+    @ColumnInfo(name = "is_private") var private: Boolean = false,
+    var price: String? = null,
+    @Embedded(prefix = "starting_puzzle_") var starting_puzzle: StartingPuzzle = StartingPuzzle(),
+    var rating: Float = 0f,
+    var rating_count: Int = 0,
+    var puzzle_count: Int = 0,
+    var min_rank: Int = 0,
+    var max_rank: Int = 0,
+    var view_count: Int = 0,
+    var solved_count: Int = 0,
+    var attempt_count: Int = 0,
+    var color_transform_enabled: Boolean? = null,
+    var position_transform_enabled: Boolean? = null,
+) {
+    data class StartingPuzzle (
+        var id: Long = -1,
+        @Embedded(prefix = "initial_state_") var initial_state: InitialState = InitialState(),
+        var width: Int = 0,
+        var height: Int = 0
+    )
+}

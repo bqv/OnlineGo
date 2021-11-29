@@ -16,6 +16,7 @@ import okhttp3.ResponseBody.Companion.toResponseBody
 import retrofit2.HttpException
 import retrofit2.Response
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 private const val TAG = "OGSRestService"
 
@@ -217,7 +218,7 @@ class OGSRestService(
     fun getPlayerStats(id: Long): Single<Glicko2History> =
             restApi.getPlayerStats(id)
 
-    fun getPuzzleCollections(trigger: Observable<Unit>, minCount: Int? = null, namePrefix: String? = null): Flowable<List<PuzzleCollection>> {
+    fun getPuzzleCollections(minCount: Int? = null, namePrefix: String? = null): Flowable<List<PuzzleCollection>> {
         var page = 0
 
         fun fetchPage(): Single<PagedResult<PuzzleCollection>> = restApi.getPuzzleCollections(
@@ -232,7 +233,8 @@ class OGSRestService(
                     if (pre.next == null) {
                         it
                     } else {
-                        it.concatWith(trigger.take(1).map { emptyList<PuzzleCollection>() }.ignoreElements())
+                        val wait = Observable.timer(5, TimeUnit.SECONDS).take(1)
+                        it.concatWith(wait.map { emptyList<PuzzleCollection>() }.ignoreElements())
                             .concatWith(unfold(fetchPage()))
                     }
                 }

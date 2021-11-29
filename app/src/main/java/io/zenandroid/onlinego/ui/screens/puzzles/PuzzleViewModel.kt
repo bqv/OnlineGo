@@ -40,11 +40,22 @@ class PuzzleViewModel (
             .observeOn(AndroidSchedulers.mainThread()) // TODO: remove?
             .subscribe(this::setCollection, this::onError)
             .addToDisposable(subscriptions)
+        puzzleRepository.getPuzzleCollectionContents(collectionId)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread()) // TODO: remove?
+            .subscribe(this::setCollectionPuzzles, this::onError)
+            .addToDisposable(subscriptions)
     }
 
-    private fun setCollection(collection: PuzzleCollection) {
+    private fun setCollection(response: PuzzleCollection) {
         _state.value = _state.value?.copy(
-            collection = collection
+            collection = response,
+        )
+    }
+
+    private fun setCollectionPuzzles(response: List<Puzzle>) {
+        _state.value = _state.value?.copy(
+            puzzles = response,
         )
     }
 

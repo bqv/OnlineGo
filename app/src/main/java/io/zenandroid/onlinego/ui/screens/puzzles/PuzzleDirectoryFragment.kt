@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.preference.PreferenceManager
 import android.provider.Browser
 import android.util.Log
 import android.view.LayoutInflater
@@ -92,6 +93,8 @@ class PuzzleDirectoryFragment : Fragment(), MviView<PuzzleDirectoryState, Puzzle
     private val internalActions = PublishSubject.create<PuzzleDirectoryAction>()
     private var currentState: PuzzleDirectoryState? = null
 
+    private var lastRefresh by mutableStateOf(PersistenceManager.puzzleCollectionLastRefresh)
+
     private val onBackPressedCallback = object : OnBackPressedCallback(true) {
         override fun handleOnBackPressed() {
             internalActions.onNext(UserPressedBack)
@@ -125,26 +128,15 @@ class PuzzleDirectoryFragment : Fragment(), MviView<PuzzleDirectoryState, Puzzle
                     val state by viewModel.state.observeAsState()
 
                     val listState = rememberLazyListState()
-                    val loadMore = remember {
-                        val buffer = 20
-                        derivedStateOf {
-                            val layoutInfo = listState.layoutInfo
-                            val totalItemsNumber = layoutInfo.totalItemsCount
-                            val lastVisibleItemIndex = (layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0) + 1
-
-                            lastVisibleItemIndex > (totalItemsNumber - buffer)
-                        }
-                    }
                     val filterText = remember { mutableStateOf(TextFieldValue()) }
                     val sortField = remember { mutableStateOf<PuzzleDirectorySort>(RatingSort(false)) }
                     var resultCollections = remember { derivedStateOf {
                         filterText.value.text.lowercase().let { query ->
-                            if(query != "") viewModel.loadAllPages()
-                            state?.collections
+                            state?.collections?.map { it.value }
                                 ?.filter { it.name.lowercase().contains(query)
-                                        || it.owner.username.lowercase().contains(query) }
+                                        || it.owner?.username?.lowercase()?.contains(query) == true }
                                 ?.sortedWith(sortField.value.compare)
-                        } ?: state?.collections
+                        } ?: state?.collections?.map { it.value }
                     } }
 
                     LazyColumn (
@@ -205,7 +197,6 @@ class PuzzleDirectoryFragment : Fragment(), MviView<PuzzleDirectoryState, Puzzle
                                             val sorting = type.safeCast(sortField.value)
                                             Spacer(modifier = Modifier.weight(1f))
                                             TextButton(onClick = {
-                                                viewModel.loadAllPages()
                                                 sortField.value = sorting?.reversed ?: type.createInstance()
                                             }) {
                                                 Text(
@@ -302,7 +293,7 @@ class PuzzleDirectoryFragment : Fragment(), MviView<PuzzleDirectoryState, Puzzle
                                                 )
                                                 val private = if(it.private) "(private)" else ""
                                                 val ago = "${DAYS.between(it.created, now())} days ago"
-                                                it.owner.let {
+                                                it.owner?.let {
                                                     val flag = convertCountryCodeToEmojiFlag(it.country)
                                                     Text(
                                                         text = "by ${it.username} $flag $private - $ago",
@@ -382,14 +373,6 @@ class PuzzleDirectoryFragment : Fragment(), MviView<PuzzleDirectoryState, Puzzle
 
                         item {
                             Spacer(modifier = Modifier.height(8.dp))
-                        }
-                    }
-                    LaunchedEffect(loadMore) {
-                        snapshotFlow { loadMore.value }
-                        .distinctUntilChanged()
-                        .filter { it }
-                        .collect {
-                            viewModel.loadNextPage()
                         }
                     }
                 }

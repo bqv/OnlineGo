@@ -5,12 +5,14 @@ import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.ogs.MoveTree
 import io.zenandroid.onlinego.data.model.ogs.Puzzle
 import io.zenandroid.onlinego.data.model.ogs.PuzzleCollection
+import io.zenandroid.onlinego.data.model.ogs.PuzzleRating
 import io.zenandroid.onlinego.data.model.ogs.PuzzleSolution
 import io.zenandroid.onlinego.data.model.StoneType
 import org.threeten.bp.Instant
 
 data class TsumegoState (
         val puzzle: Puzzle? = null,
+        val rating: PuzzleRating? = null,
         val solutions: List<PuzzleSolution> = emptyList(),
         val startTime: Instant? = null,
         val attemptCount: Int = 0,

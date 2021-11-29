@@ -5,5 +5,5 @@ import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.ogs.PuzzleCollection
 
 data class PuzzleDirectoryState (
-    val collections: List<PuzzleCollection> = emptyList(),
+    val collections: Map<Long, PuzzleCollection> = emptyMap(),
 )

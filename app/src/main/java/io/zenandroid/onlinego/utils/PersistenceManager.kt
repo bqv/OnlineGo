@@ -11,6 +11,7 @@ private const val UICONFIG_KEY = "UICONFIG_KEY"
 private const val VISITED_JOSEKI = "VISITED_JOSEKI"
 private const val VISITED_PUZZLES = "VISITED_PUZZLES"
 private const val WHATS_NEW = "WHATS_NEW"
+private const val REFRESH = "PUZZLE_DIRECTORY_REFRESH"
 
 /**
  * Created by alex on 07/11/2017.
@@ -54,6 +55,14 @@ object PersistenceManager {
         set(value) {
             if(field != value) {
                 prefs.edit { putString(WHATS_NEW, value) }
+            }
+            field = value
+        }
+
+    var puzzleCollectionLastRefresh: Long = prefs.getLong(REFRESH, 0)
+        set(value) {
+            if(field != value) {
+                prefs.edit { putLong(REFRESH, value) }
             }
             field = value
         }

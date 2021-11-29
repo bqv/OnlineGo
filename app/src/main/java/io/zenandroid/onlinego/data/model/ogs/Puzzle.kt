@@ -1,96 +1,101 @@
 package io.zenandroid.onlinego.data.model.ogs
 
+import androidx.room.Entity
+import androidx.room.Embedded
+import androidx.room.Ignore
+import androidx.room.PrimaryKey
+import androidx.room.Relation
+import androidx.room.TypeConverters
 import io.zenandroid.onlinego.data.model.local.InitialState
 import org.threeten.bp.Instant
 
-data class PenData (
-    val color: String?,
-    val points: List<Int>?
-)
-
-data class MarkData (
-    val letter: String?,
-    val transient_letter: String?,
-    val subscript: String?,
-    val color: String?,
-  //val score: String?, // or bool
-    val triangle: Boolean = false,
-    val square: Boolean = false,
-    val circle: Boolean = false,
-    val cross: Boolean = false,
-  //val blue_move: Boolean = false,
-    val chat_triangle: Boolean = false,
-    val sub_triangle: Boolean = false,
-    val remove: Boolean = false,
-    val stone_removed: Boolean = false,
-    val mark_x: Boolean = false,
-    val hint: Boolean = false,
-    val black: Boolean?,
-    val white: Boolean?,
+data class MoveTree (
+    var y: Int = -1,
+    var x: Int = -1,
+    var correct_answer: Boolean? = null,
+    var wrong_answer: Boolean? = null,
+    var text: String? = null,
+    var branches: List<MoveTree>? = null,
+    var marks: List<Mark>? = null,
+    var pen_marks: List<PenData>? = null
 ) {
-    override fun toString(): String {
-        return letter ?: transient_letter ?: subscript ?: color
-        ?: when {
-            triangle || chat_triangle || sub_triangle -> "△"
-            square -> "□"
-            circle -> "○"
-            cross -> "⨯"
-            else -> ""
+    data class Mark (
+        var y: Int,
+        var x: Int,
+        var marks: MarkData,
+    ) {
+        data class MarkData (
+            var letter: String?,
+            var transient_letter: String?,
+            var subscript: String?,
+            var color: String?,
+          //var score: String?, // or bool
+            var triangle: Boolean = false,
+            var square: Boolean = false,
+            var circle: Boolean = false,
+            var cross: Boolean = false,
+          //var blue_move: Boolean = false,
+            var chat_triangle: Boolean = false,
+            var sub_triangle: Boolean = false,
+            var remove: Boolean = false,
+            var stone_removed: Boolean = false,
+            var mark_x: Boolean = false,
+            var hint: Boolean = false,
+            var black: Boolean?,
+            var white: Boolean?,
+        ) {
+            override fun toString(): String {
+                return letter ?: transient_letter ?: subscript ?: color
+                ?: when {
+                    triangle || chat_triangle || sub_triangle -> "△"
+                    square -> "□"
+                    circle -> "○"
+                    cross -> "⨯"
+                    else -> ""
+                }
+            }
         }
     }
+
+    data class PenData (
+        var color: String?,
+        var points: List<Int>?
+    )
 }
 
-data class Mark (
-    val y: Int,
-    val x: Int,
-    val marks: MarkData,
-)
-
-data class MoveTree (
-    val y: Int,
-    val x: Int,
-    val correct_answer: Boolean?,
-    val wrong_answer: Boolean?,
-    val text: String?,
-    val branches: List<MoveTree>?,
-    val marks: List<Mark>?,
-    val pen_marks: List<PenData>?
-)
-
-data class PuzzleData (
-    val puzzle_rank: String,
-    val name: String,
-    val move_tree: MoveTree,
-    val initial_player: String,
-    val height: Int,
-    val width: Int,
-    val mode: String,
-    val puzzle_collection: String,
-    val puzzle_type: String,
-    val initial_state: InitialState,
-    val puzzle_description: String
-)
-
+@Entity
 data class Puzzle (
-    val id: Long,
-    val order: Float?,
-    val owner: PuzzleOwner?,
-    val name: String,
-    val created: Instant?,
-    val modified: String?,
-    val puzzle: PuzzleData,
-    val private: Boolean?,
-    val width: Int?,
-    val height: Int?,
-    val type: String,
-    val has_solution: Boolean,
-    val rating: Float?,
-    val rating_count: Int?,
-    val rank: Int,
-    val collection: PuzzleCollection?,
-    val view_count: Int?,
-    val solved_count: Int?,
-    val attempt_count: Int?,
-
-    var playerRating: PuzzleRating?
-)
+    @PrimaryKey var id: Long = -1,
+    var order: Int? = -1,
+    @Embedded(prefix = "owner_") var owner: OGSPlayer? = null,
+    var name: String = "",
+    var created: Instant? = null,
+    var modified: Instant? = null,
+    @Embedded(prefix = "puzzle_") var puzzle: PuzzleData = PuzzleData(),
+    var private: Boolean? = null,
+    var width: Int = 0,
+    var height: Int = 0,
+    var type: String? = null,
+    var has_solution: Boolean? = null,
+    var rating: Float = 0f,
+    var rating_count: Int = 0,
+    var rank: Int = 0,
+    @Embedded(prefix = "collection_") var collection: PuzzleCollection? = null,
+    var view_count: Int = 0,
+    var solved_count: Int = 0,
+    var attempt_count: Int = 0,
+) {
+    data class PuzzleData (
+        var puzzle_rank: String = "",
+        var name: String = "",
+        var move_tree: MoveTree = MoveTree(),
+        var initial_player: String = "",
+        var height: Int = 0,
+        var width: Int = 0,
+        var mode: String = "",
+        var puzzle_collection: String = "",
+        var puzzle_type: String = "",
+        @Embedded(prefix = "initial_state_") var initial_state: InitialState = InitialState(),
+        var puzzle_description: String = ""
+    )
+}
