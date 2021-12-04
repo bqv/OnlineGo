@@ -45,6 +45,11 @@ class PuzzleViewModel (
             .observeOn(AndroidSchedulers.mainThread()) // TODO: remove?
             .subscribe(this::setCollectionPuzzles, this::onError)
             .addToDisposable(subscriptions)
+        puzzleRepository.markPuzzleCollectionVisited(collectionId)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread()) // TODO: remove?
+            .subscribe({ }, this::onError)
+            .addToDisposable(subscriptions)
     }
 
     private fun setCollection(response: PuzzleCollection) {

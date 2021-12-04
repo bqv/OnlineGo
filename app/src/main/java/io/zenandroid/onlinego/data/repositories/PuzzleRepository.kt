@@ -10,6 +10,7 @@ import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.data.db.GameDao
 import io.zenandroid.onlinego.data.model.Position
+import io.zenandroid.onlinego.data.model.local.VisitedPuzzleCollection
 import io.zenandroid.onlinego.data.model.ogs.Puzzle
 import io.zenandroid.onlinego.data.model.ogs.PuzzleRating
 import io.zenandroid.onlinego.data.model.ogs.PuzzleSolution
@@ -47,8 +48,19 @@ class PuzzleRepository(
                 .distinctUntilChanged()
     }
 
+    fun getRecentPuzzleCollections(): Flowable<List<VisitedPuzzleCollection>> {
+        return dao.getRecentPuzzleCollections()
+                .doOnNext { it.forEach{c -> Log.d("PuzzleRepository", c.toString())} }
+                .distinctUntilChanged()
+    }
+
+    fun markPuzzleCollectionVisited(id: Long): Single<VisitedPuzzleCollection> {
+        val visit = VisitedPuzzleCollection(id)
+        return dao.insertPuzzleCollectionVisit(visit).andThen(Single.just(visit))
+                .doOnSuccess { Log.d("PuzzleRepository", it.toString()) }
+    }
+
     fun getPuzzleCollection(id: Long): Flowable<PuzzleCollection> {
-        Log.d("PuzzleRepository", "fetch collection ${id}")
         disposable += restService.getPuzzleCollection(id).map(::listOf)
                 .subscribe(this::saveCollectionsToDB, this::onError)
 
@@ -58,7 +70,6 @@ class PuzzleRepository(
     }
 
     fun getPuzzleCollectionContents(id: Long): Flowable<List<Puzzle>> {
-        Log.d("PuzzleRepository", "fetch collection ${id} puzzles")
         disposable += restService.getPuzzleCollectionContents(id)
                 .subscribe(this::savePuzzlesToDB, this::onError)
 

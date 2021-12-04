@@ -7,6 +7,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.provider.Browser
+import android.text.format.DateUtils.getRelativeTimeSpanString
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -17,6 +18,7 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.KeyboardOptions
@@ -65,6 +67,7 @@ import io.zenandroid.onlinego.ui.screens.puzzle.PuzzleDirectoryAction.*
 import io.zenandroid.onlinego.ui.screens.puzzle.PuzzleDirectorySort.*
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.data.model.StoneType
+import io.zenandroid.onlinego.data.model.local.VisitedPuzzleCollection
 import io.zenandroid.onlinego.data.model.ogs.PuzzleCollection
 import io.zenandroid.onlinego.mvi.MviView
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
@@ -228,6 +231,77 @@ class PuzzleDirectoryFragment : Fragment(), MviView<PuzzleDirectoryState, Puzzle
                                         ratingButton(name = "Views", type = ViewsSort::class)
                                         ratingButton(name = "Rank", type = RankSort::class)
                                     }
+
+                                    LazyRow(modifier = Modifier.fillMaxWidth()) {
+                                        state?.recents?.map { it.value }?.chunked(3)?.nullIfEmpty()?.let { chunk ->
+                                            items(items = chunk) {
+                                                Column(modifier = Modifier.fillMaxWidth()) {
+                                                    (it.filterIsInstance<VisitedPuzzleCollection?>()
+                                                          .plus(listOf(null, null))).take(3).forEach {
+                                                        val ts = it?.timestamp
+                                                        val cnt = it?.count
+                                                        state?.collections?.get(it?.collectionId)?.let {
+                                                            Surface(
+                                                                shape = MaterialTheme.shapes.medium,
+                                                                modifier = Modifier
+                                                                    .height(50.dp)
+                                                                    .fillMaxWidth()
+                                                                    .padding(horizontal = 12.dp, vertical = 4.dp)
+                                                                    .clickable { -> navigateToCollectionScreen(it) }
+                                                            ) {
+                                                                Row(modifier = Modifier.fillMaxWidth()) {
+                                                                    Column(modifier = Modifier
+                                                                            .padding(horizontal = 10.dp, vertical = 10.dp)) {
+                                                                        it.starting_puzzle.let {
+                                                                            val pos = RulesManager.newPosition(it.width, it.height, it.initial_state)
+                                                                            Board(
+                                                                                boardWidth = it.width,
+                                                                                boardHeight = it.height,
+                                                                                position = pos,
+                                                                                drawCoordinates = false,
+                                                                                interactive = false,
+                                                                                drawShadow = false,
+                                                                                fadeInLastMove = false,
+                                                                                fadeOutRemovedStones = false,
+                                                                                modifier = Modifier
+                                                                                    .weight(1f)
+                                                                                    .clip(MaterialTheme.shapes.small)
+                                                                            )
+                                                                        }
+                                                                    }
+                                                                    Column {
+                                                                        Column(modifier = Modifier.padding(8.dp)) {
+                                                                            Text(
+                                                                                text = it.name,
+                                                                                style = TextStyle.Default.copy(
+                                                                                    fontSize = 12.sp,
+                                                                                    fontWeight = FontWeight.Bold
+                                                                                )
+                                                                            )
+                                                                            it.owner?.let {
+                                                                                val flag = convertCountryCodeToEmojiFlag(it.country)
+                                                                                val ago = getRelativeTimeSpanString((ts ?: now()).toEpochMilli())
+                                                                                Text(
+                                                                                    text = "by ${it.username} $flag - visited $ago",
+                                                                                    style = TextStyle.Default.copy(
+                                                                                        fontSize = 8.sp,
+                                                                                        fontWeight = FontWeight.Light
+                                                                                    )
+                                                                                )
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        } ?: Surface(
+                                                            shape = MaterialTheme.shapes.medium,
+                                                            modifier = Modifier.height(50.dp)
+                                                        ) {}
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -292,7 +366,7 @@ class PuzzleDirectoryFragment : Fragment(), MviView<PuzzleDirectoryState, Puzzle
                                                     )
                                                 )
                                                 val private = if(it.private) "(private)" else ""
-                                                val ago = "${DAYS.between(it.created, now())} days ago"
+                                                val ago = "created ${DAYS.between(it.created, now())} days ago"
                                                 it.owner?.let {
                                                     val flag = convertCountryCodeToEmojiFlag(it.country)
                                                     Text(

@@ -15,8 +15,8 @@ import io.zenandroid.onlinego.data.model.ogs.PuzzleSolution
  * Created by alex on 04/06/2018.
  */
 @Database(
-        entities = [Game::class, Message::class, Challenge::class, GameNotification::class, JosekiPosition::class, HistoricGamesMetadata::class, ChatMetadata::class, PuzzleCollection::class, Puzzle::class, PuzzleRating::class, PuzzleSolution::class],
-        version = 15
+        entities = [Game::class, Message::class, Challenge::class, GameNotification::class, JosekiPosition::class, HistoricGamesMetadata::class, ChatMetadata::class, PuzzleCollection::class, Puzzle::class, PuzzleRating::class, PuzzleSolution::class, VisitedPuzzleCollection::class],
+        version = 16
 )
 @TypeConverters(DbTypeConverters::class)
 abstract class Database: RoomDatabase() {

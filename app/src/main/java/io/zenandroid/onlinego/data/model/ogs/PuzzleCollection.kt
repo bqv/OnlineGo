@@ -3,6 +3,7 @@ package io.zenandroid.onlinego.data.model.ogs
 import androidx.room.ColumnInfo
 import androidx.room.Embedded
 import androidx.room.Entity
+import androidx.room.Fts4
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import androidx.room.Relation

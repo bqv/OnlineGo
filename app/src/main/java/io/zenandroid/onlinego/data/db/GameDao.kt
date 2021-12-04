@@ -2,6 +2,7 @@ package io.zenandroid.onlinego.data.db
 
 import android.util.Log
 import androidx.room.*
+import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Maybe
 import io.reactivex.Single
@@ -436,4 +437,10 @@ abstract class GameDao {
 
     @Query("SELECT * FROM puzzlesolution WHERE puzzle = :puzzleId")
     abstract fun getPuzzleSolution(puzzleId: Long): Flowable<List<PuzzleSolution>>
+
+    @Insert
+    abstract fun insertPuzzleCollectionVisit(visit: VisitedPuzzleCollection): Completable
+
+    @Query("SELECT collectionId, max(timestamp) timestamp, sum(count) count FROM visitedpuzzlecollection GROUP BY collectionId ORDER BY max(timestamp) DESC")
+    abstract fun getRecentPuzzleCollections(): Flowable<List<VisitedPuzzleCollection>>
 }

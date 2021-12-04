@@ -10,6 +10,7 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
+import io.zenandroid.onlinego.data.model.local.VisitedPuzzleCollection
 import io.zenandroid.onlinego.data.model.ogs.Puzzle
 import io.zenandroid.onlinego.data.model.ogs.PuzzleCollection
 import io.zenandroid.onlinego.data.ogs.OGSRestService
@@ -41,12 +42,29 @@ class PuzzleDirectoryViewModel (
             .observeOn(AndroidSchedulers.mainThread()) // TODO: remove?
             .subscribe(this::addCollections, this::onError)
             .addToDisposable(subscriptions)
+        getRecentCollections()
     }
 
     private fun addCollections(nextCollections: List<PuzzleCollection>) {
         _state.value = _state.value?.let {
             it.copy(
                 collections = it.collections.plus(nextCollections.associate({ it.id to it }))
+            )
+        }
+    }
+
+    private fun getRecentCollections() {
+        puzzleRepository.getRecentPuzzleCollections()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread()) // TODO: remove?
+            .subscribe(this::setRecentCollections, this::onError)
+            .addToDisposable(subscriptions)
+    }
+
+    private fun setRecentCollections(recents: List<VisitedPuzzleCollection>) {
+        _state.value = _state.value?.let {
+            it.copy(
+                recents = recents.associate({ it.timestamp to it }).plus(it.recents)
             )
         }
     }
