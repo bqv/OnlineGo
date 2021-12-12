@@ -146,8 +146,8 @@ class OGSRestService(
                         pause_on_weekends = true,
                         private = challengeParams.private,
                         rules = "japanese",
-                        time_control = "byoyomi",
-                        time_control_parameters = timeControl
+                        time_control = challengeParams.timeControl.system ?: "none",
+                        time_control_parameters = challengeParams.timeControl
                 )
         )
         return when {

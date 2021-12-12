@@ -48,6 +48,18 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 />
+            <io.zenandroid.onlinego.ui.screens.newchallenge.NameValueButton
+                android:id="@+id/systemView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                />
+            <io.zenandroid.onlinego.ui.screens.newchallenge.NameValueButton
+                android:id="@+id/timecontrolView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                />
         </LinearLayout>
         <Space
             android:layout_width="0dp"
@@ -65,19 +77,101 @@
                 android:layout_height="wrap_content"
                 />
             <io.zenandroid.onlinego.ui.screens.newchallenge.NameValueButton
-                android:id="@+id/speedView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                />
-            <io.zenandroid.onlinego.ui.screens.newchallenge.NameValueButton
                 android:id="@+id/rankedView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 />
             <io.zenandroid.onlinego.ui.screens.newchallenge.NameValueButton
+                android:id="@+id/speedView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                />
+            <io.zenandroid.onlinego.ui.screens.newchallenge.NameValueButton
                 android:id="@+id/privateView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                />
+            <io.zenandroid.onlinego.ui.screens.newchallenge.NameValueButton
+                android:id="@+id/pauseonweekendsView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                />
+        </LinearLayout>
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        >
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            />
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            >
+            <io.zenandroid.onlinego.ui.screens.newchallenge.NameValuePicker
+                android:id="@+id/maintimeView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                />
+            <io.zenandroid.onlinego.ui.screens.newchallenge.NameValuePicker
+                android:id="@+id/periodtimeView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                />
+            <io.zenandroid.onlinego.ui.screens.newchallenge.NameValuePicker
+                android:id="@+id/periodsView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                />
+            <io.zenandroid.onlinego.ui.screens.newchallenge.NameValuePicker
+                android:id="@+id/initialtimeView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                />
+            <io.zenandroid.onlinego.ui.screens.newchallenge.NameValuePicker
+                android:id="@+id/maxtimeView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                />
+            <io.zenandroid.onlinego.ui.screens.newchallenge.NameValuePicker
+                android:id="@+id/timeincrementView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                />
+            <io.zenandroid.onlinego.ui.screens.newchallenge.NameValuePicker
+                android:id="@+id/permoveView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                />
+            <io.zenandroid.onlinego.ui.screens.newchallenge.NameValuePicker
+                android:id="@+id/stonesperperiodView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                />
+            <io.zenandroid.onlinego.ui.screens.newchallenge.NameValuePicker
+                android:id="@+id/totaltimeView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"

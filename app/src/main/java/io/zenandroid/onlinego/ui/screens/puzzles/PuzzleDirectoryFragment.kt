@@ -357,25 +357,33 @@ class PuzzleDirectoryFragment : Fragment(), MviView<PuzzleDirectoryState, Puzzle
                                         }
                                         Column(modifier = Modifier.weight(1f)
                                                 .padding(bottom = 8.dp, end = 4.dp)) {
-                                            Column(modifier = Modifier.padding(8.dp)) {
-                                                Text(
-                                                    text = it.name,
-                                                    style = TextStyle.Default.copy(
-                                                        fontSize = 16.sp,
-                                                        fontWeight = FontWeight.Bold
-                                                    )
-                                                )
-                                                val private = if(it.private) "(private)" else ""
-                                                val ago = "created ${DAYS.between(it.created, now())} days ago"
-                                                it.owner?.let {
-                                                    val flag = convertCountryCodeToEmojiFlag(it.country)
+                                            Row {
+                                                Column(modifier = Modifier.padding(8.dp)) {
                                                     Text(
-                                                        text = "by ${it.username} $flag $private - $ago",
+                                                        text = it.name,
                                                         style = TextStyle.Default.copy(
-                                                            fontSize = 12.sp,
-                                                            fontWeight = FontWeight.Light
+                                                            fontSize = 16.sp,
+                                                            fontWeight = FontWeight.Bold
                                                         )
                                                     )
+                                                    val private = if(it.private) "(private)" else ""
+                                                    val ago = "created ${DAYS.between(it.created, now())} days ago"
+                                                    it.owner?.let {
+                                                        val flag = convertCountryCodeToEmojiFlag(it.country)
+                                                        Text(
+                                                            text = "by ${it.username} $flag $private - $ago",
+                                                            style = TextStyle.Default.copy(
+                                                                fontSize = 12.sp,
+                                                                fontWeight = FontWeight.Light
+                                                            )
+                                                        )
+                                                    }
+                                                }
+                                                Spacer(modifier = Modifier.weight(1f))
+                                                if (it.id in (state?.recents ?: emptyMap<Long, VisitedPuzzleCollection>())) {
+                                                    Box(modifier = Modifier.width(8.dp)) {
+                                                        Icon(imageVector = Icons.Filled.Beenhere, contentDescription = null)
+                                                    }
                                                 }
                                             }
                                             Row {

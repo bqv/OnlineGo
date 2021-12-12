@@ -7,6 +7,7 @@ import android.view.View
 import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.widget.doOnTextChanged
 import io.zenandroid.onlinego.R
 
 class NameValueButton : FrameLayout {
@@ -20,11 +21,14 @@ class NameValueButton : FrameLayout {
     var value: String = ""
         set(value) {
             field = value
-            findViewById<TextView>(R.id.valueView).text = value
-            findViewById<TextView>(R.id.valueView).setTextColor(ResourcesCompat.getColor(this.resources, R.color.colorActionableText, null))
+            findViewById<TextView>(R.id.valueView).apply {
+                text = value
+                setTextColor(ResourcesCompat.getColor(this.resources, R.color.colorActionableText, null))
+            }
         }
 
     var valuesCallback: (() -> List<String?>)? = null
+    var onChangeCallback: ((String) -> Unit)? = null
 
     constructor(context: Context) : this(context, null)
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
@@ -46,6 +50,9 @@ class NameValueButton : FrameLayout {
                         .create()
                         .show()
             }
+        }
+        findViewById<TextView>(R.id.valueView).doOnTextChanged { text, start, count, after -> 
+            onChangeCallback?.invoke(text?.toString() ?: "")
         }
     }
 
