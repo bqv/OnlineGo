@@ -106,6 +106,7 @@ dependencies {
     implementation "androidx.compose.ui:ui-tooling-preview:$compose_version"
     implementation "androidx.compose.ui:ui:$compose_version"
     implementation "androidx.compose.ui:ui-util:$compose_version"
+    implementation "androidx.compose.runtime:runtime-rxjava2:$compose_version"
 
     debugImplementation "androidx.compose.ui:ui-tooling"
 
@@ -196,6 +197,8 @@ dependencies {
     implementation 'androidx.test.espresso:espresso-idling-resource:3.5.1'
 
     implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
+
+    implementation 'com.github.sephiroth74:NumberSlidingPicker:v1.0.3'
 
     testImplementation 'com.nhaarman:mockito-kotlin-kt1.1:1.6.0'
     testImplementation 'junit:junit:4.13.2'
