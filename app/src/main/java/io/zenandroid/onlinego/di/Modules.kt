@@ -43,6 +43,7 @@ private val repositoriesModule = module {
                 get<ChallengesRepository>(),
                 get<FinishedGamesRepository>(),
                 get<ChatRepository>(),
+                get<SeekGraphRepository>(),
                 get<ServerNotificationsRepository>(),
                 get<ClockDriftRepository>(),
                 get<TutorialsRepository>()
@@ -58,6 +59,7 @@ private val repositoriesModule = module {
     single { JosekiRepository(get(), get()) }
     single { PuzzleRepository(get(), get()) }
     single { PlayersRepository(get(), get(), get()) }
+    single { SeekGraphRepository(get()) }
     single { ServerNotificationsRepository(get()) }
     single { SettingsRepository() }
     single { UserSessionRepository() }
