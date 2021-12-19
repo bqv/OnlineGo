@@ -75,7 +75,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
             binding.apply {
                 bottomNavigation.apply {
                     showIf(
-                        !(destination.id == R.id.stats && arguments?.isEmpty != true)
+                        !(destination.id == R.id.stats && arguments?.isEmpty == false)
                     )
                     setOnNavigationItemReselectedListener { }
                 }

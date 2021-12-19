@@ -8,6 +8,7 @@ import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.data.model.ogs.Glicko2History
 import io.zenandroid.onlinego.data.model.ogs.Glicko2HistoryItem
 import io.zenandroid.onlinego.data.model.ogs.OGSPlayer
+import io.zenandroid.onlinego.data.model.ogs.OGSPlayerFull
 import io.zenandroid.onlinego.data.ogs.OGSRestService
 import io.zenandroid.onlinego.utils.addToDisposable
 import kotlin.math.roundToLong
@@ -25,7 +26,7 @@ class StatsPresenter(
     private var highestWin: Glicko2HistoryItem? = null
 
     override fun subscribe() {
-        restService.getPlayerProfile(playerId)
+        restService.getFullProfile(playerId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::fillPlayerDetails, this::onError)
@@ -38,7 +39,7 @@ class StatsPresenter(
                 .addToDisposable(subscriptions)
     }
 
-    private fun fillPlayerDetails(playerDetails: OGSPlayer) {
+    private fun fillPlayerDetails(playerDetails: OGSPlayerFull) {
         view.fillPlayerDetails(playerDetails)
     }
 

@@ -3,13 +3,14 @@ package io.zenandroid.onlinego.ui.screens.stats
 import com.github.mikephil.charting.data.Entry
 import io.zenandroid.onlinego.data.model.ogs.Glicko2HistoryItem
 import io.zenandroid.onlinego.data.model.ogs.OGSPlayer
+import io.zenandroid.onlinego.data.model.ogs.OGSPlayerFull
 
 /**
  * Created by alex on 05/11/2017.
  */
 interface StatsContract {
     interface View {
-        fun fillPlayerDetails(playerDetails: OGSPlayer)
+        fun fillPlayerDetails(playerDetails: OGSPlayerFull)
         fun mostFacedOpponent(playerDetails: OGSPlayer, total: Int, won: Int)
         fun fillHighestWin(playerDetails: OGSPlayer, winningGame: Glicko2HistoryItem)
         fun fillHighestRank(highestRank: Float, highestRankTimestamp: Long)

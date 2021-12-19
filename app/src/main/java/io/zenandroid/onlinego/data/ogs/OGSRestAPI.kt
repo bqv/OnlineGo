@@ -14,15 +14,6 @@ import retrofit2.http.*
  */
 interface OGSRestAPI {
 
-    @GET("login/google-oauth2/")
-    fun initiateGoogleAuthFlow(): Single<Response<ResponseBody>>
-
-    @GET("/complete/google-oauth2/?scope=email+profile+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email+openid+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile&authuser=0&prompt=none")
-    fun loginWithGoogleAuth(
-            @Query("code") code: String,
-            @Query("state") state: String
-    ): Single<Response<ResponseBody>>
-
     @POST("api/v0/login")
     fun login(@Body request: CreateAccountRequest): Single<UIConfig>
 
@@ -87,6 +78,9 @@ interface OGSRestAPI {
 
     @GET("api/v1/players/{player_id}/")
     fun getPlayerProfile(@Path("player_id") playerId: Long): Single<OGSPlayer>
+
+    @GET("api/v1/players/{player_id}/full")
+    fun getFullProfile(@Path("player_id") playerId: Long): Single<OGSPlayerFull>
 
     @GET("termination-api/player/{player_id}/v5-rating-history?speed=overall&size=0")
     fun getPlayerStats(@Path("player_id") playerId: Long): Single<Glicko2History>

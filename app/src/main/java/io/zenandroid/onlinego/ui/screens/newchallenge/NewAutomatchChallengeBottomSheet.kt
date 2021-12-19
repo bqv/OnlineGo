@@ -62,7 +62,7 @@ class NewAutomatchChallengeBottomSheet(context: Context, private val onSearch: (
 
     private var selectedSpeed: Speed = Speed.NORMAL
     private val speedsArray = arrayOf(Speed.BLITZ, Speed.NORMAL, Speed.LONG)
-    private val currentRating = get().get<UserSessionRepository>().uiConfig?.user?.ranking
+    private val currentRating = get().get<UserSessionRepository>().userRating
     val prefs = PreferenceManager.getDefaultSharedPreferences(context)
     private lateinit var binding: BottomSheetNewAutomatchBinding
 

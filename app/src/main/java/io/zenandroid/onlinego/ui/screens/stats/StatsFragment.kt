@@ -27,6 +27,7 @@ import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.ogs.Glicko2HistoryItem
 import io.zenandroid.onlinego.data.model.ogs.OGSPlayer
+import io.zenandroid.onlinego.data.model.ogs.OGSPlayerFull
 import io.zenandroid.onlinego.databinding.FragmentStatsBinding
 import io.zenandroid.onlinego.gamelogic.Util
 import io.zenandroid.onlinego.ui.screens.main.MainActivity
@@ -75,7 +76,8 @@ class StatsFragment : Fragment(), StatsContract.View {
         presenter.unsubscribe()
     }
 
-    override fun fillPlayerDetails(playerDetails: OGSPlayer ) {
+    override fun fillPlayerDetails(playerDetails: OGSPlayerFull) {
+        val playerDetails = playerDetails.user;
         binding.playerProfile.apply {
             nameView.text = playerDetails.username
             playerDetails.country?.let {
@@ -93,6 +95,35 @@ class StatsFragment : Fragment(), StatsContract.View {
             val deviation = playerDetails.ratings?.overall?.deviation?.toInt()
             rankView.text = formatRank(egfToRank(playerDetails.ratings?.overall?.rating))
             glickoView.text = "$glicko ± $deviation"
+            playerDetails.ratings?.let {
+                fun ratingToString(set: OGSPlayer.Rating): String? =
+                    set.rating?.let { rating ->
+                        val rank = rating.let(::egfToRank) ?: return@let null
+                        set.deviation?.let { it + rating }?.let(::egfToRank)?.let { deviation ->
+                            "${formatRank(rank, false)} ± ${formatRank(deviation - rank, false)}"
+                        }
+                    }
+
+                overallOverall.text = it.overall?.let(::ratingToString) ?: "-"
+                blitzOverall.text = it.blitz?.let(::ratingToString) ?: "-"
+                liveOverall.text = it.live?.let(::ratingToString) ?: "-"
+                correspondenceOverall.text = it.correspondence?.let(::ratingToString) ?: "-"
+
+                overall9.text = it.overall_9x9?.let(::ratingToString) ?: "-"
+                blitz9.text = it.blitz_9x9?.let(::ratingToString) ?: "-"
+                live9.text = it.live_9x9?.let(::ratingToString) ?: "-"
+                correspondence9.text = it.correspondence_9x9?.let(::ratingToString) ?: "-"
+
+                overall13.text = it.overall_13x13?.let(::ratingToString) ?: "-"
+                blitz13.text = it.blitz_13x13?.let(::ratingToString) ?: "-"
+                live13.text = it.live_13x13?.let(::ratingToString) ?: "-"
+                correspondence13.text = it.correspondence_13x13?.let(::ratingToString) ?: "-"
+
+                overall19.text = it.overall_19x19?.let(::ratingToString) ?: "-"
+                blitz19.text = it.blitz_19x19?.let(::ratingToString) ?: "-"
+                live19.text = it.live_19x19?.let(::ratingToString) ?: "-"
+                correspondence19.text = it.correspondence_19x19?.let(::ratingToString) ?: "-"
+            }
         }
     }
 
@@ -142,6 +173,7 @@ class StatsFragment : Fragment(), StatsContract.View {
             val rankDataSet = LineDataSet(entries, "Games").apply {
                 setDrawCircles(false)
                 setDrawValues(false)
+
                 lineWidth = 1f
                 color = ResourcesCompat.getColor(resources, R.color.rankGraphLine, context?.theme)
                 mode = LineDataSet.Mode.HORIZONTAL_BEZIER

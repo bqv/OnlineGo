@@ -47,35 +47,6 @@ class OGSRestService(
                 .doAfterTerminate { idlingResource.decrement() }
     }
 
-    fun loginWithGoogle(code: String): Completable {
-        return restApi.initiateGoogleAuthFlow()
-                .map {
-                    if(it.code() != 302) {
-                        throw Exception("got code ${it.code()} instead of 302")
-                    }
-                    it.headers().forEach {
-                        if(it.first == "location") {
-                            return@map "&state=([^&]*)&".toRegex().find(it.second)!!.groupValues[1]
-                        }
-                    }
-                    throw Exception("Cannot log in (can't follow redirect)")
-                }
-                .flatMap { state -> restApi.loginWithGoogleAuth(code, state) }
-                .flatMap {
-                    if(it.code() != 302) {
-                        throw Exception("got code ${it.code()} instead of 302")
-                    }
-                    it.headers().forEach {
-                        if(it.first == "location" && it.second == "/") {
-                            return@flatMap restApi.uiConfig()
-                        }
-                    }
-                    throw Exception ("Login failed")
-                }
-                .doOnSuccess(userSessionRepository::storeUIConfig)
-                .ignoreElement()
-    }
-
     fun createAccount(username: String, password: String, email: String): Completable {
         val ebi = "${Math.random().toString().split(".")[1]}.0.0.0.0.xxx.xxx.${Date().timezoneOffset + 13}"
         return restApi.createAccount(CreateAccountRequest(username, password, email, ebi))
@@ -217,6 +188,9 @@ class OGSRestService(
 
     fun getPlayerProfile(id: Long): Single<OGSPlayer> =
             restApi.getPlayerProfile(id)
+
+    fun getFullProfile(id: Long): Single<OGSPlayerFull> =
+            restApi.getFullProfile(id)
 
     fun getPlayerStats(id: Long): Single<Glicko2History> =
             restApi.getPlayerStats(id)

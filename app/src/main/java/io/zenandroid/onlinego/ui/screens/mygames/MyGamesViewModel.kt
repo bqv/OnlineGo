@@ -39,7 +39,7 @@ class MyGamesViewModel(
         whatsNewDialogVisible = WhatsNewUtils.shouldDisplayDialog,
         headerMainText = "Hi ${userSessionRepository.uiConfig?.user?.username},",
         userImageURL = userSessionRepository.uiConfig?.user?.icon,
-        ranking = userSessionRepository.uiConfig?.user?.ranking
+        ranking = userSessionRepository.userRating
     ))
     val state: LiveData<MyGamesState> = _state
     private val subscriptions = CompositeDisposable()

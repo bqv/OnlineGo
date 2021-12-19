@@ -42,12 +42,13 @@ fun egfToRank(rating: Double?) =
             ln(it.coerceIn(MIN_RATING, MAX_RATING) / 525) * 23.15
         }
 
-fun formatRank(rank: Double?) =
+fun formatRank(rank: Double?, bounded: Boolean = true) =
         when(rank) {
             null -> "?"
-            in 30f .. 100f -> "${ceil(rank - 29).toInt()}d"
-            in 0f .. 30f -> "${ceil(30 - rank).toInt()}k"
-            else -> ""
+            in 30f .. Float.MAX_VALUE -> if (bounded && rank > 38f) "9d"
+                else "${ceil(rank - 29).toInt()}d"
+            else -> if (bounded && rank < 5f) "25k"
+                else "${ceil(30 - rank).toInt()}k"
         }
 
 private val gravatarRegex = Pattern.compile("(.*gravatar.com/avatar/[0-9a-fA-F]*+).*")
