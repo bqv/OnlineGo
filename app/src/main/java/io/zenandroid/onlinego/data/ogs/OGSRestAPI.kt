@@ -107,7 +107,9 @@ interface OGSRestAPI {
     @GET("api/v1/puzzles/{puzzle_id}/solutions")
     fun getPuzzleSolutions(
             @Path("puzzle_id") puzzleId: Long,
-            @Query("player_id") playerId: Long): Single<PagedResult<PuzzleSolution>>
+            @Query("player_id") playerId: Long,
+            @Query("page_size") pageSize: Int = 1000,
+            @Query("page") page: Int = 1): Single<PagedResult<PuzzleSolution>>
 
     @GET("api/v1/puzzles/{puzzle_id}/rate")
     fun getPuzzleRating(@Path("puzzle_id") puzzleId: Long): Single<PuzzleRating>
@@ -121,6 +123,26 @@ interface OGSRestAPI {
     fun ratePuzzle(
             @Path("puzzle_id") puzzleId: Long,
             @Body request: PuzzleRating): Completable
+
+    @GET("api/v1/ladders/{ladder_id}/")
+    fun getLadder(@Path("ladder_id") ladderId: Long): Single<Ladder>
+
+    @GET("api/v1/ladders/{ladder_id}/players")
+    fun getLadderPlayers(
+            @Path("ladder_id") ladderId: Long,
+            @Query("page_size") pageSize: Int = 100,
+            @Query("page") page: Int = 1): Single<PagedResult<LadderPlayer>>
+
+    @POST("api/v1/ladders/{ladder_id}/players")
+    fun joinLadder(@Path("ladder_id") ladderId: Long): Completable
+
+    @DELETE("api/v1/ladders/{ladder_id}/players")
+    fun leaveLadder(@Path("ladder_id") ladderId: Long): Completable
+
+    @POST("api/v1/ladders/{ladder_id}/players/challenge")
+    fun challengeLadderPlayer(
+            @Path("ladder_id") ladderId: Long,
+            @Body request: Ladder.ChallengeRequest): Completable
 }
 
 /*

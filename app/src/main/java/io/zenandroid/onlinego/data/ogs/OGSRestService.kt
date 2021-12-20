@@ -235,7 +235,8 @@ class OGSRestService(
 
         fun fetchPage(): Single<PagedResult<PuzzleSolution>> = restApi.getPuzzleSolutions(
             puzzleId = id,
-            playerId = userSessionRepository.userId!!
+            playerId = userSessionRepository.userId!!,
+            page = ++page
         )
 
         fun unfold(result: Single<PagedResult<PuzzleSolution>>): Single<List<PuzzleSolution>> {
@@ -259,4 +260,48 @@ class OGSRestService(
 
     fun ratePuzzle(id: Long, rating: Int): Completable =
         restApi.ratePuzzle(puzzleId = id, request = PuzzleRating(rating = rating))
+
+    fun getLadder(id: Long): Single<Ladder> =
+        restApi.getLadder(ladderId = id)
+
+    fun getLadderPlayers(id: Long, page: Int? = null): Flowable<List<LadderPlayer>> {
+        var page = page?.let {
+            return restApi.getLadderPlayers(
+                ladderId = id,
+                page = it
+            )
+            .map { it.results }
+            .toFlowable()
+        } ?: 0
+
+        fun fetchPage(): Single<PagedResult<LadderPlayer>> = restApi.getLadderPlayers(
+            ladderId = id,
+            page = ++page
+        )
+
+        fun unfold(result: Single<PagedResult<LadderPlayer>>): Observable<List<LadderPlayer>> {
+            return result.toObservable().flatMap { pre ->
+                Observable.just(pre.results).let {
+                    if (pre.next == null) {
+                        it
+                    } else {
+                        val wait = Observable.timer(5, TimeUnit.SECONDS).take(1)
+                        it.concatWith(wait.map { emptyList<LadderPlayer>() }.ignoreElements())
+                            .concatWith(unfold(fetchPage()))
+                    }
+                }
+            }
+        }
+
+        return unfold(fetchPage()).toFlowable(BackpressureStrategy.BUFFER)
+    }
+
+    fun joinLadder(id: Long): Completable =
+        restApi.joinLadder(ladderId = id)
+
+    fun leaveLadder(id: Long): Completable =
+        restApi.leaveLadder(ladderId = id)
+
+    fun challengeLadderPlayer(id: Long, playerId: Long): Completable =
+        restApi.challengeLadderPlayer(ladderId = id, request = Ladder.ChallengeRequest(playerId))
 }

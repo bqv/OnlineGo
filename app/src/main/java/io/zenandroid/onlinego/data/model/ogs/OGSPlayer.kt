@@ -2,6 +2,7 @@ package io.zenandroid.onlinego.data.model.ogs
 
 import androidx.room.Entity
 import androidx.room.Embedded
+import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import io.zenandroid.onlinego.data.model.local.Player
 
@@ -19,7 +20,8 @@ data class OGSPlayer (
         var egf: Double? = null,
         var country: String? = null,
         var icon: String? = null,
-        var ui_class: String? = null
+        var ui_class: String? = null,
+        @Ignore var ladder_rank: Int? = null
 ) {
     data class Ratings(
             @Embedded(prefix = "overall_") var overall: Rating? = null

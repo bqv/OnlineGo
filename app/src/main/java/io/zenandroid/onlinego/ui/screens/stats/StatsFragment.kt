@@ -12,6 +12,8 @@ import androidx.core.text.bold
 import androidx.core.text.color
 import androidx.core.text.scale
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
@@ -23,6 +25,8 @@ import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.*
 import com.github.mikephil.charting.formatter.ValueFormatter
 import com.github.mikephil.charting.utils.EntryXComparator
+import com.xwray.groupie.GroupAdapter
+import com.xwray.groupie.GroupieViewHolder
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.ogs.Glicko2HistoryItem
@@ -54,6 +58,10 @@ class StatsFragment : Fragment(), StatsContract.View {
 
     private lateinit var presenter: StatsContract.Presenter
 
+	private val ladderAdapter = GroupAdapter<GroupieViewHolder>()
+	private val tournamentAdapter = GroupAdapter<GroupieViewHolder>()
+	private val groupAdapter = GroupAdapter<GroupieViewHolder>()
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentStatsBinding.inflate(inflater, container, false)
         return binding.root
@@ -77,13 +85,12 @@ class StatsFragment : Fragment(), StatsContract.View {
     }
 
     override fun fillPlayerDetails(playerDetails: OGSPlayerFull) {
-        val playerDetails = playerDetails.user;
         binding.playerProfile.apply {
-            nameView.text = playerDetails.username
-            playerDetails.country?.let {
+            nameView.text = playerDetails.user.username
+            playerDetails.user.country?.let {
                 flagView.text = convertCountryCodeToEmojiFlag(it)
             }
-            playerDetails.icon?.let {
+            playerDetails.user.icon?.let {
                 Glide.with(this@StatsFragment)
                         .load(processGravatarURL(it, iconView.width))
                         .transition(DrawableTransitionOptions.withCrossFade(DrawableCrossFadeFactory.Builder().setCrossFadeEnabled(true).build()))
@@ -91,11 +98,11 @@ class StatsFragment : Fragment(), StatsContract.View {
                         .into(iconView)
             }
 
-            val glicko = playerDetails.ratings?.overall?.rating?.toInt()
-            val deviation = playerDetails.ratings?.overall?.deviation?.toInt()
-            rankView.text = formatRank(egfToRank(playerDetails.ratings?.overall?.rating))
+            val glicko = playerDetails.user.ratings?.overall?.rating?.toInt()
+            val deviation = playerDetails.user.ratings?.overall?.deviation?.toInt()
+            rankView.text = formatRank(egfToRank(playerDetails.user.ratings?.overall?.rating))
             glickoView.text = "$glicko ± $deviation"
-            playerDetails.ratings?.let {
+            playerDetails.user.ratings?.let {
                 fun ratingToString(set: OGSPlayer.Rating): String? =
                     set.rating?.let { rating ->
                         val rank = rating.let(::egfToRank) ?: return@let null
@@ -124,6 +131,39 @@ class StatsFragment : Fragment(), StatsContract.View {
                 live19.text = it.live_19x19?.let(::ratingToString) ?: "-"
                 correspondence19.text = it.correspondence_19x19?.let(::ratingToString) ?: "-"
             }
+            binding.laddersRecycler.apply {
+				layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+				adapter = ladderAdapter.apply {
+                    setOnItemClickListener { item, _ ->
+                        (item as LadderRecyclerItem).item.id.let {
+                        android.widget.Toast.makeText(org.koin.core.context.GlobalContext.get().get<android.content.Context>(), "Ladder: $it", android.widget.Toast.LENGTH_LONG).show()
+                        }
+                    }
+                    update(playerDetails.ladders.map(::LadderRecyclerItem))
+				}
+			}
+            binding.tournamentsRecycler.apply {
+				layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+				adapter = tournamentAdapter.apply {
+                    setOnItemClickListener { item, _ ->
+                        (item as TournamentRecyclerItem).item.id.let {
+                        android.widget.Toast.makeText(org.koin.core.context.GlobalContext.get().get<android.content.Context>(), "Tournament: $it", android.widget.Toast.LENGTH_LONG).show()
+                        }
+                    }
+                    update(playerDetails.tournaments.map(::TournamentRecyclerItem))
+				}
+			}
+            binding.groupsRecycler.apply {
+				layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+				adapter = groupAdapter.apply {
+                    setOnItemClickListener { item, _ ->
+                        (item as GroupRecyclerItem).item.id.let {
+                        android.widget.Toast.makeText(org.koin.core.context.GlobalContext.get().get<android.content.Context>(), "Group: $it", android.widget.Toast.LENGTH_LONG).show()
+                        }
+                    }
+                    update(playerDetails.groups.map(::GroupRecyclerItem))
+				}
+			}
         }
     }
 
