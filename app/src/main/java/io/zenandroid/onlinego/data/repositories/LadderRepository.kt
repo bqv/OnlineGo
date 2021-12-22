@@ -1,10 +1,13 @@
 package io.zenandroid.onlinego.data.repositories
 
+import android.util.Log
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.rxkotlin.plusAssign
+import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.data.db.GameDao
 import io.zenandroid.onlinego.data.model.local.Player
@@ -18,38 +21,86 @@ class LadderRepository(
         private val restService: OGSRestService,
         private val dao: GameDao
 ) {
-    private val refreshCooldownSeconds = 60 * 60 * 24
+    private val refreshCooldownSeconds = 60 * 60
 
-    data class LadderReference (
-        var ladder: Ladder,
-        var players: MutableList<LadderPlayer> = mutableListOf(),
-        var lastRefresh: Instant = Instant.now()
-    )
+    private val disposable = CompositeDisposable()
 
-    fun LadderReference.join(): Completable =
-        restService.joinLadder(id = ladder.id)
+    fun join(id: Long): Completable =
+        restService.joinLadder(id = id)
 
-    fun LadderReference.leave(): Completable =
-        restService.leaveLadder(id = ladder.id)
+    fun leave(id: Long): Completable =
+        restService.leaveLadder(id = id)
 
-    fun LadderReference.challenge(id: Long): Completable =
-        restService.challengeLadderPlayer(id = ladder.id, playerId = id)
+    fun challenge(id: Long, playerId: Long): Completable =
+        restService.challengeLadderPlayer(id = id, playerId = playerId)
 
-    private var ladders = mutableMapOf<Long, LadderReference>()
+    fun getLadder(id: Long): Flowable<Ladder> {
+        disposable += restService.getLadder(id)
+            .subscribe(this::saveLadderToDB, this::onError)
 
-    fun getLadder(id: Long): Flowable<LadderReference> {
-        return Flowable.just(ladders[id]) ?: restService.getLadder(id)
-            .toFlowable()
-            .flatMap { it ->
-                val reference = LadderReference(it)
-                ladders[it.id] = reference
-                Flowable.just(reference).concatWith(
-                    restService.getLadderPlayers(id)
-                        .doOnNext {
-                            reference.players.addAll(it)
-                        }
-                        .map { reference }
-                )
-            }
+        return dao.getLadder(id)
+                .doOnNext { Log.d("LadderRepository", it.toString()) }
+                .distinctUntilChanged()
+    }
+
+    fun getLadderPlayers(ladderId: Long): Flowable<List<LadderPlayer>> {
+        disposable += dao.getLadderPlayersLastRefresh(ladderId)
+            .subscribeOn(Schedulers.computation())
+            .subscribe({
+                if((Instant.now().getEpochSecond() - it) > refreshCooldownSeconds) {
+                    disposable += restService.getLadderPlayers(ladderId)
+                        .map { it.map { ladderPlayer -> ladderPlayer.copy(
+                            ladderId = ladderId,
+                            lastRefresh = Instant.now(),
+                            incoming_challenges = ladderPlayer.incoming_challenges.map { it.copy(
+                                ladderId = ladderId,
+                                ladderPlayerId = ladderPlayer.id,
+                                incoming = true
+                            ) },
+                            outgoing_challenges = ladderPlayer.outgoing_challenges.map { it.copy(
+                                ladderId = ladderId,
+                                ladderPlayerId = ladderPlayer.id,
+                                incoming = false
+                            ) }
+                        ) } }
+                        .subscribe(this::saveLadderPlayersToDB, this::onError)
+                }
+            }, this::onError)
+
+        return dao.getLadderPlayers(ladderId)
+                .doOnNext { it.forEach{c -> Log.d("LadderRepository", c.toString())} }
+                .distinctUntilChanged()
+                .flatMap {
+                    it.map { ladderPlayer ->
+                        dao.getLadderChallenges(ladderId, ladderPlayer.id)
+                            .distinctUntilChanged()
+                            .map { list ->
+                                ladderPlayer.copy(
+                                    incoming_challenges = list.filter { it.incoming == true },
+                                    outgoing_challenges = list.filter { it.incoming == false }
+                                )
+                            }
+                    }.let {
+                        Flowable.zip(it, { it.toList() as List<LadderPlayer> })
+                    }
+                }
+    }
+
+    private fun saveLadderToDB(ladder: Ladder) {
+        dao.insertLadder(ladder)
+    }
+
+    private fun saveLadderPlayersToDB(players: List<LadderPlayer>) {
+        dao.insertLadderPlayers(players)
+        players.forEach {
+            dao.replaceLadderChallenges(
+                it.ladderId, it.id,
+                it.incoming_challenges + it.outgoing_challenges
+            )
+        }
+    }
+
+    private fun onError(error: Throwable) {
+        Log.e("LadderRepository", error.message, error)
     }
 }

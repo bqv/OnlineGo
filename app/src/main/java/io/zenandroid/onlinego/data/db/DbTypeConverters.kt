@@ -1,6 +1,7 @@
 package io.zenandroid.onlinego.data.db
 
 import androidx.room.TypeConverter
+import com.squareup.moshi.JsonDataException
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import io.zenandroid.onlinego.data.model.local.Message

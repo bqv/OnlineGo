@@ -1,22 +1,38 @@
 package io.zenandroid.onlinego.data.model.ogs
 
+import androidx.room.Embedded
+import androidx.room.Entity
+import androidx.room.Ignore
+import androidx.room.Index
+import org.threeten.bp.Instant
+
+@Entity(primaryKeys = ["id","ladderId"],
+        indices = [Index(value = ["rank"], unique = true)])
 data class LadderPlayer (
-    val id: Long,
-    val rank: Long,
-    val player: OGSPlayer,
-    val can_challenge: Challengeability,
-    val incoming_challenges: List<LadderChallenge> = emptyList(),
-    val outgoing_challenges: List<LadderChallenge> = emptyList(),
+    var id: Long = -1,
+    var rank: Long = 0,
+    @Embedded(prefix = "player_") var player: OGSPlayer = OGSPlayer(),
+    @Embedded(prefix = "challengeable_") var can_challenge: Challengeability = Challengeability(),
+    @Ignore var incoming_challenges: List<LadderChallenge> = emptyList(),
+    @Ignore var outgoing_challenges: List<LadderChallenge> = emptyList(),
+
+    var ladderId: Long = -1,
+    var lastRefresh: Instant = Instant.now(),
 ) {
     data class Challengeability (
-        val challengeable: Boolean,
-        val reason: String? = null,
-        val reason_code: Int? = null,
-        val reason_parameter: Any? = null,
+        var challengeable: Boolean = false,
+        var reason: String? = null,
+        var reason_code: Int? = null,
+        var reason_parameter: Int? = null,
     )
 
+    @Entity(primaryKeys = ["ladderId","ladderPlayerId"])
     data class LadderChallenge (
-        val player: OGSPlayer,
-        val game_id: Long,
+        @Embedded(prefix = "player_") var player: OGSPlayer,
+        var game_id: Long?,
+
+        var ladderId: Long = -1,
+        var ladderPlayerId: Long = -1,
+        var incoming: Boolean? = null,
     )
 }

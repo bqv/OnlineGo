@@ -14,6 +14,7 @@ import androidx.core.text.scale
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
@@ -35,6 +36,7 @@ import io.zenandroid.onlinego.data.model.ogs.OGSPlayerFull
 import io.zenandroid.onlinego.databinding.FragmentStatsBinding
 import io.zenandroid.onlinego.gamelogic.Util
 import io.zenandroid.onlinego.ui.screens.main.MainActivity
+import io.zenandroid.onlinego.ui.screens.stats.LADDER_ID
 import io.zenandroid.onlinego.utils.convertCountryCodeToEmojiFlag
 import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatRank
@@ -135,8 +137,8 @@ class StatsFragment : Fragment(), StatsContract.View {
 				layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
 				adapter = ladderAdapter.apply {
                     setOnItemClickListener { item, _ ->
-                        (item as LadderRecyclerItem).item.id.let {
-                        android.widget.Toast.makeText(org.koin.core.context.GlobalContext.get().get<android.content.Context>(), "Ladder: $it", android.widget.Toast.LENGTH_LONG).show()
+                        (item as LadderRecyclerItem).item.let {
+                            findNavController().navigate(R.id.action_statsFragment_to_ladderFragment, bundleOf(LADDER_ID to it.id))
                         }
                     }
                     update(playerDetails.ladders.map(::LadderRecyclerItem))

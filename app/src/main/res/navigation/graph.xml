@@ -80,7 +80,15 @@
     <fragment
         android:id="@+id/stats"
         android:name="io.zenandroid.onlinego.ui.screens.stats.StatsFragment"
-        android:label="StatsFragment" />
+        android:label="StatsFragment" >
+        <action
+            android:id="@+id/action_statsFragment_to_ladderFragment"
+            app:destination="@id/ladderFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/ladderFragment"
+        android:name="io.zenandroid.onlinego.ui.screens.stats.LadderFragment"
+        android:label="LadderFragment" />
     <fragment
         android:id="@+id/tutorialFragment"
         android:name="io.zenandroid.onlinego.ui.screens.tutorial.TutorialFragment"

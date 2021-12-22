@@ -23,6 +23,7 @@ import io.zenandroid.onlinego.ui.screens.newchallenge.selectopponent.searchplaye
 import io.zenandroid.onlinego.ui.screens.newchallenge.selectopponent.searchplayer.SearchPlayerViewModel
 import io.zenandroid.onlinego.ui.screens.onboarding.OnboardingViewModel
 import io.zenandroid.onlinego.ui.screens.puzzle.*
+import io.zenandroid.onlinego.ui.screens.stats.LadderViewModel
 import io.zenandroid.onlinego.ui.screens.tutorial.TutorialViewModel
 import io.zenandroid.onlinego.utils.CountingIdlingResource
 import io.zenandroid.onlinego.utils.CustomConverterFactory
@@ -57,6 +58,7 @@ private val repositoriesModule = module {
     single { ChatRepository(get(), get()) }
     single { FinishedGamesRepository(get(), get(), get()) }
     single { JosekiRepository(get(), get()) }
+    single { LadderRepository(get(), get()) }
     single { PuzzleRepository(get(), get()) }
     single { PlayersRepository(get(), get(), get()) }
     single { SeekGraphRepository(get()) }
@@ -169,12 +171,7 @@ private val viewModelsModule = module {
                 PuzzleRepository(get(), get()),
                 Store(
                         TsumegoReducer(),
-                        listOf(
-                              //TsumegoFetchMiddleware(get()),
-                              //HotTrackMiddleware(),
-                              //TriggerLoadingMiddleware(),
-                              //TsumegoAnalyticsMiddleware()
-                        ),
+                        listOf(),
                         TsumegoState()
                 ),
                 params.get()
@@ -197,6 +194,14 @@ private val viewModelsModule = module {
                         ),
                         AiGameState()
                 )
+        )
+    }
+
+    viewModel { params ->
+        LadderViewModel(
+                LadderRepository(get(), get()),
+                OGSRestService(get(), get(), get(), get()),
+                params.get()
         )
     }
 

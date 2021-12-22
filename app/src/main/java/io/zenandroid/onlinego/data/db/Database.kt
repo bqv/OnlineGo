@@ -10,13 +10,16 @@ import io.zenandroid.onlinego.data.model.ogs.Puzzle
 import io.zenandroid.onlinego.data.model.ogs.PuzzleCollection
 import io.zenandroid.onlinego.data.model.ogs.PuzzleRating
 import io.zenandroid.onlinego.data.model.ogs.PuzzleSolution
+import io.zenandroid.onlinego.data.model.ogs.Ladder
+import io.zenandroid.onlinego.data.model.ogs.LadderPlayer
+import io.zenandroid.onlinego.data.model.ogs.LadderPlayer.LadderChallenge
 
 /**
  * Created by alex on 04/06/2018.
  */
 @Database(
-        entities = [Game::class, Message::class, Challenge::class, GameNotification::class, JosekiPosition::class, HistoricGamesMetadata::class, ChatMetadata::class, PuzzleCollection::class, Puzzle::class, PuzzleRating::class, PuzzleSolution::class, VisitedPuzzleCollection::class],
-        version = 16
+        entities = [Game::class, Message::class, Challenge::class, GameNotification::class, JosekiPosition::class, HistoricGamesMetadata::class, ChatMetadata::class, PuzzleCollection::class, Puzzle::class, PuzzleRating::class, PuzzleSolution::class, VisitedPuzzleCollection::class, Ladder::class, LadderPlayer::class, LadderChallenge::class],
+        version = 17
 )
 @TypeConverters(DbTypeConverters::class)
 abstract class Database: RoomDatabase() {

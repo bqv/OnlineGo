@@ -282,7 +282,7 @@ class OGSRestService(
         fun unfold(result: Single<PagedResult<LadderPlayer>>): Observable<List<LadderPlayer>> {
             return result.toObservable().flatMap { pre ->
                 Observable.just(pre.results).let {
-                    if (pre.next == null) {
+                    if (pre.results.last().rank >= pre.count) {
                         it
                     } else {
                         val wait = Observable.timer(5, TimeUnit.SECONDS).take(1)
