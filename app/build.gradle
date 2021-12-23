@@ -20,8 +20,8 @@ android {
         applicationId "io.zenandroid.onlinego"
         minSdkVersion 21
         targetSdkVersion 31
-        versionCode 52
-        versionName "2021.11.29.${versionCode}"
+        versionCode 53
+        versionName "2021.12.23.${versionCode}"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
         multiDexEnabled true

@@ -76,7 +76,7 @@ class GamePresenterTest {
               "anonymous":false,
               "id":1,
               "username":"aaa",
-              "registration_date":"2014-08-02 18:13:19.269649+00:00",
+              "registration_date":"2014-08-02T18:13:19.269649+00:00",
               "ratings": {
                  "correspondence-9x9":{
                     "rating":1520.3359,
@@ -98,11 +98,10 @@ class GamePresenterTest {
               "professional":false,
               "ranking":23,
               "provisional":0,
-              "pro": 1,
               "can_create_tournaments":true,
               "is_moderator":0,
               "is_superuser":false,
-              "is_tournament_moderator":false,
+              "is_tournament_moderator":true,
               "supporter":true,
               "supporter_level":4,
               "tournament_admin":false,
@@ -116,7 +115,7 @@ class GamePresenterTest {
         )
 
         assertEquals(false, user?.is_moderator )
-        assertEquals(true, user?.supporter )
-        assertEquals(true, user?.pro )
+        assertEquals(true, user?.is_tournament_moderator )
+        assertEquals(false, user?.professional )
     }
 }
