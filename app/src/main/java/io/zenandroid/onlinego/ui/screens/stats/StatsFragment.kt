@@ -149,7 +149,7 @@ class StatsFragment : Fragment(), StatsContract.View {
 				adapter = tournamentAdapter.apply {
                     setOnItemClickListener { item, _ ->
                         (item as TournamentRecyclerItem).item.id.let {
-                        android.widget.Toast.makeText(org.koin.core.context.GlobalContext.get().get<android.content.Context>(), "Tournament: $it", android.widget.Toast.LENGTH_LONG).show()
+                      //android.widget.Toast.makeText(org.koin.core.context.GlobalContext.get().get<android.content.Context>(), "Tournament: $it", android.widget.Toast.LENGTH_LONG).show()
                         }
                     }
                     update(playerDetails.tournaments.map(::TournamentRecyclerItem))
@@ -160,7 +160,7 @@ class StatsFragment : Fragment(), StatsContract.View {
 				adapter = groupAdapter.apply {
                     setOnItemClickListener { item, _ ->
                         (item as GroupRecyclerItem).item.id.let {
-                        android.widget.Toast.makeText(org.koin.core.context.GlobalContext.get().get<android.content.Context>(), "Group: $it", android.widget.Toast.LENGTH_LONG).show()
+                      //android.widget.Toast.makeText(org.koin.core.context.GlobalContext.get().get<android.content.Context>(), "Group: $it", android.widget.Toast.LENGTH_LONG).show()
                         }
                     }
                     update(playerDetails.groups.map(::GroupRecyclerItem))

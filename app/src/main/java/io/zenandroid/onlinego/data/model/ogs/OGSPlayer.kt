@@ -21,7 +21,7 @@ data class OGSPlayer (
         var country: String? = null,
         var icon: String? = null,
         var ui_class: String? = null,
-        @Ignore var ladder_rank: Int? = null
+        var ladder_rank: Int? = null
 ) {
     data class Ratings(
             @Embedded(prefix = "overall_") var overall: Rating? = null

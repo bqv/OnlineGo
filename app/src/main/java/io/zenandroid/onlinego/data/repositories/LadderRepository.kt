@@ -25,15 +25,6 @@ class LadderRepository(
 
     private val disposable = CompositeDisposable()
 
-    fun join(id: Long): Completable =
-        restService.joinLadder(id = id)
-
-    fun leave(id: Long): Completable =
-        restService.leaveLadder(id = id)
-
-    fun challenge(id: Long, playerId: Long): Completable =
-        restService.challengeLadderPlayer(id = id, playerId = playerId)
-
     fun getLadder(id: Long): Flowable<Ladder> {
         disposable += restService.getLadder(id)
             .subscribe(this::saveLadderToDB, this::onError)
