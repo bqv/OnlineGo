@@ -31,8 +31,9 @@ import io.zenandroid.onlinego.data.model.local.Score
 import io.zenandroid.onlinego.data.model.local.VisitedPuzzleCollection
 import io.zenandroid.onlinego.data.model.ogs.JosekiPosition
 import io.zenandroid.onlinego.data.model.ogs.Phase
-import io.zenandroid.onlinego.data.model.ogs.PuzzleRating
-import io.zenandroid.onlinego.data.model.ogs.PuzzleSolution
+import io.zenandroid.onlinego.data.model.ogs.Ladder
+import io.zenandroid.onlinego.data.model.ogs.LadderPlayer
+import io.zenandroid.onlinego.data.model.ogs.LadderPlayer.LadderChallenge
 import kotlinx.coroutines.flow.Flow
 
 private const val MAX_ALLOWED_SQL_PARAMS = 999
@@ -437,4 +438,33 @@ abstract class GameDao {
         }
     }
 
+    @Query("SELECT * FROM ladder WHERE id = :ladderId")
+    abstract fun getLadder(ladderId: Long): Flowable<Ladder>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    abstract fun insertLadder(ladder: Ladder)
+
+    @Query("SELECT * FROM ladderplayer WHERE ladderId = :ladderId ORDER BY rank ASC")
+    abstract fun getLadderPlayers(ladderId: Long): Flowable<List<LadderPlayer>>
+
+    @Query("SELECT coalesce(max(lastrefresh), 0) FROM ladderplayer WHERE ladderId = :ladderId")
+    abstract fun getLadderPlayersLastRefresh(ladderId: Long): Single<Long>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    abstract fun insertLadderPlayers(ladderPlayers: List<LadderPlayer>)
+
+    @Query("SELECT * FROM ladderchallenge WHERE ladderId = :ladderId AND ladderPlayerId = :ladderPlayerId")
+    abstract fun getLadderChallenges(ladderId: Long, ladderPlayerId: Long): Flowable<List<LadderChallenge>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    abstract fun insertLadderChallenges(challenges: List<LadderChallenge>)
+
+    @Query("DELETE FROM ladderchallenge WHERE ladderId = :ladderId AND ladderPlayerId = :ladderPlayerId")
+    abstract fun deleteLadderChallenges(ladderId: Long, ladderPlayerId: Long)
+
+    @Transaction
+    open fun replaceLadderChallenges(ladderId: Long, ladderPlayerId: Long, challenges: List<LadderChallenge>) {
+        deleteLadderChallenges(ladderId, ladderPlayerId)
+        insertLadderChallenges(challenges)
+    }
 }
