@@ -2,10 +2,13 @@ package io.zenandroid.onlinego.ui.screens.settings
 
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -39,6 +42,7 @@ import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.Icons.Filled
 import androidx.compose.material.icons.Icons.Rounded
+import androidx.compose.material.icons.filled.ChatBubble
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Visibility
@@ -91,8 +95,11 @@ import io.zenandroid.onlinego.R.drawable
 import io.zenandroid.onlinego.R.mipmap
 import io.zenandroid.onlinego.data.model.BoardTheme
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
+import io.zenandroid.onlinego.notifications.Bubbles
+import io.zenandroid.onlinego.notifications.CheckNotificationsTask
 import io.zenandroid.onlinego.ui.screens.main.MainActivity
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.BoardThemeClicked
+import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.BubblesClicked
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.CoordinatesClicked
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.DeleteAccountCanceled
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.DeleteAccountClicked
@@ -147,6 +154,7 @@ class SettingsFragment : Fragment() {
           SettingsScreen(state) {
             when (it) {
               is NotificationsClicked -> navigateToNotifications()
+              is BubblesClicked -> navigateToBubbles()
               is PrivacyClicked -> startActivity(
                 Intent(
                   Intent.ACTION_VIEW,
@@ -274,6 +282,18 @@ class SettingsFragment : Fragment() {
     // for Android O
     intent.putExtra("android.provider.extra.APP_PACKAGE", activity?.packageName)
 
+    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
+    startActivity(intent)
+  }
+
+  @RequiresApi(Bubbles.MIN_SDK_BUBBLES)
+  private fun navigateToBubbles() {
+    val intent = Intent(Settings.ACTION_APP_NOTIFICATION_BUBBLE_SETTINGS)
+      .putExtra(Settings.EXTRA_APP_PACKAGE, activity?.packageName)
+
+    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
     startActivity(intent)
   }
 
@@ -353,6 +373,15 @@ fun SettingsScreen(state: SettingsState, onAction: (SettingsAction) -> Unit) {
           checked = false,
           onClick = { onAction(NotificationsClicked) }
         )
+        if (Build.VERSION.SDK_INT >= Bubbles.MIN_SDK_BUBBLES) {
+          SettingsRow(
+            title = "Bubble notifications",
+            icon = Filled.ChatBubble,
+            checkbox = false,
+            checked = false,
+            onClick = { onAction(BubblesClicked) }
+          )
+        }
         SettingsRow(
           title = "Stone Sounds",
           icon = Icons.Default.VolumeUp,
@@ -441,6 +470,7 @@ fun SettingsScreen(state: SettingsState, onAction: (SettingsAction) -> Unit) {
       color = MaterialTheme.colors.onSurface,
       modifier = Modifier
         .align(Alignment.CenterHorizontally)
+        .clickable { CheckNotificationsTask.test() }
         .padding(vertical = 32.dp),
     )
   }

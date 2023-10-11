@@ -9,6 +9,7 @@ import io.zenandroid.onlinego.data.model.BoardTheme
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.BoardThemeClicked
+import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.BubblesClicked
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.CoordinatesClicked
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.DeleteAccountCanceled
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.DeleteAccountClicked
@@ -145,7 +146,7 @@ class SettingsViewModel(
         }
       }
 
-      PrivacyClicked, SupportClicked, LogoutClicked, NotificationsClicked -> {}
+      PrivacyClicked, SupportClicked, LogoutClicked, NotificationsClicked, BubblesClicked -> {}
     }
   }
 
@@ -167,6 +168,7 @@ data class SettingsState(
 
 sealed interface SettingsAction {
   data object NotificationsClicked : SettingsAction
+  data object BubblesClicked : SettingsAction
   data object SoundsClicked : SettingsAction
   data class ThemeClicked(val theme: String) : SettingsAction
   data class BoardThemeClicked(val boardDisplayName: String) : SettingsAction
