@@ -13,6 +13,12 @@ import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.view.ViewGroup
+import androidx.compose.foundation.*
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.*
+import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.*
 import androidx.core.view.doOnLayout
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
@@ -52,16 +58,17 @@ import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.ViewPaused
 import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.ViewReady
 import io.zenandroid.onlinego.utils.analyticsReportScreen
 import io.zenandroid.onlinego.utils.processGravatarURL
+import io.zenandroid.onlinego.utils.rememberStateWithLifecycle
 import io.zenandroid.onlinego.utils.showIf
 import java.io.BufferedReader
 import java.io.File
+import kotlin.math.abs
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
 import org.koin.android.ext.android.get
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import kotlin.math.abs
 
 class AiGameFragment : Fragment(), MviView<AiGameState, AiGameAction> {
     private val viewModel: AiGameViewModel by viewModel()
@@ -138,11 +145,22 @@ class AiGameFragment : Fragment(), MviView<AiGameState, AiGameAction> {
             }
         }
 
+        binding.winrateHistogram.setContent {
+            val state by rememberStateWithLifecycle(viewModel.stateFlow)
+
+            val winrate = state.aiAnalysis?.rootInfo?.winrate ?: state.aiQuickEstimation?.winrate
+
+            Text(
+                text = "winrate: $winrate"
+            )
+        }
+
         viewModel.bind(this)
     }
 
     override fun render(state: AiGameState) {
         Log.v("AiGame", "rendering state=$state")
+        viewModel.emit(state)
         binding.progressBar.showIf(!state.engineStarted)
         binding.board.apply {
             isInteractive = state.boardIsInteractive
