@@ -32,6 +32,7 @@ class ReviewConnection(
         var includeChat: Boolean,
         fullStateObservable: Flowable<List<ReviewMessage>>,
         reviewMessageObservable: Flowable<ReviewMessage>,
+        // https://docs.online-go.com/goban/interfaces/ReviewMessage.html
 ) : Disposable, Closeable {
     private var closed = false
     private var counter = 0
