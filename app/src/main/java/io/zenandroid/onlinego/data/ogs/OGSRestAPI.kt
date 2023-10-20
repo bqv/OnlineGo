@@ -166,8 +166,241 @@ interface OGSRestAPI {
     @GET("api/v1/reviews")
     suspend fun getReviews(): Review
 
+/*
+{
+  "count": 1,
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "id": 1,
+      "owner": {
+        "related": {
+          "detail": "/api/v1/players/2"
+        },
+        "id": 2,
+        "username": "crodgers",
+        "country": "us",
+        "icon": "",
+        "ranking": 15,
+        "professional": false
+      },
+      "controller": {
+        "related": {
+          "detail": "/api/v1/players/2"
+        },
+        "id": 2,
+        "username": "crodgers",
+        "country": "us",
+        "icon": "",
+        "ranking": 15,
+        "professional": false
+      },
+      "name": null,
+      "game": {
+        "related": {
+          "detail": "/api/v1/games/6"
+        },
+        "players": {
+          "white": {
+            "related": {
+              "detail": "/api/v1/players/12"
+            },
+            "id": 12,
+            "username": "pempupempu",
+            "country": "un",
+            "icon": "",
+            "ranking": 32,
+            "professional": false
+          },
+          "black": {
+            "related": {
+              "detail": "/api/v1/players/2"
+            },
+            "id": 2,
+            "username": "crodgers",
+            "country": "us",
+            "icon": "",
+            "ranking": 15,
+            "professional": false
+          }
+        },
+        "id": 6,
+        "name": "Friendly Match",
+        "creator": 12,
+        "mode": "game",
+        "source": "play",
+        "black": 2,
+        "white": 12,
+        "width": 19,
+        "height": 19,
+        "rules": "japanese",
+        "ranked": false,
+        "handicap": 0,
+        "komi": "0.50",
+        "time_control": "none",
+        "time_per_move": 0,
+        "time_control_parameters": "{\"time_control\": \"none\"}",
+        "disable_analysis": false,
+        "tournament": null,
+        "tournament_round": 0,
+        "ladder": null,
+        "pause_on_weekends": false,
+        "outcome": "Resignation",
+        "black_lost": false,
+        "white_lost": true,
+        "annulled": false,
+        "started": "2014-04-02T18:31:23.336Z",
+        "ended": "2014-04-03T13:58:43.431Z"
+      },
+      "created": "2014-04-03T15:46:05.122Z",
+      "updated": "2014-04-03T15:46:05.122Z",
+      "players": {
+        "white": {
+          "related": {
+            "detail": "/api/v1/players12"
+          },
+          "id": 12,
+          "username": "pempupempu",
+          "country": "un",
+          "icon": "",
+          "ranking": 32,
+          "professional": false
+        },
+        "black": {
+          "related": {
+            "detail": "/api/v1/players/2"
+          },
+          "id": 2,
+          "username": "crodgers",
+          "country": "us",
+          "icon": "",
+          "ranking": 15,
+          "professional": false
+        }
+      },
+      "auth": "1678a280cd881967c4a781d6f77e1de1",
+      "review_chat_auth": "557c05b0e991ed89b58d52f4396aff1a"
+    }
+  ]
+}
+*/
+
     @GET("api/v1/reviews/{review_id}")
     suspend fun getReview(@Path("review_id") reviewId: Long): Review
+
+/*
+{
+  "id": 1,
+  "owner": {
+    "related": {
+      "detail": "/api/v1/players/2"
+    },
+    "id": 2,
+    "username": "crodgers",
+    "country": "us",
+    "icon": "",
+    "ranking": 15,
+    "professional": false
+  },
+  "controller": {
+    "related": {
+      "detail": "/api/v1/players/2"
+    },
+    "id": 2,
+    "username": "crodgers",
+    "country": "us",
+    "icon": "",
+    "ranking": 15,
+    "professional": false
+  },
+  "name": null,
+  "game": {
+    "related": {
+      "detail": "/api/v1/games/6"
+    },
+    "players": {
+      "white": {
+        "related": {
+          "detail": "/api/v1/players/12"
+        },
+        "id": 12,
+        "username": "pempupempu",
+        "country": "un",
+        "icon": "",
+        "ranking": 32,
+        "professional": false
+      },
+      "black": {
+        "related": {
+          "detail": "/api/v1/players/2"
+        },
+        "id": 2,
+        "username": "crodgers",
+        "country": "us",
+        "icon": "",
+        "ranking": 15,
+        "professional": false
+      }
+    },
+    "id": 6,
+    "name": "Friendly Match",
+    "creator": 12,
+    "mode": "game",
+    "source": "play",
+    "black": 2,
+    "white": 12,
+    "width": 19,
+    "height": 19,
+    "rules": "japanese",
+    "ranked": false,
+    "handicap": 0,
+    "komi": "0.50",
+    "time_control": "none",
+    "time_per_move": 0,
+    "time_control_parameters": "{\"time_control\": \"none\"}",
+    "disable_analysis": false,
+    "tournament": null,
+    "tournament_round": 0,
+    "ladder": null,
+    "pause_on_weekends": false,
+    "outcome": "Resignation",
+    "black_lost": false,
+    "white_lost": true,
+    "annulled": false,
+    "started": "2014-04-02T18:31:23.336Z",
+    "ended": "2014-04-03T13:58:43.431Z"
+  },
+  "created": "2014-04-03T15:46:05.122Z",
+  "updated": "2014-04-03T15:46:05.122Z",
+  "players": {
+    "white": {
+      "related": {
+        "detail": "/api/v1/players/12"
+      },
+      "id": 12,
+      "username": "pempupempu",
+      "country": "un",
+      "icon": "",
+      "ranking": 32,
+      "professional": false
+    },
+    "black": {
+      "related": {
+        "detail": "/api/v1/players/2"
+      },
+      "id": 2,
+      "username": "crodgers",
+      "country": "us",
+      "icon": "",
+      "ranking": 15,
+      "professional": false
+    }
+  },
+  "auth": "1678a280dd881967c4a781d6f77e1de1",
+  "review_chat_auth": "557c05b06991ed89b58d52f4396aff1a"
+}
+*/
 }
 
 /*
