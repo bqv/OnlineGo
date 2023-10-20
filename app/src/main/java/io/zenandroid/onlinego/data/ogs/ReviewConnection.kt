@@ -204,9 +204,9 @@ class ReviewConnection(
 
     fun sendMessage(message: String, moveNumber: Int, moves: Set<Cell>) {
         val stones = moves
-                .joinToString(separator = "") {
-                    Util.getSGFCoordinates(it)
-                }
+            .joinToString(separator = "") {
+                Util.getSGFCoordinates(it)
+            }
         socketService.emit("review/chat") {
             "body" - message
             "review_id" - reviewId
