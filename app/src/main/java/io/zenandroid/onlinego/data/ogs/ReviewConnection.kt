@@ -43,19 +43,10 @@ class ReviewConnection(
     private val gameDataSubject = PublishSubject.create<GameData>()
     private val movesSubject = PublishSubject.create<Move>()
     private val clockSubject = PublishSubject.create<OGSClock>()
-    private val phaseSubject = PublishSubject.create<Phase>()
-    private val removedStonesSubject = PublishSubject.create<RemovedStones>()
-    private val undoRequestSubject = PublishSubject.create<Int>()
-    private val removedStonesAcceptedSubject = PublishSubject.create<RemovedStonesAccepted>()
-    private val undoAcceptedSubject = PublishSubject.create<Int>()
 
     val gameData: Observable<GameData> = gameDataSubject.hide()
     val moves: Observable<Move> = movesSubject.hide()
     val clock: Observable<OGSClock> = clockSubject.hide()
-    val phase: Observable<Phase> = phaseSubject.hide()
-    val removedStones: Observable<RemovedStones> = removedStonesSubject.hide()
-    val undoRequested: Observable<Int> = undoRequestSubject.hide()
-    val removedStonesAccepted: Observable<RemovedStonesAccepted> = removedStonesAcceptedSubject.hide()
     val undoAccepted: Observable<Int> = undoAcceptedSubject.hide()
 
     var gameAuth: String? = null
@@ -76,38 +67,6 @@ class ReviewConnection(
         clockObservable
                 .retryOnError("clock")
                 .subscribe(clockSubject::onNext)
-                .addToDisposable(subscriptions)
-
-        phaseObservable
-                .retryOnError("phase")
-                .subscribe(phaseSubject::onNext)
-                .addToDisposable(subscriptions)
-
-        removedStonesObservable
-                .retryOnError("removed_stones")
-                .subscribe(removedStonesSubject::onNext)
-                .addToDisposable(subscriptions)
-
-        chatObservable
-                .retryOnError("chat")
-                .subscribe {
-                    chatRepository.addMessage(Message.fromOGSMessage(it, gameId))
-                }
-                .addToDisposable(subscriptions)
-
-        undoRequestedObservable
-                .retryOnError("undo_requested")
-                .subscribe(undoRequestSubject::onNext)
-                .addToDisposable(subscriptions)
-
-        removedStonesAcceptedObservable
-                .retryOnError("removed_stones_accepted")
-                .subscribe(removedStonesAcceptedSubject::onNext)
-                .addToDisposable(subscriptions)
-
-        undoAcceptedObservable
-                .retryOnError("undo_accepted")
-                .subscribe(undoAcceptedSubject::onNext)
                 .addToDisposable(subscriptions)
     }
 
