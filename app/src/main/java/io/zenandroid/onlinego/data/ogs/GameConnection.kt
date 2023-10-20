@@ -47,7 +47,7 @@ class GameConnection(
             move_number: number;
         }
         ConditionalMoveResponse: [string | null, ConditionalMoveTree]
-        ConditionalMoveTree: [move: string]: ConditionalMoveResponse
+        ConditionalMoveTree: { [move: string]: ConditionalMoveResponse }
         */
 ) : Disposable, Closeable {
     private var closed = false
