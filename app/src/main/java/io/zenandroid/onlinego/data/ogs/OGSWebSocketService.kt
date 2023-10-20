@@ -108,6 +108,7 @@ class OGSWebSocketService(
     }
 
     private val gameConnections = mutableMapOf<Long, GameConnection>()
+    private val reviewConnections = mutableMapOf<Long, ReviewConnection>()
     private val connectionsLock = Any()
 
     fun connectToGame(id: Long, includeChat: Boolean): GameConnection {
@@ -126,6 +127,24 @@ class OGSWebSocketService(
             ).apply {
                 emitGameConnection(id, includeChat)
                 gameConnections[id] = this
+            }
+            if(includeChat && !connection.includeChat) {
+                enableChatOnConnection(connection)
+            }
+            connection.incrementCounter()
+            return connection
+        }
+    }
+
+    fun connectToReview(id: Long, includeChat: Boolean): ReviewConnection {
+        synchronized(connectionsLock) {
+            val connection = reviewConnections[id] ?:
+            ReviewConnection(id, connectionsLock, includeChat,
+                    observeEvent("game/$id/full_state").parseJSON(),
+                    observeEvent("game/$id/r").parseJSON(),
+            ).apply {
+                emitReviewConnection(id, includeChat)
+                reviewConnections[id] = this
             }
             if(includeChat && !connection.includeChat) {
                 enableChatOnConnection(connection)
@@ -177,6 +196,12 @@ class OGSWebSocketService(
             emit("chat/join") {
                 "channel" - "game-$id"
             }
+        }
+    }
+
+    private fun emitReviewConnection(id: Long) {
+        emit("review/connect"){
+            "review_id" - id
         }
     }
 
@@ -413,6 +438,12 @@ class OGSWebSocketService(
     private fun emitGameDisconnect(id: Long) {
         emit("game/disconnect") {
             "game_id" - id
+        }
+    }
+
+    private fun emitReviewDisconnect(id: Long) {
+        emit("review/disconnect") {
+            "review_id" - id
         }
     }
 
