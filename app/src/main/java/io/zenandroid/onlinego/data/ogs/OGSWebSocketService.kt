@@ -136,7 +136,7 @@ class OGSWebSocketService(
         }
     }
 
-    fun connectToReview(id: Long, includeChat: Boolean): ReviewConnection {
+    fun connectToReview(id: Long): ReviewConnection {
         synchronized(connectionsLock) {
             val connection = reviewConnections[id] ?:
             ReviewConnection(id, connectionsLock, includeChat,
@@ -145,9 +145,6 @@ class OGSWebSocketService(
             ).apply {
                 emitReviewConnection(id, includeChat)
                 reviewConnections[id] = this
-            }
-            if(includeChat && !connection.includeChat) {
-                enableChatOnConnection(connection)
             }
             connection.incrementCounter()
             return connection
