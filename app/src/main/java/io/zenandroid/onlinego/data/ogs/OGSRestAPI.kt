@@ -401,6 +401,9 @@ interface OGSRestAPI {
   "review_chat_auth": "557c05b06991ed89b58d52f4396aff1a"
 }
 */
+
+    @GET("api/v1/reviews/{review_id}/sgf")
+    suspend fun getReviewSgf(@Path("review_id") reviewId: Long): SGF
 }
 
 /*
