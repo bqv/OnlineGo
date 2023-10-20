@@ -162,6 +162,12 @@ interface OGSRestAPI {
 
     @HTTP(method = "DELETE", path="api/v1/players/{player_id}", hasBody = true)
     suspend fun deleteAccount(@Path("player_id") playerId: Long, @Body body: PasswordBody)
+
+    @GET("api/v1/reviews")
+    suspend fun getReviews(): Review
+
+    @GET("api/v1/reviews/{review_id}")
+    suspend fun getReview(@Path("review_id") reviewId: Long): Review
 }
 
 /*
