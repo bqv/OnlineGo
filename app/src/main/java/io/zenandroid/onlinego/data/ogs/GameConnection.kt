@@ -218,7 +218,7 @@ class GameConnection(
         }
     }
 
-    fun setConditionalMoves(conditionalMoves: ConditionalMoves) {
+    fun setConditionalMoves(conditionalMoves: ConditionalMoveResponse) {
         socketService.emit("game/conditional_moves/set") {
             "game_id" - gameId
             "move_number" - moveNo
