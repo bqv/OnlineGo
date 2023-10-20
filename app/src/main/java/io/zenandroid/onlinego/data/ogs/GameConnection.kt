@@ -218,6 +218,14 @@ class GameConnection(
         }
     }
 
+    fun setConditionalMoves(conditionalMoves: ConditionalMoves) {
+        socketService.emit("game/conditional_moves/set") {
+            "game_id" - gameId
+            "move_number" - moveNo
+            "conditional_moves" - conditionalMoves
+        }
+    }
+
     fun sendMessage(message: String, moveNumber: Int) {
         socketService.emit("game/chat") {
             "body" - message
