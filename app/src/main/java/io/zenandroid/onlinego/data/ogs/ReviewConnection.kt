@@ -142,7 +142,7 @@ class ReviewConnection(
             counter--
             if (counter == 0) {
                 subscriptions.clear()
-                socketService.disconnectFromGame(gameId)
+                socketService.disconnectFromReview(reviewId)
                 closed = true
             }
         }
