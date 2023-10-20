@@ -38,7 +38,15 @@ class GameConnection(
         chatObservable: Flowable<Chat>,
         undoRequestedObservable: Flowable<Int>,
         removedStonesAcceptedObservable: Flowable<RemovedStonesAccepted>,
-        undoAcceptedObservable: Flowable<Int>
+        undoAcceptedObservable: Flowable<Int>,
+        conditionalMovesObservable: Flowable<ConditionalMoveResponse>,
+        /*
+        {
+            conditional_moves: ConditionalMoveResponse;
+            game_id: number;
+            move_number: number;
+        }
+        */
 ) : Disposable, Closeable {
     private var closed = false
     private var counter = 0
