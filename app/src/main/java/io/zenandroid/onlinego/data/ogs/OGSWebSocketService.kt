@@ -122,7 +122,8 @@ class OGSWebSocketService(
                     observeEvent("game/$id/chat").parseJSON(),
                     observeEvent("game/$id/undo_requested").map { string -> string.toString().toInt() },
                     observeEvent("game/$id/removed_stones_accepted").parseJSON(),
-                    observeEvent("game/$id/undo_accepted").map { string -> string.toString().toInt() }
+                    observeEvent("game/$id/undo_accepted").map { string -> string.toString().toInt() },
+                    observeEvent("game/$id/conditional_moves").parseJSON(),
             ).apply {
                 emitGameConnection(id, includeChat)
                 gameConnections[id] = this
