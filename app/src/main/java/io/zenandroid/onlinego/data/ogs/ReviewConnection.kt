@@ -148,58 +148,9 @@ class ReviewConnection(
         }
     }
 
-    fun submitMove(move: Cell) {
+    fun append(action: ReviewMessage) {
         val encodedMove = Util.getSGFCoordinates(move)
-        socketService.emit("game/move") {
-            "auth" - gameAuth
-            "game_id" - gameId
-            "player_id" - getCurrentUserId()
-            "move" - encodedMove
-        }
-    }
-
-    fun resign() {
-        socketService.emit("game/resign") {
-            "auth" - gameAuth
-            "game_id" - gameId
-            "player_id" - getCurrentUserId()
-        }
-    }
-
-    fun rejectRemovedStones() {
-        socketService.emit("game/removed_stones/reject") {
-            "auth" - gameAuth
-            "game_id" - gameId
-            "player_id" - getCurrentUserId()
-        }
-    }
-
-    fun submitRemovedStones(delta: Set<Cell>, removing: Boolean) {
-        val sb = StringBuilder()
-        delta.forEach { sb.append(Util.getSGFCoordinates(it)) }
-        socketService.emit("game/removed_stones/set") {
-            "auth" - gameAuth
-            "game_id" - gameId
-            "player_id" - getCurrentUserId()
-            "removed" - removing
-            "stones" - sb.toString()
-        }
-    }
-
-    fun acceptRemovedStones(removedSpots: Set<Cell>) {
-        val stones = removedSpots
-                .asSequence()
-                .sortedWith(compareBy(Cell::y, Cell::x))
-                .joinToString(separator = "") {
-                    Util.getSGFCoordinates(it)
-                }
-        socketService.emit("game/removed_stones/accept") {
-            "auth" - gameAuth
-            "game_id" - gameId
-            "player_id" - getCurrentUserId()
-            "strict_seki_mode" - false
-            "stones" - stones
-        }
+        socketService.emit("game/move", action)
     }
 
     fun sendMessage(message: String, moveNumber: Int, moves: Set<Cell>) {
