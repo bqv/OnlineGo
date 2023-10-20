@@ -30,15 +30,8 @@ class ReviewConnection(
         val gameId: Long,
         private val connectionLock: Any,
         var includeChat: Boolean,
-        gameDataObservable: Flowable<GameData>,
-        movesObservable: Flowable<Move>,
-        clockObservable: Flowable<OGSClock>,
-        phaseObservable: Flowable<Phase>,
-        removedStonesObservable: Flowable<RemovedStones>,
-        chatObservable: Flowable<Chat>,
-        undoRequestedObservable: Flowable<Int>,
-        removedStonesAcceptedObservable: Flowable<RemovedStonesAccepted>,
-        undoAcceptedObservable: Flowable<Int>
+        fullStateObservable: Flowable<List<ReviewMessage>>,
+        reviewMessageObservable: Flowable<ReviewMessage>,
 ) : Disposable, Closeable {
     private var closed = false
     private var counter = 0
