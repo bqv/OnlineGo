@@ -27,12 +27,12 @@ private const val TAG = "ReviewConnection"
  * Created by alex on 06/11/2017.
  */
 class ReviewConnection(
-        val gameId: Long,
+        val reviewId: Long,
         private val connectionLock: Any,
         var includeChat: Boolean,
         fullStateObservable: Flowable<List<ReviewMessage>>,
         reviewMessageObservable: Flowable<ReviewMessage>,
-        // https://docs.online-go.com/goban/interfaces/ReviewMessage.html
+// https://docs.online-go.com/goban/interfaces/ReviewMessage.html
 ) : Disposable, Closeable {
     private var closed = false
     private var counter = 0
@@ -203,34 +203,15 @@ class ReviewConnection(
     }
 
     fun sendMessage(message: String, moveNumber: Int) {
-        socketService.emit("game/chat") {
+        val stones = moves
+                .joinToString(separator = "") {
+                    Util.getSGFCoordinates(it)
+                }
+        socketService.emit("review/chat") {
             "body" - message
-            "game_id" - gameId
-            "move_number" - moveNumber
-            "type" - "main"
-        }
-    }
-
-    fun acceptUndo(moveNo: Int) {
-        socketService.emit("game/undo/accept") {
-            "game_id" - gameId
-            "move_number" - moveNo
-            "player_id" - getCurrentUserId()
-        }
-    }
-
-    fun requestUndo(moveNo: Int) {
-        socketService.emit("game/undo/request") {
-            "game_id" - gameId
-            "move_number" - moveNo
-            "player_id" - getCurrentUserId()
-        }
-    }
-
-    fun abortGame() {
-        socketService.emit("game/cancel") {
-            "game_id" - gameId
-            "player_id" - getCurrentUserId()
+            "review_id" - reviewId
+            "from" - moveNumber
+            "moves" - stones
         }
     }
 }
