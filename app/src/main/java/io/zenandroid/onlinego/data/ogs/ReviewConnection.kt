@@ -202,7 +202,7 @@ class ReviewConnection(
         }
     }
 
-    fun sendMessage(message: String, moveNumber: Int) {
+    fun sendMessage(message: String, moveNumber: Int, moves: Set<Cell>) {
         val stones = moves
                 .joinToString(separator = "") {
                     Util.getSGFCoordinates(it)
