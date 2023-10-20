@@ -149,7 +149,6 @@ class ReviewConnection(
     }
 
     fun append(action: ReviewMessage) {
-        val encodedMove = Util.getSGFCoordinates(move)
         socketService.emit("game/move", action)
     }
 
