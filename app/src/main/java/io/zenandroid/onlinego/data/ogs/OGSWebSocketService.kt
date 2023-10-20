@@ -432,6 +432,15 @@ class OGSWebSocketService(
         }
     }
 
+    fun disconnectFromReview(id: Long) {
+        synchronized(connectionsLock) {
+            reviewConnections.remove(id)
+            if(socket.connected()) {
+                emitReviewDisconnect(id)
+            }
+        }
+    }
+
     private fun emitGameDisconnect(id: Long) {
         emit("game/disconnect") {
             "game_id" - id
