@@ -6,9 +6,11 @@ import io.zenandroid.onlinego.data.model.ogs.Chat
 import io.zenandroid.onlinego.data.model.ogs.CreateAccountRequest
 import io.zenandroid.onlinego.data.model.ogs.Glicko2History
 import io.zenandroid.onlinego.data.model.ogs.JosekiPosition
+import io.zenandroid.onlinego.data.model.ogs.Ladder
 import io.zenandroid.onlinego.data.model.ogs.OGSChallenge
 import io.zenandroid.onlinego.data.model.ogs.OGSChallengeRequest
 import io.zenandroid.onlinego.data.model.ogs.OGSGame
+import io.zenandroid.onlinego.data.model.ogs.OGSLadderPlayer
 import io.zenandroid.onlinego.data.model.ogs.OGSPlayer
 import io.zenandroid.onlinego.data.model.ogs.OGSPlayerProfile
 import io.zenandroid.onlinego.data.model.ogs.OGSPuzzle
@@ -164,24 +166,24 @@ interface OGSRestAPI {
     suspend fun deleteAccount(@Path("player_id") playerId: Long, @Body body: PasswordBody)
 
     @GET("api/v1/ladders/{ladder_id}/")
-    fun getLadder(@Path("ladder_id") ladderId: Long): Single<Ladder>
+    suspend fun getLadder(@Path("ladder_id") ladderId: Long): Ladder
 
     @GET("api/v1/ladders/{ladder_id}/players")
-    fun getLadderPlayers(
-            @Path("ladder_id") ladderId: Long,
-            @Query("page_size") pageSize: Int = 100,
-            @Query("page") page: Int = 1): Single<PagedResult<LadderPlayer>>
+    suspend fun getLadderPlayers(
+        @Path("ladder_id") ladderId: Long,
+        @Query("page_size") pageSize: Int = 100,
+        @Query("page") page: Int = 1): PagedResult<OGSLadderPlayer>
 
     @POST("api/v1/ladders/{ladder_id}/players")
-    fun joinLadder(@Path("ladder_id") ladderId: Long): Completable
+    suspend fun joinLadder(@Path("ladder_id") ladderId: Long)
 
     @DELETE("api/v1/ladders/{ladder_id}/players")
-    fun leaveLadder(@Path("ladder_id") ladderId: Long): Completable
+    suspend fun leaveLadder(@Path("ladder_id") ladderId: Long)
 
     @POST("api/v1/ladders/{ladder_id}/players/challenge")
-    fun challengeLadderPlayer(
-            @Path("ladder_id") ladderId: Long,
-            @Body request: Ladder.ChallengeRequest): Completable
+    suspend fun challengeLadderPlayer(
+        @Path("ladder_id") ladderId: Long,
+        @Body request: Ladder.ChallengeRequest)
 }
 
 /*

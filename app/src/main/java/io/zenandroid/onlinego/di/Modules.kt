@@ -23,6 +23,7 @@ import io.zenandroid.onlinego.data.repositories.ChatRepository
 import io.zenandroid.onlinego.data.repositories.ClockDriftRepository
 import io.zenandroid.onlinego.data.repositories.FinishedGamesRepository
 import io.zenandroid.onlinego.data.repositories.JosekiRepository
+import io.zenandroid.onlinego.data.repositories.LadderRepository
 import io.zenandroid.onlinego.data.repositories.PlayersRepository
 import io.zenandroid.onlinego.data.repositories.PuzzleRepository
 import io.zenandroid.onlinego.data.repositories.ServerNotificationsRepository
@@ -65,7 +66,6 @@ import io.zenandroid.onlinego.ui.screens.puzzle.PuzzleSetViewModel
 import io.zenandroid.onlinego.ui.screens.puzzle.TsumegoViewModel
 import io.zenandroid.onlinego.ui.screens.settings.SettingsViewModel
 import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel
-import io.zenandroid.onlinego.ui.screens.stats.LadderViewModel
 import io.zenandroid.onlinego.ui.screens.tutorial.TutorialViewModel
 import io.zenandroid.onlinego.usecases.GetUserStatsUseCase
 import io.zenandroid.onlinego.utils.CountingIdlingResource
@@ -254,13 +254,13 @@ private val viewModelsModule = module {
 
   viewModelOf(::SettingsViewModel)
 
-  viewModel { params ->
-    LadderViewModel(
-      LadderRepository(get(), get()),
-      OGSRestService(get(), get(), get(), get()),
-      params.get()
-    )
-  }
+//viewModel { params ->
+//  LadderViewModel(
+//    LadderRepository(get(), get()),
+//    OGSRestService(get(), get(), get(), get()),
+//    params.get()
+//  )
+//}
 }
 
 private val espressoModule = module {

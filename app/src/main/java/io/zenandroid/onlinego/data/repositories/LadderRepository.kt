@@ -1,55 +1,61 @@
 package io.zenandroid.onlinego.data.repositories
 
 import android.util.Log
-import io.reactivex.Completable
-import io.reactivex.Flowable
-import io.reactivex.Observable
-import io.reactivex.Single
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.plusAssign
-import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.data.db.GameDao
+import io.zenandroid.onlinego.data.model.local.LadderPlayer
 import io.zenandroid.onlinego.data.model.local.Player
 import io.zenandroid.onlinego.data.model.ogs.Ladder
-import io.zenandroid.onlinego.data.model.ogs.LadderPlayer
 import io.zenandroid.onlinego.data.ogs.OGSRestService
 import io.zenandroid.onlinego.utils.addToDisposable
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapConcat
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.withContext
 import java.time.Instant
 
 class LadderRepository(
-        private val restService: OGSRestService,
-        private val dao: GameDao
+    private val restService: OGSRestService,
+    private val dao: GameDao
 ) {
     private val refreshCooldownSeconds = 60 * 60
 
-    private val disposable = CompositeDisposable()
-
-    fun join(id: Long): Completable =
+    suspend fun join(id: Long) =
         restService.joinLadder(id = id)
 
-    fun leave(id: Long): Completable =
+    suspend fun leave(id: Long) =
         restService.leaveLadder(id = id)
 
-    fun challenge(id: Long, playerId: Long): Completable =
+    suspend fun challenge(id: Long, playerId: Long) =
         restService.challengeLadderPlayer(id = id, playerId = playerId)
 
-    fun getLadder(id: Long): Flowable<Ladder> {
-        disposable += restService.getLadder(id)
-            .subscribe(this::saveLadderToDB, this::onError)
-
+    fun getLadder(id: Long): Flow<Ladder> {
         return dao.getLadder(id)
-                .doOnNext { Log.d("LadderRepository", it.toString()) }
-                .distinctUntilChanged()
+            .onStart {
+                val ladder = restService.getLadder(id)
+                saveLadderToDB(ladder)
+            }
+            .catch { onError(it) }
+            .onEach { Log.d("LadderRepository", it.toString()) }
+            .distinctUntilChanged()
     }
 
-    fun getLadderPlayers(ladderId: Long): Flowable<List<LadderPlayer>> {
-        disposable += dao.getLadderPlayersLastRefresh(ladderId)
-            .subscribeOn(Schedulers.computation())
-            .subscribe({
-                if((Instant.now().getEpochSecond() - it) > refreshCooldownSeconds) {
-                    disposable += restService.getLadderPlayers(ladderId)
-                        .map { it.map { ladderPlayer -> ladderPlayer.copy(
+    suspend fun getLadderPlayers(ladderId: Long): Flow<List<LadderPlayer>> {
+        withContext(Dispatchers.IO) {
+            val lastFetchSecondsAgo = dao.getLadderPlayersLastRefresh(ladderId)
+                .let { Instant.now().getEpochSecond() - it }
+
+            if (lastFetchSecondsAgo > refreshCooldownSeconds) {
+                val ladderPlayers = restService.getLadderPlayers(ladderId)
+                    .map { ladderPlayer ->
+                        ladderPlayer.copy(
                             ladderId = ladderId,
                             lastRefresh = Instant.now(),
                             incoming_challenges = ladderPlayer.incoming_challenges.map { it.copy(
@@ -62,35 +68,37 @@ class LadderRepository(
                                 ladderPlayerId = ladderPlayer.id,
                                 incoming = false
                             ) }
-                        ) } }
-                        .subscribe(this::saveLadderPlayersToDB, this::onError)
-                }
-            }, this::onError)
+                        )
+                    }
+                saveLadderPlayersToDB(ladderPlayers)
+            }
+        }
 
         return dao.getLadderPlayers(ladderId)
-                .doOnNext { it.forEach{c -> Log.d("LadderRepository", c.toString())} }
-                .distinctUntilChanged()
-                .flatMap {
-                    it.map { ladderPlayer ->
-                        dao.getLadderChallenges(ladderId, ladderPlayer.id)
-                            .distinctUntilChanged()
-                            .map { list ->
-                                ladderPlayer.copy(
-                                    incoming_challenges = list.filter { it.incoming == true },
-                                    outgoing_challenges = list.filter { it.incoming == false }
-                                )
-                            }
-                    }.let {
-                        Flowable.zip(it, { it.toList() as List<LadderPlayer> })
-                    }
+            .catch { onError(it) }
+            .onEach { it.forEach { c -> Log.d("LadderRepository", c.toString()) } }
+            .distinctUntilChanged()
+            .flatMapConcat {
+                it.map { ladderPlayer ->
+                    dao.getLadderChallenges(ladderId, ladderPlayer.id)
+                        .distinctUntilChanged()
+                        .map { list ->
+                            ladderPlayer.copy(
+                                incoming_challenges = list.filter { it.incoming == true },
+                                outgoing_challenges = list.filter { it.incoming == false }
+                            )
+                        }
+                }.let {
+                    combine(it) { it.toList() as List<LadderPlayer> }
                 }
+            }
     }
 
-    private fun saveLadderToDB(ladder: Ladder) {
+    private suspend fun saveLadderToDB(ladder: Ladder) {
         dao.insertLadder(ladder)
     }
 
-    private fun saveLadderPlayersToDB(players: List<LadderPlayer>) {
+    private suspend fun saveLadderPlayersToDB(players: List<LadderPlayer>) {
         dao.insertLadderPlayers(players)
         players.forEach {
             dao.replaceLadderChallenges(

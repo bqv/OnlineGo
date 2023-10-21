@@ -7,24 +7,24 @@ import androidx.room.PrimaryKey
 
 @Entity
 data class Ladder (
-    @PrimaryKey var id: Long = -1,
-    var name: String = "",
-    var board_size: Int = 0,
-    var size: Int = -1,
-    @Embedded(prefix = "group_") var group: LadderGroup? = null,
-    var player_rank: Int? = null,
-    var player_is_member_of_group: Boolean? = null,
+    @PrimaryKey val id: Long = -1,
+    val name: String = "",
+    val board_size: Int = 0,
+    val size: Int = -1,
+    @Embedded(prefix = "group_") val group: LadderGroup? = null,
+    val player_rank: Int? = null,
+    val player_is_member_of_group: Boolean? = null,
 ) {
-    data class ChallengeRequest (var player_id: Long)
+    data class ChallengeRequest (val player_id: Long)
 
     data class LadderGroup (
-        var id: Long,
-        var name: String,
-        var summary: String = "",
-        var require_invitation: Boolean = false,
-        var is_public: Boolean = true,
-        var hide_details: Boolean? = null,
-        var member_count: Int = 0,
-        var icon: String
+        val id: Long,
+        val name: String,
+        val summary: String = "",
+        val require_invitation: Boolean = false,
+        val is_public: Boolean = true,
+        val hide_details: Boolean? = null,
+        val member_count: Int = 0,
+        val icon: String
     )
 }

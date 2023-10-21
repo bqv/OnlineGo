@@ -58,9 +58,9 @@ data class OGSPlayerFull (
         OGSPlayer(
             id = this.user.id,
             username = this.user.username,
-            ranking = this.user.ranking,
-            professional = this.user.professional,
-            ratings = this.user.ratings?.overall?.let { OGSPlayer.Ratings(overall = it) },
+          //ranking = this.user.ranking,
+          //professional = this.user.professional,
+          //ratings = this.user.ratings?.overall?.let { OGSPlayer.Ratings(overall = it) },
             country = this.user.country,
             icon = this.user.icon,
         )

@@ -3,17 +3,21 @@ package io.zenandroid.onlinego.data.ogs
 import android.preference.PreferenceManager
 import com.squareup.moshi.Moshi
 import io.reactivex.Completable
+import io.reactivex.Observable
 import io.reactivex.Single
 import io.zenandroid.onlinego.OnlineGoApplication
+import io.zenandroid.onlinego.data.model.local.LadderPlayer
 import io.zenandroid.onlinego.data.model.local.Puzzle
 import io.zenandroid.onlinego.data.model.local.PuzzleCollection
 import io.zenandroid.onlinego.data.model.ogs.ChallengeParams
 import io.zenandroid.onlinego.data.model.ogs.CreateAccountRequest
 import io.zenandroid.onlinego.data.model.ogs.Glicko2History
 import io.zenandroid.onlinego.data.model.ogs.JosekiPosition
+import io.zenandroid.onlinego.data.model.ogs.Ladder
 import io.zenandroid.onlinego.data.model.ogs.OGSChallenge
 import io.zenandroid.onlinego.data.model.ogs.OGSChallengeRequest
 import io.zenandroid.onlinego.data.model.ogs.OGSGame
+import io.zenandroid.onlinego.data.model.ogs.OGSLadderPlayer
 import io.zenandroid.onlinego.data.model.ogs.OGSPlayer
 import io.zenandroid.onlinego.data.model.ogs.PasswordBody
 import io.zenandroid.onlinego.data.model.ogs.PuzzleRating
@@ -314,47 +318,30 @@ class OGSRestService(
     )
   }
 
-    fun getLadder(id: Long): Single<Ladder> =
-        restApi.getLadder(ladderId = id)
+    suspend fun getLadder(id: Long): Ladder =
+      restApi.getLadder(ladderId = id)
 
-    fun getLadderPlayers(id: Long, page: Int? = null): Flowable<List<LadderPlayer>> {
-        var page = page?.let {
-            return restApi.getLadderPlayers(
-                ladderId = id,
-                page = it
-            )
-            .map { it.results }
-            .toFlowable()
-        } ?: 0
+    suspend fun getLadderPlayers(id: Long, page: Int? = null): List<LadderPlayer> {
+      var page = 0
 
-        fun fetchPage(): Single<PagedResult<LadderPlayer>> = restApi.getLadderPlayers(
-            ladderId = id,
-            page = ++page
+      val list = mutableListOf<OGSLadderPlayer>()
+      do {
+        val result = restApi.getLadderPlayers(
+          ladderId = id,
+          page = ++page
         )
-
-        fun unfold(result: Single<PagedResult<LadderPlayer>>): Observable<List<LadderPlayer>> {
-            return result.toObservable().flatMap { pre ->
-                Observable.just(pre.results).let {
-                    if (pre.results.last().rank >= pre.count) {
-                        it
-                    } else {
-                        val wait = Observable.timer(5, TimeUnit.SECONDS).take(1)
-                        it.concatWith(wait.map { emptyList<LadderPlayer>() }.ignoreElements())
-                            .concatWith(unfold(fetchPage()))
-                    }
-                }
-            }
-        }
-
-        return unfold(fetchPage()).toFlowable(BackpressureStrategy.BUFFER)
+        list.addAll(result.results)
+        delay(5000)
+      } while (result.next != null)
+      return list.map(LadderPlayer::fromOGSLadderPlayer)
     }
 
-    fun joinLadder(id: Long): Completable =
-        restApi.joinLadder(ladderId = id)
+    suspend fun joinLadder(id: Long) =
+      restApi.joinLadder(ladderId = id)
 
-    fun leaveLadder(id: Long): Completable =
-        restApi.leaveLadder(ladderId = id)
+    suspend fun leaveLadder(id: Long) =
+      restApi.leaveLadder(ladderId = id)
 
-    fun challengeLadderPlayer(id: Long, playerId: Long): Completable =
-        restApi.challengeLadderPlayer(ladderId = id, request = Ladder.ChallengeRequest(playerId))
+    suspend fun challengeLadderPlayer(id: Long, playerId: Long) =
+      restApi.challengeLadderPlayer(ladderId = id, request = Ladder.ChallengeRequest(playerId))
 }

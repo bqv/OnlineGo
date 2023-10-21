@@ -440,31 +440,31 @@ abstract class GameDao {
     }
 
     @Query("SELECT * FROM ladder WHERE id = :ladderId")
-    abstract fun getLadder(ladderId: Long): Flowable<Ladder>
+    abstract fun getLadder(ladderId: Long): Flow<Ladder>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract fun insertLadder(ladder: Ladder)
+    abstract suspend fun insertLadder(ladder: Ladder)
 
     @Query("SELECT * FROM ladderplayer WHERE ladderId = :ladderId ORDER BY rank ASC")
-    abstract fun getLadderPlayers(ladderId: Long): Flowable<List<LadderPlayer>>
+    abstract fun getLadderPlayers(ladderId: Long): Flow<List<LadderPlayer>>
 
     @Query("SELECT coalesce(max(lastrefresh), 0) FROM ladderplayer WHERE ladderId = :ladderId")
-    abstract fun getLadderPlayersLastRefresh(ladderId: Long): Single<Long>
+    abstract suspend fun getLadderPlayersLastRefresh(ladderId: Long): Long
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract fun insertLadderPlayers(ladderPlayers: List<LadderPlayer>)
+    abstract suspend fun insertLadderPlayers(ladderPlayers: List<LadderPlayer>)
 
     @Query("SELECT * FROM ladderchallenge WHERE ladderId = :ladderId AND ladderPlayerId = :ladderPlayerId")
-    abstract fun getLadderChallenges(ladderId: Long, ladderPlayerId: Long): Flowable<List<LadderChallenge>>
+    abstract fun getLadderChallenges(ladderId: Long, ladderPlayerId: Long): Flow<List<LadderChallenge>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract fun insertLadderChallenges(challenges: List<LadderChallenge>)
+    abstract suspend fun insertLadderChallenges(challenges: List<LadderChallenge>)
 
     @Query("DELETE FROM ladderchallenge WHERE ladderId = :ladderId AND ladderPlayerId = :ladderPlayerId")
-    abstract fun deleteLadderChallenges(ladderId: Long, ladderPlayerId: Long)
+    abstract suspend fun deleteLadderChallenges(ladderId: Long, ladderPlayerId: Long)
 
     @Transaction
-    open fun replaceLadderChallenges(ladderId: Long, ladderPlayerId: Long, challenges: List<LadderChallenge>) {
+    open suspend fun replaceLadderChallenges(ladderId: Long, ladderPlayerId: Long, challenges: List<LadderChallenge>) {
         deleteLadderChallenges(ladderId, ladderPlayerId)
         insertLadderChallenges(challenges)
     }
