@@ -11,13 +11,13 @@ data class Ladder (
     var name: String = "",
     var board_size: Int = 0,
     var size: Int = -1,
-    @Embedded(prefix = "group_") var group: Group? = null,
+    @Embedded(prefix = "group_") var group: LadderGroup? = null,
     var player_rank: Int? = null,
     var player_is_member_of_group: Boolean? = null,
 ) {
     data class ChallengeRequest (var player_id: Long)
 
-    data class Group (
+    data class LadderGroup (
         var id: Long,
         var name: String,
         var summary: String = "",
