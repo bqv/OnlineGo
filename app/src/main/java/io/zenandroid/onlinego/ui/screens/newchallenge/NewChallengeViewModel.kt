@@ -33,7 +33,7 @@ class NewChallengeViewModel : ViewModel() {
             it.ratings?.overall?.deviation
           )
         })"
-      } ?: "[Select Opponent]"
+      } ?: "[Open Offer]"
     )
   )
 
@@ -61,7 +61,7 @@ class NewChallengeViewModel : ViewModel() {
             ),
             opponentText = opponent
               ?.let { "${it.username} (${formatRank(egfToRank(it.rating), it.deviation)})" }
-              ?: "[Select Opponent]"
+              ?: "[Open Offer]"
           )
         }
 
@@ -148,7 +148,7 @@ class NewChallengeViewModel : ViewModel() {
                   it.deviation
                 )
               })"
-            } ?: "[Select Opponent]"
+            } ?: "[Open Offer]"
           )
         }
       }
