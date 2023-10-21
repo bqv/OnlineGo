@@ -25,6 +25,7 @@ import io.zenandroid.onlinego.data.repositories.FinishedGamesRepository
 import io.zenandroid.onlinego.data.repositories.JosekiRepository
 import io.zenandroid.onlinego.data.repositories.PlayersRepository
 import io.zenandroid.onlinego.data.repositories.PuzzleRepository
+import io.zenandroid.onlinego.data.repositories.SeekGraphRepository
 import io.zenandroid.onlinego.data.repositories.ServerNotificationsRepository
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.data.repositories.TutorialsRepository
@@ -61,10 +62,10 @@ import io.zenandroid.onlinego.ui.screens.newchallenge.selectopponent.searchplaye
 import io.zenandroid.onlinego.ui.screens.newchallenge.selectopponent.searchplayer.SearchPlayerViewModel
 import io.zenandroid.onlinego.ui.screens.onboarding.OnboardingViewModel
 import io.zenandroid.onlinego.ui.screens.puzzle.PuzzleDirectoryViewModel
-import io.zenandroid.onlinego.ui.screens.puzzle.PuzzleSetViewModel
 import io.zenandroid.onlinego.ui.screens.puzzle.TsumegoViewModel
 import io.zenandroid.onlinego.ui.screens.settings.SettingsViewModel
 import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel
+import io.zenandroid.onlinego.ui.screens.stats.LadderViewModel
 import io.zenandroid.onlinego.ui.screens.tutorial.TutorialViewModel
 import io.zenandroid.onlinego.usecases.GetUserStatsUseCase
 import io.zenandroid.onlinego.utils.CountingIdlingResource
@@ -88,6 +89,7 @@ private val repositoriesModule = module {
       get<ChallengesRepository>(),
       get<FinishedGamesRepository>(),
       get<ChatRepository>(),
+      get<SeekGraphRepository>(),
       get<ServerNotificationsRepository>(),
       get<ClockDriftRepository>(),
       get<TutorialsRepository>()
@@ -103,6 +105,7 @@ private val repositoriesModule = module {
   single { JosekiRepository(get(), get()) }
   single { PuzzleRepository(get(), get()) }
   single { PlayersRepository(get(), get(), get()) }
+  single { SeekGraphRepository(get()) }
   single { ServerNotificationsRepository(get()) }
   single { SettingsRepository() }
   single { UserSessionRepository() }
@@ -187,11 +190,7 @@ private val viewModelsModule = module {
   }
 
   viewModel { params ->
-    PuzzleSetViewModel(get(), get(), params.get())
-  }
-
-  viewModel { params ->
-    TsumegoViewModel(get(), get(), params.get())
+    TsumegoViewModel(get(), get(), params.get(), params.get())
   }
 
   viewModelOf(::PuzzleDirectoryViewModel)
@@ -252,6 +251,14 @@ private val viewModelsModule = module {
   }
 
   viewModelOf(::SettingsViewModel)
+
+  viewModel { params ->
+    LadderViewModel(
+      LadderRepository(get(), get()),
+      OGSRestService(get(), get(), get(), get()),
+      params.get()
+    )
+  }
 }
 
 private val espressoModule = module {

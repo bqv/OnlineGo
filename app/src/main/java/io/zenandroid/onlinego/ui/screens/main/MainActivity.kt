@@ -6,18 +6,25 @@ import android.app.NotificationChannelGroup
 import android.app.NotificationManager
 import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Color
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.util.Log
 import android.os.Looper
+import android.provider.Settings
+import android.util.Log
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.core.view.ViewCompat
@@ -31,6 +38,7 @@ import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.ogs.Size
 import io.zenandroid.onlinego.data.model.ogs.Speed
 import io.zenandroid.onlinego.databinding.ActivityMainBinding
+import io.zenandroid.onlinego.notifications.Bubbles
 import io.zenandroid.onlinego.notifications.SynchronizeGamesWork
 import io.zenandroid.onlinego.ui.screens.automatch.NewAutomatchChallengeBottomSheet
 import io.zenandroid.onlinego.ui.screens.game.GAME_HEIGHT
@@ -48,7 +56,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.get
 
-
 class MainActivity : AppCompatActivity(), MainContract.View {
     companion object {
         var isInForeground = false
@@ -59,7 +66,21 @@ class MainActivity : AppCompatActivity(), MainContract.View {
 
     private lateinit var binding: ActivityMainBinding
 
-    private var requestPermissionLauncher: ActivityResultLauncher<String>? = null
+    private var requestNotificationPermissionLauncher: ActivityResultLauncher<String> = registerForActivityResult(ActivityResultContracts.RequestPermission()) {
+		if (!it) {
+			return@registerForActivityResult
+		} 
+
+        if (Build.VERSION.SDK_INT >= Bubbles.MIN_SDK_BUBBLES) {
+            if (!hasBubblePermissions()) {
+                requestBubblePermissions()
+            }
+        }
+	}
+    private var requestBubblePermissionLauncher: ActivityResultLauncher<Intent> = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+		if (hasBubblePermissions()) {
+		}
+	}
 
     private val presenter: MainPresenter by lazy { MainPresenter(this, get(), get(), get(), get()) }
 
@@ -116,7 +137,6 @@ class MainActivity : AppCompatActivity(), MainContract.View {
             }
         }
 
-        requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) {}
         createNotificationChannel()
         scheduleNotificationJob()
 
@@ -127,6 +147,23 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         )
 
         BoardView.preloadResources(resources)
+
+        intent?.data?.let { data ->
+            // Figure out what to do based on the intent type
+            if (intent?.scheme?.startsWith("http") == true) {
+                // Handle intents with remote data ...
+                Log.d("MainActivity", "Recieved remote intent ${data}")
+                navHostFragment.navController.navigate(R.id.aiGameFragment, Bundle().apply {
+                    putString("SGF_REMOTE", data.toString())
+                })
+            } else if (intent?.type == "application/x-go-sgf") {
+                // Handle intents with local data ...
+                Log.d("MainActivity", "Recieved local intent ${data}")
+                navHostFragment.navController.navigate(R.id.aiGameFragment, Bundle().apply {
+                    putString("SGF_LOCAL", data.toString())
+                })
+            }
+        }
     }
 
     private fun scheduleNotificationJob() {
@@ -145,43 +182,46 @@ class MainActivity : AppCompatActivity(), MainContract.View {
 
             notificationManager.createNotificationChannels(
                     listOf(
-                            NotificationChannel("active_correspondence_games", "Your Turn", NotificationManager.IMPORTANCE_LOW).apply {
+                            NotificationChannel("active_correspondence_games", "Your Turn", NotificationManager.IMPORTANCE_HIGH).apply {
                                 setGroup("correspondence")
                                 enableLights(true)
                                 lightColor = Color.WHITE
                                 enableVibration(true)
                                 vibrationPattern = longArrayOf(0, 200, 0, 200)
-
+                                lockscreenVisibility = NotificationCompat.VISIBILITY_PUBLIC
+                                setAllowBubbles(true)
                             },
-                            NotificationChannel("active_live_games", "Your Turn", NotificationManager.IMPORTANCE_LOW).apply {
+                            NotificationChannel("active_live_games", "Your Turn", NotificationManager.IMPORTANCE_HIGH).apply {
                                 setGroup("live")
                                 enableLights(true)
                                 lightColor = Color.WHITE
                                 enableVibration(true)
                                 vibrationPattern = longArrayOf(0, 200, 0, 200)
-
+                                lockscreenVisibility = NotificationCompat.VISIBILITY_PUBLIC
+                                setAllowBubbles(true)
                             },
-                            NotificationChannel("active_blitz_games", "Your Turn", NotificationManager.IMPORTANCE_LOW).apply {
+                            NotificationChannel("active_blitz_games", "Your Turn", NotificationManager.IMPORTANCE_HIGH).apply {
                                 setGroup("blitz")
                                 enableLights(true)
                                 lightColor = Color.WHITE
                                 enableVibration(true)
                                 vibrationPattern = longArrayOf(0, 200, 0, 200)
-
+                                lockscreenVisibility = NotificationCompat.VISIBILITY_PUBLIC
+                                setAllowBubbles(true)
                             },
-                            NotificationChannel("active_games", "Your Turn", NotificationManager.IMPORTANCE_NONE).apply {
+                            NotificationChannel("active_games", "Your Turn", NotificationManager.IMPORTANCE_HIGH).apply {
                                 enableLights(true)
                                 lightColor = Color.WHITE
                                 enableVibration(true)
                                 vibrationPattern = longArrayOf(0, 200, 0, 200)
-
+                                lockscreenVisibility = NotificationCompat.VISIBILITY_PUBLIC
+                                setAllowBubbles(true)
                             },
                             NotificationChannel("challenges", "Challenges", NotificationManager.IMPORTANCE_LOW).apply {
                                 enableLights(true)
                                 lightColor = Color.WHITE
                                 enableVibration(true)
                                 vibrationPattern = longArrayOf(0, 200, 0, 200)
-
                             },
                             NotificationChannel("logout", "Logout", NotificationManager.IMPORTANCE_LOW).apply {
                                 enableLights(false)
@@ -194,7 +234,6 @@ class MainActivity : AppCompatActivity(), MainContract.View {
 
     override fun onDestroy() {
         super.onDestroy()
-        requestPermissionLauncher = null
     }
 
     override fun askForNotificationsPermission(delayed: Boolean) {
@@ -203,8 +242,8 @@ class MainActivity : AppCompatActivity(), MainContract.View {
                 delay(5000)
             }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                if (ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                    requestPermissionLauncher?.launch(Manifest.permission.POST_NOTIFICATIONS)
+                if (!hasPermission(Manifest.permission.POST_NOTIFICATIONS)) {
+                    requestNotificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
                 }
             }
         }
@@ -284,4 +323,25 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         analytics.logEvent("bot_challenge", null)
         presenter.onNewBotChallenge(challengeParams)
     }
+
+	@RequiresApi(Bubbles.MIN_SDK_BUBBLES)
+	private fun hasBubblePermissions(): Boolean {
+		if (Build.VERSION.SDK_INT >= 33 && !hasPermission(Manifest.permission.POST_NOTIFICATIONS)) {
+			return false
+		}
+
+		return Bubbles.canDisplayBubbles(applicationContext, "active_correspondence_games")
+	}
+
+	@RequiresApi(Bubbles.MIN_SDK_BUBBLES)
+	private fun requestBubblePermissions() {
+		// Note that the notification channel must be created before we launch the Bubbles settings activity.
+		createNotificationChannel()
+		requestBubblePermissionLauncher.launch(Intent(Settings.ACTION_APP_NOTIFICATION_BUBBLE_SETTINGS)
+			.putExtra(Settings.EXTRA_APP_PACKAGE, packageName))
+	}
+
+	private fun hasPermission(permission: String): Boolean {
+		return ContextCompat.checkSelfPermission(applicationContext, permission) == PackageManager.PERMISSION_GRANTED
+	}
 }

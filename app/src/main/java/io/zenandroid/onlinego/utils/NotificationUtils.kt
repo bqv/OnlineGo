@@ -2,8 +2,11 @@ package io.zenandroid.onlinego.utils
 
 import android.app.NotificationManager
 import android.app.PendingIntent
+import android.app.PendingIntent.FLAG_CANCEL_CURRENT
 import android.app.PendingIntent.FLAG_IMMUTABLE
+import android.app.PendingIntent.FLAG_MUTABLE
 import android.app.PendingIntent.FLAG_UPDATE_CURRENT
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -11,7 +14,12 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.os.Build
 import androidx.core.app.NotificationCompat
+import androidx.core.app.Person
+import androidx.core.content.LocusIdCompat
+import androidx.core.content.pm.ShortcutInfoCompat
+import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.graphics.drawable.IconCompat
 import android.view.View
 import android.widget.RemoteViews
 import androidx.core.os.bundleOf
@@ -25,9 +33,11 @@ import io.zenandroid.onlinego.data.model.local.ChallengeNotification
 import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.local.GameNotificationWithDetails
 import io.zenandroid.onlinego.data.model.ogs.Phase
+import io.zenandroid.onlinego.notifications.Bubbles
 import io.zenandroid.onlinego.ui.screens.game.GAME_HEIGHT
 import io.zenandroid.onlinego.ui.screens.game.GAME_ID
 import io.zenandroid.onlinego.ui.screens.game.GAME_WIDTH
+import io.zenandroid.onlinego.ui.screens.game.BubbleActivity
 import io.zenandroid.onlinego.ui.screens.main.MainActivity
 import io.zenandroid.onlinego.ui.views.BoardView
 
@@ -217,30 +227,73 @@ class NotificationUtils {
                 board.boardHeight = it.height
                 board.position = RulesManager.replay(it, computeTerritory = false)
                 remoteView.setImageViewBitmap(R.id.notification_bitmap, board.convertToContentBitmap())
-                val notification =
-                        NotificationCompat.Builder(context, category)
-                                .setContentTitle(opponent)
-                                .setContentText(message)
-                                .setContentIntent(pendingIntent)
-                                .setVibrate(arrayOf(0L, 200L, 0L, 200L).toLongArray())
-                                .setLargeIcon(board.convertToIconBitmap())
-                                .setSmallIcon(R.drawable.ic_notification_go_board)
-                                .setColor(ResourcesCompat.getColor(context.resources, R.color.colorTextSecondary, null))
-                                .setGroup("GAME_NOTIFICATIONS")
-                                .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_SUMMARY)
-                                .setStyle(NotificationCompat.DecoratedCustomViewStyle())
-                                .setCustomBigContentView(remoteView)
-                                .apply {
-                                    if (it.phase == Phase.PLAY)
-                                        setChronometerCountDown(true)
-                                            .setUsesChronometer(true)
-                                            .setShowWhen(true)
-                                            .setWhen(timeLimit)
-                                            .setOngoing(true)
-                                    else
-                                        setAutoCancel(true)
-                                }
-                                .build()
+
+                val notification = NotificationCompat.Builder(context, category)
+                    .setContentTitle(opponent)
+                    .setContentText(message)
+                    .setContentIntent(pendingIntent)
+                    .setVibrate(arrayOf(0L, 200L, 0L, 200L).toLongArray())
+                    .setLargeIcon(board.convertToIconBitmap())
+                    .setSmallIcon(R.drawable.ic_notification_go_board)
+                    .setColor(ResourcesCompat.getColor(context.resources, R.color.colorTextSecondary, null))
+                    .setGroup("GAME_NOTIFICATIONS")
+                    .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_SUMMARY)
+                    .setStyle(NotificationCompat.DecoratedCustomViewStyle())
+                    .setCustomBigContentView(remoteView)
+                    .apply {
+                        if (it.phase == Phase.PLAY) {
+                            setShowWhen(true)
+                            setWhen(timeLimit)
+                            setUsesChronometer(true)
+                            setChronometerCountDown(true)
+                            setOngoing(true)
+                        } else {
+                            setAutoCancel(true)
+                        }
+                    }
+                    .apply {
+                        val bubbleIntent = PendingIntent.getActivity(
+                            context, it.id.toInt(),
+                            Intent(context, BubbleActivity::class.java),
+                            FLAG_MUTABLE or FLAG_CANCEL_CURRENT)
+
+                        val shortcutId = it.id.toString()
+
+                        val gamePartner = Person.Builder()
+                            .setName(opponent)
+                            .setKey(shortcutId)
+                            .setImportant(true)
+                            .setBot(false)
+                            .build()
+
+                        val shortcut = ShortcutInfoCompat.Builder(context, shortcutId)
+                            .setCategories(setOf())
+                            .setLocusId(LocusIdCompat(shortcutId))
+                            .setActivity(ComponentName(context, BubbleActivity::class.java))
+                            .setIntent(Intent(Intent.ACTION_DEFAULT))
+                            .setLongLived(true)
+                            .setShortLabel(opponent)
+                            .setPerson(gamePartner)
+                            .build()
+                            .also { ShortcutManagerCompat.pushDynamicShortcut(context, it) }
+
+                        val bubbleData = NotificationCompat.BubbleMetadata.Builder(
+                            bubbleIntent,
+                            IconCompat.createWithResource(context, R.drawable.ic_notification_go_board)
+                        )
+                            .setDesiredHeight(600)
+                            .setIntent(bubbleIntent)
+                            .setAutoExpandBubble(true)
+                            .setSuppressNotification(true)
+                            .build()
+
+                        setBubbleMetadata(bubbleData)
+                        setShortcutInfo(shortcut)
+                        setShortcutId(shortcutId)
+                        setLocusId(LocusIdCompat(shortcutId))
+                        addPerson(gamePartner)
+                    }
+                    .build()
 
                 val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
                 notificationManager.notify(it.id.toInt(), notification)

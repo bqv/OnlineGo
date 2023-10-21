@@ -4,9 +4,15 @@ import android.util.Log
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.withLatestFrom
 import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.rx2.asObservable
+import org.koin.core.context.GlobalContext
 import io.zenandroid.onlinego.ai.KataGoAnalysisEngine
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.StoneType
+import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.gamelogic.RulesManager.isGameOver
 import io.zenandroid.onlinego.mvi.Middleware
@@ -16,18 +22,23 @@ import io.zenandroid.onlinego.ui.screens.localai.AiGameState
 import io.zenandroid.onlinego.utils.recordException
 
 class GameTurnMiddleware : Middleware<AiGameState, AiGameAction> {
+    val settingsRepository: SettingsRepository = GlobalContext.get().get()
+
     override fun bind(actions: Observable<AiGameAction>, state: Observable<AiGameState>): Observable<AiGameAction> =
             Observable.merge(
+                listOf(
                     engineStarted(actions, state),
                     newGame(actions),
                     nextMove(actions, state),
-                    computeScore(actions, state)
+                    computeScore(actions, state),
+                    toggleAI(actions, state)
+                )
             )
 
     private fun engineStarted(actions: Observable<AiGameAction>, state: Observable<AiGameState>) =
             actions.filter { it is EngineStarted || it is RestoredState }
                 .withLatestFrom(state)
-                    .filter { (_, state) -> !state.stateRestorePending && state.engineStarted && state.position != null && !(state.history.isGameOver() && state.aiWon != null) }
+                    .filter { (_, state) -> !state.stateRestorePending && state.engineStarted && state.position != null && !(state.history.isGameOver() && state.whiteWon != null) }
                     .map { (_, state) -> NewPosition(state.position!!) }
 
     private fun newGame(actions: Observable<AiGameAction>) =
@@ -35,12 +46,12 @@ class GameTurnMiddleware : Middleware<AiGameState, AiGameAction> {
                     .map { NewPosition(RulesManager.initializePosition(it.size, it.handicap)) }
 
     private fun nextMove(actions: Observable<AiGameAction>, state: Observable<AiGameState>) =
-            actions.filter { it is NewPosition || it is AIMove }
+            actions.filter { it is NewPosition || it is AIMove || it is NextPlayerChanged || it is DismissNewGameDialog }
                     .withLatestFrom(state)
-                    .filter { (_, state) -> !state.history.isGameOver() }
+                    .filter { (_, state) -> !state.history.isGameOver() && !state.newGameDialogShown }
                     .map { (_, state) ->
-                        val isBlacksTurn = state.position?.nextToMove != StoneType.WHITE
-                        if (isBlacksTurn == state.enginePlaysBlack) {
+                        if ((state.position?.nextToMove == StoneType.BLACK && state.enginePlaysBlack) ||
+                            (state.position?.nextToMove == StoneType.WHITE && state.enginePlaysWhite)) {
                             GenerateAiMove
                         } else {
                             PromptUserForMove
@@ -51,13 +62,19 @@ class GameTurnMiddleware : Middleware<AiGameState, AiGameAction> {
             actions.filter { it is NewPosition || it is AIMove }
                     .withLatestFrom(state)
                     .filter { (_, state) -> state.history.isGameOver() }
-                    .flatMap { (_, state) ->
+                    .switchMap { (_, state) ->
                         KataGoAnalysisEngine.analyzeMoveSequence(
                                 sequence = state.history,
-                                maxVisits = 10,
+                              //maxVisits = 10,
                                 komi = state.position!!.komi,
                                 includeOwnership = true
                         )
+                                .let {
+                                    if (!settingsRepository.detailedAnalysis) it
+                                        .filter { !it.isDuringSearch }
+                                        .take(1)
+                                    else it
+                                }
                                 .map {
                                     val blackTerritory = mutableSetOf<Cell>()
                                     val whiteTerritory = mutableSetOf<Cell>()
@@ -90,14 +107,25 @@ class GameTurnMiddleware : Middleware<AiGameState, AiGameAction> {
 
                                     val whiteScore = (newPos.komi ?: 0f) + newPos.whiteTerritory.size + newPos.whiteCaptureCount + newPos.blackDeadStones.size
                                     val blackScore = newPos.blackTerritory.size + newPos.blackCaptureCount + newPos.whiteDeadStones.size
-                                    val aiWon = state.enginePlaysBlack == (blackScore > whiteScore)
-                                    ScoreComputed(newPos, whiteScore, blackScore, aiWon, it)
+                                    val whiteWon = blackScore < whiteScore
+                                    ScoreComputed(newPos, whiteScore, blackScore, whiteWon, it)
                                 }
+                                .asObservable()
                                 .subscribeOn(Schedulers.io())
-                                .toObservable()
                                 .doOnError(this::onError)
                                 .onErrorResumeNext(Observable.empty())
                     }
+
+    private fun toggleAI(actions: Observable<AiGameAction>, state: Observable<AiGameState>) =
+            actions.filter { it is ToggleAIBlack || it is ToggleAIWhite }
+                .withLatestFrom(state)
+                .filter{ (sideChanged, state) -> state.engineStarted && state.position != null
+                    && state.position.nextToMove == when(sideChanged) {
+                        ToggleAIBlack -> StoneType.BLACK
+                        ToggleAIWhite -> StoneType.WHITE
+                        else -> null
+                    } }
+                .map { NextPlayerChanged }
 
     private fun onError(throwable: Throwable) {
         Log.e("GameTurnMiddleware", throwable.message, throwable)

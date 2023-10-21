@@ -71,35 +71,6 @@ class OGSRestService(
                 .doAfterTerminate { idlingResource.decrement() }
     }
 
-    fun loginWithGoogle(code: String): Completable {
-        return restApi.initiateGoogleAuthFlow()
-                .map {
-                    if(it.code() != 302) {
-                        throw Exception("got code ${it.code()} instead of 302")
-                    }
-                    it.headers().forEach {
-                        if(it.first == "location") {
-                            return@map "&state=([^&]*)&".toRegex().find(it.second)!!.groupValues[1]
-                        }
-                    }
-                    throw Exception("Cannot log in (can't follow redirect)")
-                }
-                .flatMap { state -> restApi.loginWithGoogleAuth(code, state) }
-                .flatMap {
-                    if(it.code() != 302) {
-                        throw Exception("got code ${it.code()} instead of 302")
-                    }
-                    it.headers().forEach {
-                        if(it.first == "location" && it.second == "/") {
-                            return@flatMap restApi.uiConfig()
-                        }
-                    }
-                    throw Exception ("Login failed")
-                }
-                .doOnSuccess(userSessionRepository::storeUIConfig)
-                .ignoreElement()
-    }
-
     fun createAccount(username: String, password: String, email: String): Completable {
         return restApi.createAccount(CreateAccountRequest(username, password, email, ebi))
                 .ignoreElement()
@@ -182,6 +153,9 @@ class OGSRestService(
             }
         }
     }
+
+    fun acceptOpenChallenge(id: Long): Completable =
+            restApi.acceptOpenChallenge(id)
 
     fun acceptChallenge(id: Long): Completable =
             restApi.acceptChallenge(id)
@@ -313,4 +287,48 @@ class OGSRestService(
       PasswordBody(password)
     )
   }
+
+    fun getLadder(id: Long): Single<Ladder> =
+        restApi.getLadder(ladderId = id)
+
+    fun getLadderPlayers(id: Long, page: Int? = null): Flowable<List<LadderPlayer>> {
+        var page = page?.let {
+            return restApi.getLadderPlayers(
+                ladderId = id,
+                page = it
+            )
+            .map { it.results }
+            .toFlowable()
+        } ?: 0
+
+        fun fetchPage(): Single<PagedResult<LadderPlayer>> = restApi.getLadderPlayers(
+            ladderId = id,
+            page = ++page
+        )
+
+        fun unfold(result: Single<PagedResult<LadderPlayer>>): Observable<List<LadderPlayer>> {
+            return result.toObservable().flatMap { pre ->
+                Observable.just(pre.results).let {
+                    if (pre.results.last().rank >= pre.count) {
+                        it
+                    } else {
+                        val wait = Observable.timer(5, TimeUnit.SECONDS).take(1)
+                        it.concatWith(wait.map { emptyList<LadderPlayer>() }.ignoreElements())
+                            .concatWith(unfold(fetchPage()))
+                    }
+                }
+            }
+        }
+
+        return unfold(fetchPage()).toFlowable(BackpressureStrategy.BUFFER)
+    }
+
+    fun joinLadder(id: Long): Completable =
+        restApi.joinLadder(ladderId = id)
+
+    fun leaveLadder(id: Long): Completable =
+        restApi.leaveLadder(ladderId = id)
+
+    fun challengeLadderPlayer(id: Long, playerId: Long): Completable =
+        restApi.challengeLadderPlayer(ladderId = id, request = Ladder.ChallengeRequest(playerId))
 }

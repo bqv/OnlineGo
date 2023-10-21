@@ -1,4 +1,4 @@
-package io.zenandroid.onlinego.data.ogs
+ackage io.zenandroid.onlinego.data.ogs
 
 import io.reactivex.Completable
 import io.reactivex.Single
@@ -36,15 +36,6 @@ import retrofit2.http.Query
  * Created by alex on 02/11/2017.
  */
 interface OGSRestAPI {
-
-    @GET("login/google-oauth2/")
-    fun initiateGoogleAuthFlow(): Single<Response<ResponseBody>>
-
-    @GET("/complete/google-oauth2/?scope=email+profile+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email+openid+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile&authuser=0&prompt=none")
-    fun loginWithGoogleAuth(
-            @Query("code") code: String,
-            @Query("state") state: String
-    ): Single<Response<ResponseBody>>
 
     @POST("api/v0/login")
     fun login(@Body request: CreateAccountRequest): Single<UIConfig>
@@ -85,6 +76,9 @@ interface OGSRestAPI {
             @Query("page_size") pageSize: Int = 100,
             @Query("ended__gt") ended: String,
             @Query("page") page: Int = 1): Single<PagedResult<OGSGame>>
+
+    @POST("/api/v1/challenges/{challenge_id}/accept")
+    fun acceptOpenChallenge(@Path("challenge_id") id: Long): Completable
 
     @GET("/api/v1/me/challenges?page_size=100")
     fun fetchChallenges(): Single<PagedResult<OGSChallenge>>
@@ -162,6 +156,26 @@ interface OGSRestAPI {
 
     @HTTP(method = "DELETE", path="api/v1/players/{player_id}", hasBody = true)
     suspend fun deleteAccount(@Path("player_id") playerId: Long, @Body body: PasswordBody)
+
+    @GET("api/v1/ladders/{ladder_id}/")
+    fun getLadder(@Path("ladder_id") ladderId: Long): Single<Ladder>
+
+    @GET("api/v1/ladders/{ladder_id}/players")
+    fun getLadderPlayers(
+            @Path("ladder_id") ladderId: Long,
+            @Query("page_size") pageSize: Int = 100,
+            @Query("page") page: Int = 1): Single<PagedResult<LadderPlayer>>
+
+    @POST("api/v1/ladders/{ladder_id}/players")
+    fun joinLadder(@Path("ladder_id") ladderId: Long): Completable
+
+    @DELETE("api/v1/ladders/{ladder_id}/players")
+    fun leaveLadder(@Path("ladder_id") ladderId: Long): Completable
+
+    @POST("api/v1/ladders/{ladder_id}/players/challenge")
+    fun challengeLadderPlayer(
+            @Path("ladder_id") ladderId: Long,
+            @Body request: Ladder.ChallengeRequest): Completable
 }
 
 /*
