@@ -7,8 +7,8 @@ git commit-tree \
 -p 2988ccd \
 -p 954fc56 \
 -p f40fff1 \
--p c35d235 \
--m "Merge branches 'master', 'tsumego', 'katago', 'statsdetail', 'aisgf', 'malkovitch', 'pausing', 'challenges'
+-p 3aace16 \
+-m "Merge branches 'master', 'tsumego', 'katago', 'statsdetail', 'aisgf', 'malkovitch', 'pausing', 'challenges', 'ladders'
 
 75a0cf2 (master) gitignore
 f0d5820 (tsumego) seek to first unsolved
@@ -18,5 +18,5 @@ b833d45 (aisgf) engine settings
 2988ccd (malkovitch) advanced message sending
 954fc56 (pausing) fix activegame pause state
 f40fff1 (challenges) challenge browser
-c35d235 (ladders) add kotlinx.coroutines.rx2
+3aace16 (ladders) unfsck ladders
 " $1^{tree} | xargs git reset --soft
