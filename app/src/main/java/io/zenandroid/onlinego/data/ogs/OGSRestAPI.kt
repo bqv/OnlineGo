@@ -1,4 +1,4 @@
-ackage io.zenandroid.onlinego.data.ogs
+package io.zenandroid.onlinego.data.ogs
 
 import io.reactivex.Completable
 import io.reactivex.Single
@@ -36,6 +36,15 @@ import retrofit2.http.Query
  * Created by alex on 02/11/2017.
  */
 interface OGSRestAPI {
+
+    @GET("login/google-oauth2/")
+    fun initiateGoogleAuthFlow(): Single<Response<ResponseBody>>
+
+    @GET("/complete/google-oauth2/?scope=email+profile+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email+openid+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile&authuser=0&prompt=none")
+    fun loginWithGoogleAuth(
+            @Query("code") code: String,
+            @Query("state") state: String
+    ): Single<Response<ResponseBody>>
 
     @POST("api/v0/login")
     fun login(@Body request: CreateAccountRequest): Single<UIConfig>
