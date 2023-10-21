@@ -1,0 +1,22 @@
+git commit-tree \
+-p 75a0cf2 \
+-p f0d5820 \
+-p 3be895c \
+-p 93d0b71 \
+-p b833d45 \
+-p 2988ccd \
+-p 954fc56 \
+-p f40fff1 \
+-p c35d235 \
+-m "Merge branches 'master', 'tsumego', 'katago', 'statsdetail', 'aisgf', 'malkovitch', 'pausing', 'challenges'
+
+75a0cf2 (master) gitignore
+f0d5820 (tsumego) seek to first unsolved
+3be895c (katago) update katago
+93d0b71 (statsdetail) notification bubbles
+b833d45 (aisgf) engine settings
+2988ccd (malkovitch) advanced message sending
+954fc56 (pausing) fix activegame pause state
+f40fff1 (challenges) challenge browser
+c35d235 (ladders) add kotlinx.coroutines.rx2
+" $1^{tree} | xargs git reset --soft
