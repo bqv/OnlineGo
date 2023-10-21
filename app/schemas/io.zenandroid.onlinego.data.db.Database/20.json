@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 20,
-    "identityHash": "5d538b91658cbe1f92323160207dcf37",
+    "identityHash": "a64eb7af8972e5e27ced23c846febf6b",
     "entities": [
       {
         "tableName": "Game",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `width` INTEGER NOT NULL, `height` INTEGER NOT NULL, `playerToMoveId` INTEGER, `outcome` TEXT, `whiteLost` INTEGER, `blackLost` INTEGER, `whiteGoesFirst` INTEGER, `moves` TEXT, `removedStones` TEXT, `phase` TEXT, `komi` REAL, `ended` INTEGER, `freeHandicapPlacement` INTEGER, `handicap` INTEGER, `undoRequested` INTEGER, `scoreAGAHandicap` INTEGER, `scoreHandicap` INTEGER, `scorePasses` INTEGER, `scorePrisoners` INTEGER, `scoreStones` INTEGER, `scoreTerritory` INTEGER, `scoreTerritoryInSeki` INTEGER, `name` TEXT, `rules` TEXT, `ranked` INTEGER, `disableAnalysis` INTEGER, `pausedSince` INTEGER, `messagesCount` INTEGER, `initial_state_black` TEXT, `initial_state_white` TEXT, `white_handicap` INTEGER, `white_komi` REAL, `white_prisoners` INTEGER, `white_scoring_positions` TEXT, `white_stones` INTEGER, `white_territory` INTEGER, `white_total` REAL, `black_handicap` INTEGER, `black_komi` REAL, `black_prisoners` INTEGER, `black_scoring_positions` TEXT, `black_stones` INTEGER, `black_territory` INTEGER, `black_total` REAL, `white_id` INTEGER NOT NULL, `white_username` TEXT NOT NULL, `white_rating` REAL, `white_historicRating` REAL, `white_country` TEXT, `white_icon` TEXT, `white_acceptedStones` TEXT, `white_ui_class` TEXT, `white_deviation` REAL, `black_id` INTEGER NOT NULL, `black_username` TEXT NOT NULL, `black_rating` REAL, `black_historicRating` REAL, `black_country` TEXT, `black_icon` TEXT, `black_acceptedStones` TEXT, `black_ui_class` TEXT, `black_deviation` REAL, `lastMove` INTEGER, `expiration` INTEGER, `now` INTEGER, `receivedAt` INTEGER, `whiteTimeSimple` INTEGER, `blackTimeSimple` INTEGER, `newPausedSince` INTEGER, `newPausedState` INTEGER, `startMode` INTEGER, `white_thinking_time` REAL, `white_skip_bonus` INTEGER, `white_block_time` REAL, `white_periods` INTEGER, `white_period_time` REAL, `white_moves_left` INTEGER, `black_thinking_time` REAL, `black_skip_bonus` INTEGER, `black_block_time` REAL, `black_periods` INTEGER, `black_period_time` REAL, `black_moves_left` INTEGER, `initial_state_system` TEXT, `initial_state_pause_on_weekends` INTEGER, `initial_state_time_control` TEXT, `initial_state_initial_time` INTEGER, `initial_state_max_time` INTEGER, `initial_state_time_increment` INTEGER, `initial_state_speed` TEXT, `initial_state_per_move` INTEGER, `initial_state_main_time` INTEGER, `initial_state_periods` INTEGER, `initial_state_period_time` INTEGER, `initial_state_stones_per_period` INTEGER, `initial_state_total_time` INTEGER, `pause_vacationWhite` INTEGER, `pause_vacationBlack` INTEGER, `pause_weekend` INTEGER, `pause_stoneRemoval` INTEGER, `pause_server` INTEGER, `pause_moderator` INTEGER, `pause_pausedByThirdParty` INTEGER, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `width` INTEGER NOT NULL, `height` INTEGER NOT NULL, `playerToMoveId` INTEGER, `outcome` TEXT, `whiteLost` INTEGER, `blackLost` INTEGER, `whiteGoesFirst` INTEGER, `moves` TEXT, `removedStones` TEXT, `phase` TEXT, `komi` REAL, `ended` INTEGER, `freeHandicapPlacement` INTEGER, `handicap` INTEGER, `undoRequested` INTEGER, `scoreAGAHandicap` INTEGER, `scoreHandicap` INTEGER, `scorePasses` INTEGER, `scorePrisoners` INTEGER, `scoreStones` INTEGER, `scoreTerritory` INTEGER, `scoreTerritoryInSeki` INTEGER, `name` TEXT, `rules` TEXT, `ranked` INTEGER, `disableAnalysis` INTEGER, `pausedSince` INTEGER, `messagesCount` INTEGER, `annulled` INTEGER, `initial_state_black` TEXT, `initial_state_white` TEXT, `white_handicap` INTEGER, `white_komi` REAL, `white_prisoners` INTEGER, `white_scoring_positions` TEXT, `white_stones` INTEGER, `white_territory` INTEGER, `white_total` REAL, `black_handicap` INTEGER, `black_komi` REAL, `black_prisoners` INTEGER, `black_scoring_positions` TEXT, `black_stones` INTEGER, `black_territory` INTEGER, `black_total` REAL, `white_id` INTEGER NOT NULL, `white_username` TEXT NOT NULL, `white_rating` REAL, `white_historicRating` REAL, `white_country` TEXT, `white_icon` TEXT, `white_acceptedStones` TEXT, `white_ui_class` TEXT, `white_deviation` REAL, `black_id` INTEGER NOT NULL, `black_username` TEXT NOT NULL, `black_rating` REAL, `black_historicRating` REAL, `black_country` TEXT, `black_icon` TEXT, `black_acceptedStones` TEXT, `black_ui_class` TEXT, `black_deviation` REAL, `lastMove` INTEGER, `expiration` INTEGER, `now` INTEGER, `receivedAt` INTEGER, `whiteTimeSimple` INTEGER, `blackTimeSimple` INTEGER, `newPausedSince` INTEGER, `newPausedState` INTEGER, `startMode` INTEGER, `white_thinking_time` REAL, `white_skip_bonus` INTEGER, `white_block_time` REAL, `white_periods` INTEGER, `white_period_time` REAL, `white_moves_left` INTEGER, `black_thinking_time` REAL, `black_skip_bonus` INTEGER, `black_block_time` REAL, `black_periods` INTEGER, `black_period_time` REAL, `black_moves_left` INTEGER, `initial_state_system` TEXT, `initial_state_pause_on_weekends` INTEGER, `initial_state_time_control` TEXT, `initial_state_initial_time` INTEGER, `initial_state_max_time` INTEGER, `initial_state_time_increment` INTEGER, `initial_state_speed` TEXT, `initial_state_per_move` INTEGER, `initial_state_main_time` INTEGER, `initial_state_periods` INTEGER, `initial_state_period_time` INTEGER, `initial_state_stones_per_period` INTEGER, `initial_state_total_time` INTEGER, `pause_vacationWhite` INTEGER, `pause_vacationBlack` INTEGER, `pause_weekend` INTEGER, `pause_stoneRemoval` INTEGER, `pause_server` INTEGER, `pause_moderator` INTEGER, `pause_pausedByThirdParty` INTEGER, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -179,6 +179,12 @@
           {
             "fieldPath": "messagesCount",
             "columnName": "messagesCount",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "annulled",
+            "columnName": "annulled",
             "affinity": "INTEGER",
             "notNull": false
           },
@@ -1136,7 +1142,7 @@
       },
       {
         "tableName": "PuzzleCollection",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `name` TEXT NOT NULL, `created` INTEGER, `is_private` INTEGER NOT NULL, `price` TEXT, `rating` REAL NOT NULL, `rating_count` INTEGER NOT NULL, `puzzle_count` INTEGER NOT NULL, `min_rank` INTEGER NOT NULL, `max_rank` INTEGER NOT NULL, `view_count` INTEGER NOT NULL, `solved_count` INTEGER NOT NULL, `attempt_count` INTEGER NOT NULL, `color_transform_enabled` INTEGER, `position_transform_enabled` INTEGER, `owner_id` INTEGER, `owner_username` TEXT, `owner_rank` REAL, `owner_professional` INTEGER, `owner_accepted_stones` TEXT, `owner_egf` REAL, `owner_country` TEXT, `owner_icon` TEXT, `owner_ui_class` TEXT, `owner_ratings_overall_deviation` REAL, `owner_ratings_overall_rating` REAL, `owner_ratings_overall_volatility` REAL, `owner_ratings_overall_games_played` INTEGER, `starting_puzzle_id` INTEGER NOT NULL, `starting_puzzle_width` INTEGER NOT NULL, `starting_puzzle_height` INTEGER NOT NULL, `starting_puzzle_initial_state_black` TEXT, `starting_puzzle_initial_state_white` TEXT, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `name` TEXT NOT NULL, `created` INTEGER, `is_private` INTEGER NOT NULL, `price` TEXT, `rating` REAL NOT NULL, `rating_count` INTEGER NOT NULL, `puzzle_count` INTEGER NOT NULL, `min_rank` INTEGER NOT NULL, `max_rank` INTEGER NOT NULL, `view_count` INTEGER NOT NULL, `solved_count` INTEGER NOT NULL, `attempt_count` INTEGER NOT NULL, `color_transform_enabled` INTEGER, `position_transform_enabled` INTEGER, `owner_id` INTEGER, `owner_username` TEXT, `owner_rating` REAL, `owner_historicRating` REAL, `owner_country` TEXT, `owner_icon` TEXT, `owner_acceptedStones` TEXT, `owner_ui_class` TEXT, `owner_deviation` REAL, `starting_puzzle_id` INTEGER NOT NULL, `starting_puzzle_width` INTEGER NOT NULL, `starting_puzzle_height` INTEGER NOT NULL, `starting_puzzle_initial_state_black` TEXT, `starting_puzzle_initial_state_white` TEXT, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -1241,26 +1247,14 @@
             "notNull": false
           },
           {
-            "fieldPath": "owner.rank",
-            "columnName": "owner_rank",
+            "fieldPath": "owner.rating",
+            "columnName": "owner_rating",
             "affinity": "REAL",
             "notNull": false
           },
           {
-            "fieldPath": "owner.professional",
-            "columnName": "owner_professional",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "owner.accepted_stones",
-            "columnName": "owner_accepted_stones",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "owner.egf",
-            "columnName": "owner_egf",
+            "fieldPath": "owner.historicRating",
+            "columnName": "owner_historicRating",
             "affinity": "REAL",
             "notNull": false
           },
@@ -1277,33 +1271,21 @@
             "notNull": false
           },
           {
+            "fieldPath": "owner.acceptedStones",
+            "columnName": "owner_acceptedStones",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
             "fieldPath": "owner.ui_class",
             "columnName": "owner_ui_class",
             "affinity": "TEXT",
             "notNull": false
           },
           {
-            "fieldPath": "owner.ratings.overall.deviation",
-            "columnName": "owner_ratings_overall_deviation",
+            "fieldPath": "owner.deviation",
+            "columnName": "owner_deviation",
             "affinity": "REAL",
-            "notNull": false
-          },
-          {
-            "fieldPath": "owner.ratings.overall.rating",
-            "columnName": "owner_ratings_overall_rating",
-            "affinity": "REAL",
-            "notNull": false
-          },
-          {
-            "fieldPath": "owner.ratings.overall.volatility",
-            "columnName": "owner_ratings_overall_volatility",
-            "affinity": "REAL",
-            "notNull": false
-          },
-          {
-            "fieldPath": "owner.ratings.overall.games_played",
-            "columnName": "owner_ratings_overall_games_played",
-            "affinity": "INTEGER",
             "notNull": false
           },
           {
@@ -1348,7 +1330,7 @@
       },
       {
         "tableName": "Puzzle",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `order` INTEGER, `name` TEXT NOT NULL, `created` INTEGER, `modified` INTEGER, `private` INTEGER, `width` INTEGER NOT NULL, `height` INTEGER NOT NULL, `type` TEXT, `has_solution` INTEGER, `rating` REAL NOT NULL, `rating_count` INTEGER NOT NULL, `rank` INTEGER NOT NULL, `view_count` INTEGER NOT NULL, `solved_count` INTEGER NOT NULL, `attempt_count` INTEGER NOT NULL, `owner_id` INTEGER, `owner_username` TEXT, `owner_rank` REAL, `owner_professional` INTEGER, `owner_accepted_stones` TEXT, `owner_egf` REAL, `owner_country` TEXT, `owner_icon` TEXT, `owner_ui_class` TEXT, `owner_ratings_overall_deviation` REAL, `owner_ratings_overall_rating` REAL, `owner_ratings_overall_volatility` REAL, `owner_ratings_overall_games_played` INTEGER, `puzzle_puzzle_rank` TEXT NOT NULL, `puzzle_name` TEXT NOT NULL, `puzzle_move_tree` TEXT NOT NULL, `puzzle_initial_player` TEXT NOT NULL, `puzzle_height` INTEGER NOT NULL, `puzzle_width` INTEGER NOT NULL, `puzzle_mode` TEXT NOT NULL, `puzzle_puzzle_collection` TEXT NOT NULL, `puzzle_puzzle_type` TEXT NOT NULL, `puzzle_puzzle_description` TEXT NOT NULL, `puzzle_initial_state_black` TEXT, `puzzle_initial_state_white` TEXT, `collection_id` INTEGER, `collection_name` TEXT, `collection_created` INTEGER, `collection_is_private` INTEGER, `collection_price` TEXT, `collection_rating` REAL, `collection_rating_count` INTEGER, `collection_puzzle_count` INTEGER, `collection_min_rank` INTEGER, `collection_max_rank` INTEGER, `collection_view_count` INTEGER, `collection_solved_count` INTEGER, `collection_attempt_count` INTEGER, `collection_color_transform_enabled` INTEGER, `collection_position_transform_enabled` INTEGER, `collection_owner_id` INTEGER, `collection_owner_username` TEXT, `collection_owner_rank` REAL, `collection_owner_professional` INTEGER, `collection_owner_accepted_stones` TEXT, `collection_owner_egf` REAL, `collection_owner_country` TEXT, `collection_owner_icon` TEXT, `collection_owner_ui_class` TEXT, `collection_owner_ratings_overall_deviation` REAL, `collection_owner_ratings_overall_rating` REAL, `collection_owner_ratings_overall_volatility` REAL, `collection_owner_ratings_overall_games_played` INTEGER, `collection_starting_puzzle_id` INTEGER, `collection_starting_puzzle_width` INTEGER, `collection_starting_puzzle_height` INTEGER, `collection_starting_puzzle_initial_state_black` TEXT, `collection_starting_puzzle_initial_state_white` TEXT, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `order` INTEGER, `name` TEXT NOT NULL, `created` INTEGER, `modified` INTEGER, `private` INTEGER, `width` INTEGER NOT NULL, `height` INTEGER NOT NULL, `type` TEXT, `has_solution` INTEGER, `rating` REAL NOT NULL, `rating_count` INTEGER NOT NULL, `rank` INTEGER NOT NULL, `view_count` INTEGER NOT NULL, `solved_count` INTEGER NOT NULL, `attempt_count` INTEGER NOT NULL, `owner_id` INTEGER, `owner_username` TEXT, `owner_rating` REAL, `owner_historicRating` REAL, `owner_country` TEXT, `owner_icon` TEXT, `owner_acceptedStones` TEXT, `owner_ui_class` TEXT, `owner_deviation` REAL, `puzzle_puzzle_rank` TEXT NOT NULL, `puzzle_name` TEXT NOT NULL, `puzzle_move_tree` TEXT NOT NULL, `puzzle_initial_player` TEXT NOT NULL, `puzzle_height` INTEGER NOT NULL, `puzzle_width` INTEGER NOT NULL, `puzzle_mode` TEXT NOT NULL, `puzzle_puzzle_collection` TEXT NOT NULL, `puzzle_puzzle_type` TEXT NOT NULL, `puzzle_puzzle_description` TEXT NOT NULL, `puzzle_initial_state_black` TEXT, `puzzle_initial_state_white` TEXT, `collection_id` INTEGER, `collection_name` TEXT, `collection_created` INTEGER, `collection_is_private` INTEGER, `collection_price` TEXT, `collection_rating` REAL, `collection_rating_count` INTEGER, `collection_puzzle_count` INTEGER, `collection_min_rank` INTEGER, `collection_max_rank` INTEGER, `collection_view_count` INTEGER, `collection_solved_count` INTEGER, `collection_attempt_count` INTEGER, `collection_color_transform_enabled` INTEGER, `collection_position_transform_enabled` INTEGER, `collection_owner_id` INTEGER, `collection_owner_username` TEXT, `collection_owner_rating` REAL, `collection_owner_historicRating` REAL, `collection_owner_country` TEXT, `collection_owner_icon` TEXT, `collection_owner_acceptedStones` TEXT, `collection_owner_ui_class` TEXT, `collection_owner_deviation` REAL, `collection_starting_puzzle_id` INTEGER, `collection_starting_puzzle_width` INTEGER, `collection_starting_puzzle_height` INTEGER, `collection_starting_puzzle_initial_state_black` TEXT, `collection_starting_puzzle_initial_state_white` TEXT, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -1459,26 +1441,14 @@
             "notNull": false
           },
           {
-            "fieldPath": "owner.rank",
-            "columnName": "owner_rank",
+            "fieldPath": "owner.rating",
+            "columnName": "owner_rating",
             "affinity": "REAL",
             "notNull": false
           },
           {
-            "fieldPath": "owner.professional",
-            "columnName": "owner_professional",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "owner.accepted_stones",
-            "columnName": "owner_accepted_stones",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "owner.egf",
-            "columnName": "owner_egf",
+            "fieldPath": "owner.historicRating",
+            "columnName": "owner_historicRating",
             "affinity": "REAL",
             "notNull": false
           },
@@ -1495,33 +1465,21 @@
             "notNull": false
           },
           {
+            "fieldPath": "owner.acceptedStones",
+            "columnName": "owner_acceptedStones",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
             "fieldPath": "owner.ui_class",
             "columnName": "owner_ui_class",
             "affinity": "TEXT",
             "notNull": false
           },
           {
-            "fieldPath": "owner.ratings.overall.deviation",
-            "columnName": "owner_ratings_overall_deviation",
+            "fieldPath": "owner.deviation",
+            "columnName": "owner_deviation",
             "affinity": "REAL",
-            "notNull": false
-          },
-          {
-            "fieldPath": "owner.ratings.overall.rating",
-            "columnName": "owner_ratings_overall_rating",
-            "affinity": "REAL",
-            "notNull": false
-          },
-          {
-            "fieldPath": "owner.ratings.overall.volatility",
-            "columnName": "owner_ratings_overall_volatility",
-            "affinity": "REAL",
-            "notNull": false
-          },
-          {
-            "fieldPath": "owner.ratings.overall.games_played",
-            "columnName": "owner_ratings_overall_games_played",
-            "affinity": "INTEGER",
             "notNull": false
           },
           {
@@ -1699,26 +1657,14 @@
             "notNull": false
           },
           {
-            "fieldPath": "collection.owner.rank",
-            "columnName": "collection_owner_rank",
+            "fieldPath": "collection.owner.rating",
+            "columnName": "collection_owner_rating",
             "affinity": "REAL",
             "notNull": false
           },
           {
-            "fieldPath": "collection.owner.professional",
-            "columnName": "collection_owner_professional",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "collection.owner.accepted_stones",
-            "columnName": "collection_owner_accepted_stones",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "collection.owner.egf",
-            "columnName": "collection_owner_egf",
+            "fieldPath": "collection.owner.historicRating",
+            "columnName": "collection_owner_historicRating",
             "affinity": "REAL",
             "notNull": false
           },
@@ -1735,33 +1681,21 @@
             "notNull": false
           },
           {
+            "fieldPath": "collection.owner.acceptedStones",
+            "columnName": "collection_owner_acceptedStones",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
             "fieldPath": "collection.owner.ui_class",
             "columnName": "collection_owner_ui_class",
             "affinity": "TEXT",
             "notNull": false
           },
           {
-            "fieldPath": "collection.owner.ratings.overall.deviation",
-            "columnName": "collection_owner_ratings_overall_deviation",
+            "fieldPath": "collection.owner.deviation",
+            "columnName": "collection_owner_deviation",
             "affinity": "REAL",
-            "notNull": false
-          },
-          {
-            "fieldPath": "collection.owner.ratings.overall.rating",
-            "columnName": "collection_owner_ratings_overall_rating",
-            "affinity": "REAL",
-            "notNull": false
-          },
-          {
-            "fieldPath": "collection.owner.ratings.overall.volatility",
-            "columnName": "collection_owner_ratings_overall_volatility",
-            "affinity": "REAL",
-            "notNull": false
-          },
-          {
-            "fieldPath": "collection.owner.ratings.overall.games_played",
-            "columnName": "collection_owner_ratings_overall_games_played",
-            "affinity": "INTEGER",
             "notNull": false
           },
           {
@@ -1947,12 +1881,330 @@
         },
         "indices": [],
         "foreignKeys": []
+      },
+      {
+        "tableName": "Ladder",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `name` TEXT NOT NULL, `board_size` INTEGER NOT NULL, `size` INTEGER NOT NULL, `player_rank` INTEGER, `player_is_member_of_group` INTEGER, `group_id` INTEGER, `group_name` TEXT, `group_summary` TEXT, `group_require_invitation` INTEGER, `group_is_public` INTEGER, `group_hide_details` INTEGER, `group_member_count` INTEGER, `group_icon` TEXT, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "board_size",
+            "columnName": "board_size",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "size",
+            "columnName": "size",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "player_rank",
+            "columnName": "player_rank",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "player_is_member_of_group",
+            "columnName": "player_is_member_of_group",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "group.id",
+            "columnName": "group_id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "group.name",
+            "columnName": "group_name",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "group.summary",
+            "columnName": "group_summary",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "group.require_invitation",
+            "columnName": "group_require_invitation",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "group.is_public",
+            "columnName": "group_is_public",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "group.hide_details",
+            "columnName": "group_hide_details",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "group.member_count",
+            "columnName": "group_member_count",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "group.icon",
+            "columnName": "group_icon",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "LadderPlayer",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `rank` INTEGER NOT NULL, `ladderId` INTEGER NOT NULL, `lastRefresh` INTEGER NOT NULL, `player_id` INTEGER NOT NULL, `player_username` TEXT NOT NULL, `player_rating` REAL, `player_historicRating` REAL, `player_country` TEXT, `player_icon` TEXT, `player_acceptedStones` TEXT, `player_ui_class` TEXT, `player_deviation` REAL, `challengeable_challengeable` INTEGER NOT NULL, `challengeable_reason` TEXT, `challengeable_reason_code` INTEGER, `challengeable_reason_parameter` INTEGER, PRIMARY KEY(`id`, `ladderId`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "rank",
+            "columnName": "rank",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ladderId",
+            "columnName": "ladderId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastRefresh",
+            "columnName": "lastRefresh",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "player.id",
+            "columnName": "player_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "player.username",
+            "columnName": "player_username",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "player.rating",
+            "columnName": "player_rating",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "player.historicRating",
+            "columnName": "player_historicRating",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "player.country",
+            "columnName": "player_country",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "player.icon",
+            "columnName": "player_icon",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "player.acceptedStones",
+            "columnName": "player_acceptedStones",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "player.ui_class",
+            "columnName": "player_ui_class",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "player.deviation",
+            "columnName": "player_deviation",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "can_challenge.challengeable",
+            "columnName": "challengeable_challengeable",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "can_challenge.reason",
+            "columnName": "challengeable_reason",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "can_challenge.reason_code",
+            "columnName": "challengeable_reason_code",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "can_challenge.reason_parameter",
+            "columnName": "challengeable_reason_parameter",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id",
+            "ladderId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_LadderPlayer_rank",
+            "unique": true,
+            "columnNames": [
+              "rank"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_LadderPlayer_rank` ON `${TABLE_NAME}` (`rank`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "LadderChallenge",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`gameId` INTEGER, `ladderId` INTEGER NOT NULL, `ladderPlayerId` INTEGER NOT NULL, `incoming` INTEGER, `player_id` INTEGER NOT NULL, `player_username` TEXT NOT NULL, `player_rating` REAL, `player_historicRating` REAL, `player_country` TEXT, `player_icon` TEXT, `player_acceptedStones` TEXT, `player_ui_class` TEXT, `player_deviation` REAL, PRIMARY KEY(`ladderId`, `ladderPlayerId`))",
+        "fields": [
+          {
+            "fieldPath": "gameId",
+            "columnName": "gameId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "ladderId",
+            "columnName": "ladderId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ladderPlayerId",
+            "columnName": "ladderPlayerId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "incoming",
+            "columnName": "incoming",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "player.id",
+            "columnName": "player_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "player.username",
+            "columnName": "player_username",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "player.rating",
+            "columnName": "player_rating",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "player.historicRating",
+            "columnName": "player_historicRating",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "player.country",
+            "columnName": "player_country",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "player.icon",
+            "columnName": "player_icon",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "player.acceptedStones",
+            "columnName": "player_acceptedStones",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "player.ui_class",
+            "columnName": "player_ui_class",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "player.deviation",
+            "columnName": "player_deviation",
+            "affinity": "REAL",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "ladderId",
+            "ladderPlayerId"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '5d538b91658cbe1f92323160207dcf37')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a64eb7af8972e5e27ced23c846febf6b')"
     ]
   }
 }
