@@ -15,8 +15,7 @@ data class OGSPlayer (
         var egf: Double? = null,
         var country: String? = null,
         var icon: String? = null,
-        var ui_class: String? = null,
-        @Ignore var ladder_rank: Int? = null
+        var ui_class: String? = null
 ) {
     data class Ratings(
             var overall: Rating? = null

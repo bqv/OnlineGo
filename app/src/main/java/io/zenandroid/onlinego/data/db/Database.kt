@@ -5,10 +5,9 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import io.zenandroid.onlinego.data.model.local.*
+import io.zenandroid.onlinego.data.model.local.LadderPlayer.LadderChallenge
 import io.zenandroid.onlinego.data.model.ogs.JosekiPosition
 import io.zenandroid.onlinego.data.model.ogs.Ladder
-import io.zenandroid.onlinego.data.model.ogs.LadderPlayer
-import io.zenandroid.onlinego.data.model.ogs.LadderPlayer.LadderChallenge
 import io.zenandroid.onlinego.data.model.ogs.PuzzleRating
 import io.zenandroid.onlinego.data.model.ogs.PuzzleSolution
 

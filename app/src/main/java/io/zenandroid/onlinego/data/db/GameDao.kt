@@ -22,6 +22,8 @@ import io.zenandroid.onlinego.data.model.local.GameNotification
 import io.zenandroid.onlinego.data.model.local.GameNotificationWithDetails
 import io.zenandroid.onlinego.data.model.local.HistoricGamesMetadata
 import io.zenandroid.onlinego.data.model.local.InitialState
+import io.zenandroid.onlinego.data.model.local.LadderPlayer
+import io.zenandroid.onlinego.data.model.local.LadderPlayer.LadderChallenge
 import io.zenandroid.onlinego.data.model.local.Message
 import io.zenandroid.onlinego.data.model.local.PauseControl
 import io.zenandroid.onlinego.data.model.local.Player
@@ -32,8 +34,6 @@ import io.zenandroid.onlinego.data.model.local.Score
 import io.zenandroid.onlinego.data.model.local.VisitedPuzzleCollection
 import io.zenandroid.onlinego.data.model.ogs.JosekiPosition
 import io.zenandroid.onlinego.data.model.ogs.Ladder
-import io.zenandroid.onlinego.data.model.ogs.LadderPlayer
-import io.zenandroid.onlinego.data.model.ogs.LadderPlayer.LadderChallenge
 import io.zenandroid.onlinego.data.model.ogs.Phase
 import io.zenandroid.onlinego.data.ogs.Pause
 import kotlinx.coroutines.flow.Flow
