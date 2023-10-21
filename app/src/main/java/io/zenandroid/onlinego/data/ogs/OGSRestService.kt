@@ -71,6 +71,35 @@ class OGSRestService(
                 .doAfterTerminate { idlingResource.decrement() }
     }
 
+    fun loginWithGoogle(code: String): Completable {
+        return restApi.initiateGoogleAuthFlow()
+                .map {
+                    if(it.code() != 302) {
+                        throw Exception("got code ${it.code()} instead of 302")
+                    }
+                    it.headers().forEach {
+                        if(it.first == "location") {
+                            return@map "&state=([^&]*)&".toRegex().find(it.second)!!.groupValues[1]
+                        }
+                    }
+                    throw Exception("Cannot log in (can't follow redirect)")
+                }
+                .flatMap { state -> restApi.loginWithGoogleAuth(code, state) }
+                .flatMap {
+                    if(it.code() != 302) {
+                        throw Exception("got code ${it.code()} instead of 302")
+                    }
+                    it.headers().forEach {
+                        if(it.first == "location" && it.second == "/") {
+                            return@flatMap restApi.uiConfig()
+                        }
+                    }
+                    throw Exception ("Login failed")
+                }
+                .doOnSuccess(userSessionRepository::storeUIConfig)
+                .ignoreElement()
+    }
+
     fun createAccount(username: String, password: String, email: String): Completable {
         return restApi.createAccount(CreateAccountRequest(username, password, email, ebi))
                 .ignoreElement()
