@@ -7,7 +7,16 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.*
 import androidx.compose.material.*
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -22,90 +31,100 @@ import io.zenandroid.onlinego.data.model.ogs.SizeSpeedOption
 import io.zenandroid.onlinego.ui.screens.mygames.composables.*
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 
+fun refresh(onDone: () -> Unit) {
+    onDone()
+}
 
 @ExperimentalFoundationApi
 @ExperimentalComposeUiApi
 @Composable
 fun MyGamesScreen(state: MyGamesState, onAction: (Action) -> Unit) {
-    val listState = rememberLazyListState()
-    LazyColumn (
-        state = listState,
-        modifier = Modifier.fillMaxHeight()
-    ) {
-        item {
-            HomeScreenHeader(
-                image = state.userImageURL,
-                mainText = state.headerMainText,
-                subText = state.headerSubText,
-                offline = !state.online,
-            )
-        }
-        if(state.tutorialVisible) {
+    val refreshScope = rememberCoroutineScope()
+    var refreshing by remember { mutableStateOf(false) }
+    val pullState = rememberPullRefreshState(refreshing, { refresh { refreshing = false } })
+    Box(Modifier.pullRefresh(pullState)) {
+        val listState = rememberLazyListState()
+        LazyColumn (
+            state = listState,
+            modifier = Modifier.fillMaxHeight()
+        ) {
             item {
-                TutorialItem(percentage = state.tutorialPercentage ?: 0, tutorial = state.tutorialTitle ?: "")
+                HomeScreenHeader(
+                    image = state.userImageURL,
+                    mainText = state.headerMainText,
+                    subText = state.headerSubText,
+                    offline = !state.online,
+                )
             }
-        }
-        items(items = state.automatches) {
-            AutomatchItem(it, onAction)
-        }
-        if(state.myTurnGames.isNotEmpty()) {
-            if(state.myTurnGames.size > 10) {
+            if(state.tutorialVisible) {
                 item {
-                    Header("Your turn")
+                    TutorialItem(percentage = state.tutorialPercentage ?: 0, tutorial = state.tutorialTitle ?: "")
                 }
-                items (items = state.myTurnGames) {
-                    SmallGameItem(game = it, boardTheme = state.boardTheme, state.userId, onAction = onAction)
+            }
+            items(items = state.automatches) {
+                AutomatchItem(it, onAction)
+            }
+            if(state.myTurnGames.isNotEmpty()) {
+                if(state.myTurnGames.size > 10) {
+                    item {
+                        Header("Your turn")
+                    }
+                    items (items = state.myTurnGames) {
+                        SmallGameItem(game = it, boardTheme = state.boardTheme, state.userId, onAction = onAction)
+                    }
+                } else {
+                    item {
+                        MyTurnCarousel(state.myTurnGames, boardTheme = state.boardTheme, state.userId, onAction)
+                    }
                 }
-            } else {
+            }
+
+            if(state.challenges.isNotEmpty()) {
+                item(key = "Challenges") {
+                    Header("Challenges")
+                }
+            }
+
+            items(items = state.challenges) {
+                ChallengeItem(it, state.userId, onAction)
+            }
+
+            item {
+                NewGameButtonsRow(modifier = Modifier.padding(top = 10.dp), onAction)
+            }
+
+            if(state.opponentTurnGames.isNotEmpty()) {
                 item {
-                    MyTurnCarousel(state.myTurnGames, boardTheme = state.boardTheme, state.userId, onAction)
+                    Header("Opponent's turn")
                 }
             }
-        }
-
-        if(state.challenges.isNotEmpty()) {
-            item(key = "Challenges") {
-                Header("Challenges")
+            items (items = state.opponentTurnGames) {
+                SmallGameItem(it, boardTheme = state.boardTheme, state.userId, onAction)
             }
-        }
 
-        items(items = state.challenges) {
-            ChallengeItem(it, state.userId, onAction)
-        }
-
-        item {
-            NewGameButtonsRow(modifier = Modifier.padding(top = 10.dp), onAction)
-        }
-
-        if(state.opponentTurnGames.isNotEmpty()) {
-            item {
-                Header("Opponent's turn")
+            if(state.recentGames.isNotEmpty()) {
+                item {
+                    Header("Recently finished")
+                }
             }
-        }
-        items (items = state.opponentTurnGames) {
-            SmallGameItem(it, boardTheme = state.boardTheme, state.userId, onAction)
-        }
-
-        if(state.recentGames.isNotEmpty()) {
-            item {
-                Header("Recently finished")
+            items (items = state.recentGames) {
+                SmallGameItem(game = it, boardTheme = state.boardTheme, state.userId, onAction = onAction)
             }
-        }
-        items (items = state.recentGames) {
-            SmallGameItem(game = it, boardTheme = state.boardTheme, state.userId, onAction = onAction)
-        }
 
-        if(state.historicGames.isNotEmpty()) {
-            item {
-                Header("Older games")
+            if(state.historicGames.isNotEmpty()) {
+                item {
+                    Header("Older games")
+                }
+                item {
+                    HistoricGameLazyRow(state.historicGames, boardTheme = state.boardTheme, state.userId, state.loadedAllHistoricGames, onAction)
+                }
             }
             item {
-                HistoricGameLazyRow(state.historicGames, boardTheme = state.boardTheme, state.userId, state.loadedAllHistoricGames, onAction)
+                Spacer(modifier = Modifier.height(8.dp))
             }
         }
-        item {
-            Spacer(modifier = Modifier.height(8.dp))
-        }
+
+        PullRefreshIndicator(refreshing, pullState, Modifier.align(Alignment.TopCenter))
     }
 }
 
