@@ -19,6 +19,15 @@ import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.ui.screens.main.MainActivity
 import io.zenandroid.onlinego.utils.NotificationUtils
 import io.zenandroid.onlinego.utils.recordException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.single
+import kotlinx.coroutines.rx2.asFlow
 import org.koin.core.context.GlobalContext
 import retrofit2.HttpException
 import java.net.ConnectException
@@ -32,6 +41,20 @@ class CheckNotificationsTask(val context: Context, val supressWhenInForeground: 
     private val userSessionRepository: UserSessionRepository = GlobalContext.get().get()
     private val activeGamesRepository: ActiveGamesRepository = GlobalContext.get().get()
     private val challengesRepository: ChallengesRepository = GlobalContext.get().get()
+
+    companion object {
+        fun test() = flow {
+                delay(5 * 1000)
+                val context: Context = GlobalContext.get().get()
+                android.os.Handler(android.os.Looper.getMainLooper()).post {
+                    android.widget.Toast.makeText(context, "Polling", android.widget.Toast.LENGTH_SHORT).show()
+                }
+                val task = CheckNotificationsTask(context, false)
+                emitAll(task.notifyGames().andThen(Single.just(Unit)).toObservable().asFlow())
+            }
+            .flowOn(Dispatchers.IO)
+            .launchIn(CoroutineScope(Dispatchers.Main))
+    }
 
     fun doWork() =
             Completable

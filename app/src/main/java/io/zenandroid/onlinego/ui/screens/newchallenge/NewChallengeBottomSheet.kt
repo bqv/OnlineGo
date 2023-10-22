@@ -172,7 +172,6 @@ private fun NewChallengeBottomSheetContent(
         modifier = Modifier
           .fillMaxWidth()
           .padding(top = 16.dp),
-        enabled = state.challenge.opponent != null,
         onClick = { onEvent(NewChallengeViewModel.Event.ChallengeClicked) }
       ) {
         Text("Send Challenge")
@@ -250,7 +249,7 @@ private fun Preview() {
           disable_analysis = false,
           private = false
         ),
-        opponentText = "[Select opponent]",
+        opponentText = "[Open Offer]",
         done = false
       ),
       onEvent = {}

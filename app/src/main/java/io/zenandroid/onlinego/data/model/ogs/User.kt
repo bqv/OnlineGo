@@ -26,4 +26,4 @@ data class User (
     var id: Long = 0,
     var icon: String? = null
 
-)
+	)

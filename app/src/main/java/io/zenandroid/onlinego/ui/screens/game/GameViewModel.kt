@@ -8,6 +8,9 @@ import androidx.compose.material.icons.rounded.Functions
 import androidx.compose.material.icons.rounded.HighlightOff
 import androidx.compose.material.icons.rounded.NextPlan
 import androidx.compose.material.icons.rounded.OutlinedFlag
+import androidx.compose.material.icons.rounded.Pause
+import androidx.compose.material.icons.rounded.PlayArrow
+import androidx.compose.material.icons.rounded.PlayCircle
 import androidx.compose.material.icons.rounded.SkipNext
 import androidx.compose.material.icons.rounded.SkipPrevious
 import androidx.compose.material.icons.rounded.Stop
@@ -17,6 +20,7 @@ import androidx.compose.material.icons.rounded.Undo
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -45,6 +49,9 @@ import io.zenandroid.onlinego.data.model.local.Player
 import io.zenandroid.onlinego.data.model.local.Score
 import io.zenandroid.onlinego.data.model.local.UserStats
 import io.zenandroid.onlinego.data.model.local.isPaused
+import io.zenandroid.onlinego.data.model.local.isPlayerPaused
+import io.zenandroid.onlinego.data.model.ogs.AnalysisMessage
+import io.zenandroid.onlinego.data.model.ogs.ChatChannel
 import io.zenandroid.onlinego.data.model.ogs.Phase
 import io.zenandroid.onlinego.data.model.ogs.VersusStats
 import io.zenandroid.onlinego.data.ogs.GameConnection
@@ -69,9 +76,11 @@ import io.zenandroid.onlinego.ui.screens.game.Button.ExitEstimate
 import io.zenandroid.onlinego.ui.screens.game.Button.Next
 import io.zenandroid.onlinego.ui.screens.game.Button.NextGame
 import io.zenandroid.onlinego.ui.screens.game.Button.Pass
+import io.zenandroid.onlinego.ui.screens.game.Button.Pause
 import io.zenandroid.onlinego.ui.screens.game.Button.Previous
 import io.zenandroid.onlinego.ui.screens.game.Button.RejectStoneRemoval
 import io.zenandroid.onlinego.ui.screens.game.Button.Resign
+import io.zenandroid.onlinego.ui.screens.game.Button.Resume
 import io.zenandroid.onlinego.ui.screens.game.Button.Undo
 import io.zenandroid.onlinego.ui.screens.game.PendingNavigation.NavigateToGame
 import io.zenandroid.onlinego.ui.screens.game.PendingNavigation.OpenURL
@@ -92,6 +101,7 @@ import io.zenandroid.onlinego.ui.screens.game.UserAction.GameOverDialogNextGame
 import io.zenandroid.onlinego.ui.screens.game.UserAction.GameOverDialogQuickReplay
 import io.zenandroid.onlinego.ui.screens.game.UserAction.KOMoveDialogDismiss
 import io.zenandroid.onlinego.ui.screens.game.UserAction.OpenInBrowser
+import io.zenandroid.onlinego.ui.screens.game.UserAction.OpenVariation
 import io.zenandroid.onlinego.ui.screens.game.UserAction.OpponentUndoRequestAccepted
 import io.zenandroid.onlinego.ui.screens.game.UserAction.OpponentUndoRequestRejected
 import io.zenandroid.onlinego.ui.screens.game.UserAction.PassDialogConfirm
@@ -103,6 +113,7 @@ import io.zenandroid.onlinego.ui.screens.game.UserAction.RetryDialogDismiss
 import io.zenandroid.onlinego.ui.screens.game.UserAction.RetryDialogRetry
 import io.zenandroid.onlinego.ui.screens.game.UserAction.UserUndoDialogConfirm
 import io.zenandroid.onlinego.ui.screens.game.UserAction.UserUndoDialogDismiss
+import io.zenandroid.onlinego.ui.screens.game.UserAction.VariationSend
 import io.zenandroid.onlinego.ui.screens.game.UserAction.WhitePlayerClicked
 import io.zenandroid.onlinego.usecases.GetUserStatsUseCase
 import io.zenandroid.onlinego.usecases.RepoResult
@@ -112,6 +123,7 @@ import io.zenandroid.onlinego.utils.convertCountryCodeToEmojiFlag
 import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatMillis
 import io.zenandroid.onlinego.utils.formatRank
+import io.zenandroid.onlinego.utils.timeControlDescription
 import io.zenandroid.onlinego.utils.NotificationUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -155,7 +167,8 @@ class GameViewModel(
     private var pendingMove by mutableStateOf<PendingMove?>(null)
     private var retrySendMoveDialogShowing by mutableStateOf(false)
     private var koMoveDialogShowing by mutableStateOf(false)
-    private var analyzeMode by mutableStateOf(false)
+    var analyzeMode by mutableStateOf(false)
+        private set
     private var estimateMode by mutableStateOf(false)
     private var analysisShownMoveNumber by mutableStateOf(0)
     private var passDialogShowing by mutableStateOf(false)
@@ -289,17 +302,18 @@ class GameViewModel(
             } ?: game?.moves?.size ?: 0
             val nextButton = Next(analysisShownMoveNumber < maxAnalysisMoveNumber)
             val chatButton = Chat(if(unreadMessagesCount > 0) unreadMessagesCount.toString() else null)
+            val pauseButton = if (game?.pauseControl.isPlayerPaused()) Resume else Pause
 
             val visibleButtons =
                 when {
                     estimateMode -> listOf(ExitEstimate)
                     game?.phase == Phase.STONE_REMOVAL -> listOf(AcceptStoneRemoval, RejectStoneRemoval)
                     gameFinished == true -> listOf(chatButton, Estimate(true), Previous, nextButton)
-                    analyzeMode -> listOf(ExitAnalysis, Estimate(!isAnalysisDisabled()), Previous, nextButton)
+                    analyzeMode -> listOf(ExitAnalysis, Estimate(!isAnalysisDisabled()), chatButton, Previous, nextButton)
                     pendingMove != null -> emptyList()
-                    isMyTurn && candidateMove == null -> listOf(Analyze, Pass, endGameButton, chatButton, nextGameButton)
+                    isMyTurn && candidateMove == null -> listOf(Analyze, Pass, pauseButton, endGameButton, chatButton, nextGameButton)
                     isMyTurn && candidateMove != null -> listOf(ConfirmMove, DiscardMove)
-                    !isMyTurn && game?.phase == Phase.PLAY -> listOf(Analyze, Undo, endGameButton, chatButton, nextGameButton)
+                    !isMyTurn && game?.phase == Phase.PLAY -> listOf(Analyze, Undo, pauseButton, endGameButton, chatButton, nextGameButton)
                     else -> emptyList()
                 }
 
@@ -338,6 +352,8 @@ class GameViewModel(
                 whiteScore = whiteScore,
                 blackScore = blackScore,
                 timerDetails = timer,
+                timerDescription = game?.timeControl?.let(::timeControlDescription),
+                ranked = game?.ranked == true,
                 lastMoveMarker = nextMoveMarker,
                 bottomText = bottomText,
                 retryMoveDialogShowing = retrySendMoveDialogShowing,
@@ -745,7 +761,25 @@ class GameViewModel(
             CancelDialogDismiss -> cancelDialogShowing = false
             ChatDialogDismiss -> chatDialogShowing = false
             KOMoveDialogDismiss -> koMoveDialogShowing = false
-            is ChatSend -> gameConnection.sendMessage(action.message, gameState?.moves?.size ?: 0)
+            is ChatSend -> gameConnection.sendMessage(action.message, gameState?.moves?.size ?: 0, when (action.channel) {
+                ChatChannel.MAIN -> "main"
+                ChatChannel.MALKOVICH -> "malkovich"
+                ChatChannel.SPECTATOR -> "spectator"
+                ChatChannel.PERSONAL -> "personal"
+            })
+            is VariationSend -> {
+                gameConnection.sendAnalysisMessage(AnalysisMessage(
+                    name = action.title,
+                    from = currentVariation!!.rootMoveNo,
+                    moves = currentVariation!!.moves,
+                ), gameState?.moves?.size ?: 0, "main")
+            }
+            is OpenVariation -> {
+                chatDialogShowing = false
+                analyzeMode = true
+                currentVariation = action.variation
+                analysisShownMoveNumber = action.variation.rootMoveNo
+            }
             GameInfoClick -> gameInfoDialogShowing = true
             GameInfoDismiss -> gameInfoDialogShowing = false
             GameOverDialogDismiss -> gameOverDialogShowing = false
@@ -801,6 +835,8 @@ class GameViewModel(
                 analyzeMode = true
             }
             Pass -> passDialogShowing = true
+            Pause -> gameConnection.pause()
+            Resume -> gameConnection.resume()
             Resign -> resignDialogShowing = true
             CancelGame -> cancelDialogShowing = true
             is Chat -> {
@@ -889,6 +925,8 @@ data class GameState(
     val whiteExtraStatus: String?,
     val blackExtraStatus: String?,
     val timerDetails: TimerDetails?,
+    val timerDescription: String?,
+    val ranked: Boolean,
     val bottomText: String?,
     val retryMoveDialogShowing: Boolean,
     val koMoveDialogShowing: Boolean,
@@ -930,6 +968,8 @@ data class GameState(
             whiteScore = Score(komi = 5.5f, prisoners = 0, territory = 13, total = 18.5f),
             blackScore = Score(prisoners = 2, territory = 5, total = 7f),
             timerDetails = null,
+            timerDescription = null,
+            ranked = false,
             bottomText = null,
             retryMoveDialogShowing = false,
             koMoveDialogShowing = false,
@@ -992,6 +1032,8 @@ sealed class Button(
     object RejectStoneRemoval : Button(Icons.Rounded.ThumbDown, "Reject")
     object Analyze : Button(Icons.Rounded.Biotech, "Analyze")
     object Pass : Button(Icons.Rounded.Stop, "Pass")
+    object Pause : Button(Icons.Rounded.Pause, "Pause")
+    object Resume : Button(Icons.Rounded.PlayCircle, "Resume")
     object Resign : Button(Icons.Rounded.OutlinedFlag, "Resign")
     object CancelGame : Button(Icons.Rounded.Cancel, "Cancel Game")
     class Chat(bubbleText: String? = null) : Button(bubbleText = bubbleText, icon = Icons.Rounded.Forum, label = "Chat")
@@ -1027,7 +1069,9 @@ sealed interface UserAction {
     object PlayerDetailsDialogDismissed: UserAction
     object ChatDialogDismiss: UserAction
     object KOMoveDialogDismiss: UserAction
-    class ChatSend(val message: String): UserAction
+    class ChatSend(val message: String, val channel: ChatChannel): UserAction
+    class VariationSend(val title: String): UserAction
+    class OpenVariation(val variation: Variation): UserAction
     object OpenInBrowser: UserAction
     object DownloadSGF: UserAction
     object OpponentUndoRequestAccepted: UserAction

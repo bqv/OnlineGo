@@ -3,17 +3,21 @@ package io.zenandroid.onlinego.data.ogs
 import android.preference.PreferenceManager
 import com.squareup.moshi.Moshi
 import io.reactivex.Completable
+import io.reactivex.Observable
 import io.reactivex.Single
 import io.zenandroid.onlinego.OnlineGoApplication
+import io.zenandroid.onlinego.data.model.local.LadderPlayer
 import io.zenandroid.onlinego.data.model.local.Puzzle
 import io.zenandroid.onlinego.data.model.local.PuzzleCollection
 import io.zenandroid.onlinego.data.model.ogs.ChallengeParams
 import io.zenandroid.onlinego.data.model.ogs.CreateAccountRequest
 import io.zenandroid.onlinego.data.model.ogs.Glicko2History
 import io.zenandroid.onlinego.data.model.ogs.JosekiPosition
+import io.zenandroid.onlinego.data.model.ogs.Ladder
 import io.zenandroid.onlinego.data.model.ogs.OGSChallenge
 import io.zenandroid.onlinego.data.model.ogs.OGSChallengeRequest
 import io.zenandroid.onlinego.data.model.ogs.OGSGame
+import io.zenandroid.onlinego.data.model.ogs.OGSLadderPlayer
 import io.zenandroid.onlinego.data.model.ogs.OGSPlayer
 import io.zenandroid.onlinego.data.model.ogs.PasswordBody
 import io.zenandroid.onlinego.data.model.ogs.PuzzleRating
@@ -183,6 +187,9 @@ class OGSRestService(
         }
     }
 
+    fun acceptOpenChallenge(id: Long): Completable =
+            restApi.acceptOpenChallenge(id)
+
     fun acceptChallenge(id: Long): Completable =
             restApi.acceptChallenge(id)
 
@@ -313,4 +320,31 @@ class OGSRestService(
       PasswordBody(password)
     )
   }
+
+    suspend fun getLadder(id: Long): Ladder =
+      restApi.getLadder(ladderId = id)
+
+    suspend fun getLadderPlayers(id: Long, page: Int? = null): List<LadderPlayer> {
+      var page = 0
+
+      val list = mutableListOf<OGSLadderPlayer>()
+      do {
+        val result = restApi.getLadderPlayers(
+          ladderId = id,
+          page = ++page
+        )
+        list.addAll(result.results)
+        delay(5000)
+      } while (result.next != null)
+      return list.map(LadderPlayer::fromOGSLadderPlayer)
+    }
+
+    suspend fun joinLadder(id: Long) =
+      restApi.joinLadder(ladderId = id)
+
+    suspend fun leaveLadder(id: Long) =
+      restApi.leaveLadder(ladderId = id)
+
+    suspend fun challengeLadderPlayer(id: Long, playerId: Long) =
+      restApi.challengeLadderPlayer(ladderId = id, request = Ladder.ChallengeRequest(playerId))
 }

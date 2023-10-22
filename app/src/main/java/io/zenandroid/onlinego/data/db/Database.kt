@@ -5,7 +5,9 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import io.zenandroid.onlinego.data.model.local.*
+import io.zenandroid.onlinego.data.model.local.LadderPlayer.LadderChallenge
 import io.zenandroid.onlinego.data.model.ogs.JosekiPosition
+import io.zenandroid.onlinego.data.model.ogs.Ladder
 import io.zenandroid.onlinego.data.model.ogs.PuzzleRating
 import io.zenandroid.onlinego.data.model.ogs.PuzzleSolution
 
@@ -26,14 +28,18 @@ import io.zenandroid.onlinego.data.model.ogs.PuzzleSolution
             Puzzle::class,
             PuzzleRating::class,
             PuzzleSolution::class,
-            VisitedPuzzleCollection::class
+            VisitedPuzzleCollection::class,
+            Ladder::class,
+            LadderPlayer::class,
+            LadderChallenge::class
         ],
-        version = 19,
+        version = 20,
         exportSchema = true,
         autoMigrations = [
             AutoMigration (from = 16, to = 17),
             AutoMigration (from = 17, to = 18),
             AutoMigration (from = 18, to = 19),
+            AutoMigration (from = 19, to = 20),
         ]
 )
 @TypeConverters(DbTypeConverters::class)

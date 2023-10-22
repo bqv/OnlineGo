@@ -2,10 +2,13 @@ package io.zenandroid.onlinego.ui.screens.settings
 
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -34,21 +37,25 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Surface
 import androidx.compose.material.Switch
+import androidx.compose.material.Slider
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.Icons.Filled
 import androidx.compose.material.icons.Icons.Rounded
+import androidx.compose.material.icons.filled.ChatBubble
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.filled.VolumeUp
+import androidx.compose.material.icons.rounded.AccountTree
 import androidx.compose.material.icons.rounded.DarkMode
 import androidx.compose.material.icons.rounded.HeartBroken
 import androidx.compose.material.icons.rounded.Logout
 import androidx.compose.material.icons.rounded.MilitaryTech
 import androidx.compose.material.icons.rounded.Palette
+import androidx.compose.material.icons.rounded.Psychology
 import androidx.compose.material.icons.rounded._123
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -91,13 +98,18 @@ import io.zenandroid.onlinego.R.drawable
 import io.zenandroid.onlinego.R.mipmap
 import io.zenandroid.onlinego.data.model.BoardTheme
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
+import io.zenandroid.onlinego.notifications.Bubbles
+import io.zenandroid.onlinego.notifications.CheckNotificationsTask
 import io.zenandroid.onlinego.ui.screens.main.MainActivity
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.BoardThemeClicked
+import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.BubblesClicked
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.CoordinatesClicked
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.DeleteAccountCanceled
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.DeleteAccountClicked
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.DeleteAccountConfirmed
+import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.DetailedAnalysisClicked
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.LogoutClicked
+import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.MaxVisitsChanged
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.NotificationsClicked
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.PrivacyClicked
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.RanksClicked
@@ -107,6 +119,7 @@ import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.ThemeClicked
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.utils.processGravatarURL
 import io.zenandroid.onlinego.utils.rememberStateWithLifecycle
+import it.sephiroth.android.library.numberpicker.*
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -147,6 +160,7 @@ class SettingsFragment : Fragment() {
           SettingsScreen(state) {
             when (it) {
               is NotificationsClicked -> navigateToNotifications()
+              is BubblesClicked -> navigateToBubbles()
               is PrivacyClicked -> startActivity(
                 Intent(
                   Intent.ACTION_VIEW,
@@ -274,6 +288,18 @@ class SettingsFragment : Fragment() {
     // for Android O
     intent.putExtra("android.provider.extra.APP_PACKAGE", activity?.packageName)
 
+    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
+    startActivity(intent)
+  }
+
+  @RequiresApi(Bubbles.MIN_SDK_BUBBLES)
+  private fun navigateToBubbles() {
+    val intent = Intent(Settings.ACTION_APP_NOTIFICATION_BUBBLE_SETTINGS)
+      .putExtra(Settings.EXTRA_APP_PACKAGE, activity?.packageName)
+
+    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
     startActivity(intent)
   }
 
@@ -353,6 +379,15 @@ fun SettingsScreen(state: SettingsState, onAction: (SettingsAction) -> Unit) {
           checked = false,
           onClick = { onAction(NotificationsClicked) }
         )
+        if (Build.VERSION.SDK_INT >= Bubbles.MIN_SDK_BUBBLES) {
+          SettingsRow(
+            title = "Bubble notifications",
+            icon = Filled.ChatBubble,
+            checkbox = false,
+            checked = false,
+            onClick = { onAction(BubblesClicked) }
+          )
+        }
         SettingsRow(
           title = "Stone Sounds",
           icon = Icons.Default.VolumeUp,
@@ -406,6 +441,24 @@ fun SettingsScreen(state: SettingsState, onAction: (SettingsAction) -> Unit) {
         )
       }
     }
+    Section(title = "Engine Settings") {
+      Column(modifier = Modifier) {
+        SettingsRow(
+          title = "Max AI Playouts",
+          icon = Rounded.AccountTree,
+          slider = Pair(10.0, 10000.0),
+          position = state.maxVisits,
+          onValueChanged = { onAction(MaxVisitsChanged(it)) }
+        )
+        SettingsRow(
+          title = "Detailed AI Analysis",
+          icon = Rounded.Psychology,
+          checkbox = true,
+          checked = state.detailedAnalysis,
+          onClick = { onAction(DetailedAnalysisClicked) }
+        )
+      }
+    }
     Section(title = "Account") {
       Column(modifier = Modifier) {
         SettingsRow(
@@ -441,6 +494,7 @@ fun SettingsScreen(state: SettingsState, onAction: (SettingsAction) -> Unit) {
       color = MaterialTheme.colors.onSurface,
       modifier = Modifier
         .align(Alignment.CenterHorizontally)
+        .clickable { CheckNotificationsTask.test() }
         .padding(vertical = 32.dp),
     )
   }
@@ -452,10 +506,13 @@ private fun SettingsRow(
   icon: ImageVector,
   checkbox: Boolean = false,
   checked: Boolean = false,
+  slider: Pair<Double, Double>? = null,
+  position: Double = 0.0,
   value: String? = null,
   possibleValues: List<Any> = emptyList(),
   onClick: () -> Unit = {},
   onValueClick: (String) -> Unit = {},
+  onValueChanged: (Double) -> Unit = {},
 ) {
   var menuOpen by remember { mutableStateOf(false) }
   Row(
@@ -487,8 +544,26 @@ private fun SettingsRow(
     if(checkbox) {
       Switch(
         checked = checked,
-        onCheckedChange = { onClick()},
+        onCheckedChange = { onClick() },
         modifier = Modifier.padding(end = 12.dp)
+      )
+    } else if(slider != null) {
+      Slider(
+        value = Math.log(position).toFloat(),
+        onValueChange = { onValueChanged(Math.exp(it.toDouble())) },
+        steps = 10,
+        valueRange = Math.log(slider.first).toFloat()..Math.log(slider.second).toFloat(),
+        modifier = Modifier.weight(1f).padding(end = 12.dp)
+      )
+      Text(
+        text = position.toInt().toString().padStart(8),
+        fontSize = 14.sp,
+        style = TextStyle(
+          fontWeight = FontWeight.Normal,
+          fontSize = 12.sp,
+          letterSpacing = 0.4.sp
+        ),
+        modifier = Modifier.padding(end = 16.dp, bottom = 16.dp, top = 16.dp)
       )
     } else if(value != null) {
       Box {
