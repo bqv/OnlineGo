@@ -86,10 +86,8 @@ import kotlin.math.log10
 
 private const val TAG = "NewAutomatchChallengeBS"
 
-class NewAutomatchChallengeBottomSheet : BottomSheetDialogFragment(), OnChartValueSelectedListener {
+class NewAutomatchChallengeBottomSheet : BottomSheetDialogFragment() {
   private val viewModel: NewAutomatchChallengeViewModel by viewModel()
-
-  private lateinit var chart: BubbleChart
 
   override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
     val dialog = super.onCreateDialog(savedInstanceState)
@@ -117,7 +115,11 @@ class NewAutomatchChallengeBottomSheet : BottomSheetDialogFragment(), OnChartVal
         OnlineGoTheme {
           NewAutomatchChallengeBottomSheetContent(
             state = state,
-            chart = @Composable { modifier -> Chart(state, modifier) },
+            onGraphProfileClicked = {
+              dismiss()
+              navigateToPlayerProfile(it)
+            },
+            onGraphChallengeAccepted = { dismiss() },
             onSmallCheckChanged = { viewModel.onSmallCheckChanged(it) },
             onMediumCheckChanged = { viewModel.onMediumCheckChanged(it) },
             onLargeCheckChanged = { viewModel.onLargeCheckChanged(it) },
@@ -142,206 +144,6 @@ class NewAutomatchChallengeBottomSheet : BottomSheetDialogFragment(), OnChartVal
     }
   }
 
-  @Composable
-  private fun Chart(state: AutomatchState, modifier: Modifier) {
-    val challenges = state.challenges
-    AndroidView(
-      modifier = Modifier
-        .fillMaxWidth()
-        .aspectRatio(ratio = 5f/4f),
-      factory = { context ->
-        ClickableBubbleChart(context).apply {
-          id = R.id.chart
-          layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
-          setMarginsDP(top = 4)
-          description.isEnabled = false
-          setOnChartValueSelectedListener(this@NewAutomatchChallengeBottomSheet)
-          setDrawGridBackground(false)
-          setTouchEnabled(true)
-
-          // enable scaling and dragging
-          isDragEnabled = true
-          setScaleEnabled(true)
-
-          setMaxVisibleValueCount(200)
-          setPinchZoom(true)
-
-          // create a dataset and give it a type
-          val set1 = BubbleDataSet(ArrayList<BubbleEntry>(), "19x19")
-          //set1.setDrawIcons(false)
-          set1.setColor(ColorTemplate.COLORFUL_COLORS[0], 130)
-          set1.setDrawValues(true)
-          set1.isNormalizeSizeEnabled = false
-
-          val set2 = BubbleDataSet(ArrayList<BubbleEntry>(), "13x13")
-          //set2.setDrawIcons(false)
-          //set2.setIconsOffset(MPPointF(0f, 15f))
-          set2.setColor(ColorTemplate.COLORFUL_COLORS[1], 130)
-          set2.setDrawValues(true)
-          set2.isNormalizeSizeEnabled = false
-
-          val set3 = BubbleDataSet(ArrayList<BubbleEntry>(), "9x9")
-          set3.setColor(ColorTemplate.COLORFUL_COLORS[2], 130)
-          set3.setDrawValues(true)
-          set3.isNormalizeSizeEnabled = false
-
-          val set4 = BubbleDataSet(ArrayList<BubbleEntry>(), "?x?")
-          set4.setColor(ColorTemplate.COLORFUL_COLORS[3], 130)
-          set4.setDrawValues(true)
-          set4.isNormalizeSizeEnabled = false
-
-          val set5 = BubbleDataSet(ArrayList<BubbleEntry>(), "Eligible")
-          set5.setDrawIcons(false)
-          set5.setColor(Color.BLUE, 130)
-          set5.setDrawValues(true)
-          set5.isNormalizeSizeEnabled = false
-
-          val set6 = BubbleDataSet(ArrayList<BubbleEntry>(), "Rengo")
-          set6.setColor(Color.GRAY, 130)
-          set6.setDrawValues(false)
-          set6.isNormalizeSizeEnabled = false
-
-          val dataSets = ArrayList<IBubbleDataSet>()
-          dataSets.add(set1) // add the data sets
-          dataSets.add(set2)
-          dataSets.add(set3)
-          dataSets.add(set4)
-          dataSets.add(set5)
-          dataSets.add(set6)
-
-          // create a data object with the data sets
-          val data = BubbleData(dataSets)
-          data.setDrawValues(false)
-          data.setValueTextSize(8f)
-          data.setValueTextColor(Color.WHITE)
-          data.setHighlightCircleWidth(1.5f)
-
-          this.data = data
-          this.invalidate()
-
-          legend.apply {
-            verticalAlignment = Legend.LegendVerticalAlignment.TOP
-            horizontalAlignment = Legend.LegendHorizontalAlignment.RIGHT
-            orientation = Legend.LegendOrientation.VERTICAL
-            setDrawInside(false)
-            textColor = ResourcesCompat.getColor(resources, R.color.colorText, context.theme)
-          }
-
-          axisLeft.apply {
-            spaceTop = 30f
-            spaceBottom = 30f
-            setDrawZeroLine(false)
-            setLabelCount(10, true)
-            setAxisMinValue(-1f)
-            setAxisMaxValue(38f)
-            isGranularityEnabled = true
-            granularity = 1f
-            valueFormatter = object : ValueFormatter() {
-              override fun getFormattedValue(value: Float): String {
-                return formatRank(value.toDouble())
-              }
-            }
-            textColor = ResourcesCompat.getColor(resources, R.color.colorText, context.theme)
-            state.rating.toFloat().let {
-              addLimitLine(LimitLine(it, "").apply {
-                lineWidth = .5f
-                lineColor = Color.WHITE
-                labelPosition = LimitLabelPosition.RIGHT_TOP
-                textSize = 10f
-              })
-            }
-          }
-
-          axisRight.isEnabled = false
-
-          xAxis.apply {
-            position = XAxis.XAxisPosition.BOTTOM
-            valueFormatter = object : ValueFormatter() {
-              override fun getFormattedValue(value: Float): String = when(value.toInt()) {
-                0 -> "Blitz"
-                3 -> "Live"
-                6 -> "Correspondence"
-                else -> ""
-              }
-            }
-            //setLabelCount(4, true)
-            setCenterAxisLabels(true)
-            labelRotationAngle = 9f
-            setAxisMinValue(0f)
-            setAxisMaxValue(8f)
-            isGranularityEnabled = true
-            granularity = 1f
-            textColor = ResourcesCompat.getColor(resources, R.color.colorText, context.theme)
-            addLimitLine(LimitLine(2f, "").apply {
-              lineWidth = 1.5f
-              lineColor = Color.GRAY
-              labelPosition = LimitLabelPosition.RIGHT_TOP
-              textSize = 10f
-            })
-            addLimitLine(LimitLine(5f, "").apply {
-              lineWidth = 1.5f
-              lineColor = Color.GRAY
-              labelPosition = LimitLabelPosition.RIGHT_TOP
-              textSize = 10f
-            })
-          }
-
-          setNoDataTextColor(ResourcesCompat.getColor(resources, R.color.colorActionableText, context.theme))
-
-          let { chart ->
-            // create a custom MarkerView (extend MarkerView) and specify the layout to use for it
-            val mv = ChallengeMarkerView(context, onProfile = {
-              dismiss()
-              navigateToPlayerProfile(it.id)
-            }, onAccept = {
-              dismiss()
-            })
-            mv.chartView = chart
-            chart.marker = mv
-          }
-        }.also { this@NewAutomatchChallengeBottomSheet.chart = it }
-      },
-      update = { chart ->
-        (chart as BubbleChart).apply {
-          for(i in 0..5)
-            data.getDataSetByIndex(i).clear()
-
-          data.also {
-            challenges.forEach { challenge: SeekGraphChallenge ->
-              val rankDiff = (challenge.rank ?: 0.0) - state.rating.toDouble()
-              val eligible = when {
-                challenge.ranked && abs(rankDiff) > 9 -> false
-                state.rating < challenge.min_rank -> false
-                state.rating > challenge.max_rank -> false
-                challenge.rengo -> false
-                else -> true
-              }
-              val drawable = if (eligible) resources.getDrawable(R.drawable.ic_star) else null
-              val dataset = when {
-                challenge.rengo -> 5
-                eligible -> 4
-                challenge.width == 19 -> 0
-                challenge.width == 13 -> 1
-                challenge.width == 9 -> 2
-                else -> 3
-              }
-              val entry = BubbleEntry(
-                log10((challenge.time_per_move ?: 0.0) + 1).toFloat(),
-                challenge.rank?.toFloat() ?: 0f,
-                .2f, drawable, challenge)
-              data.addEntry(entry, dataset)
-            }
-
-            data.notifyDataChanged()
-          }
-
-          notifyDataSetChanged()
-          invalidate()
-        }
-      }
-    )
-  }
-
   private fun navigateToPlayerProfile(playerId: Long) {
     (context as FragmentActivity).findNavController(R.id.fragment_container).navigate(
       R.id.stats,
@@ -351,25 +153,18 @@ class NewAutomatchChallengeBottomSheet : BottomSheetDialogFragment(), OnChartVal
         .setPopUpTo(R.id.myGames, false, false)
         .build())
   }
-
-  override fun onValueSelected(e: Entry, h: Highlight) {
-    Log.d(TAG, "Val selected: " + chart.axisLeft.valueFormatter.getFormattedValue(e.y) + ", " + e.x + " - " + chart.data.getDataSetByIndex(h.dataSetIndex).label + " " + e.data)
-  }
-
-  override fun onNothingSelected() {
-    Log.d(TAG, "Val unselected")
-  }
 }
 
 @Composable
 private fun NewAutomatchChallengeBottomSheetContent(
   state: AutomatchState,
-  chart: @Composable (modifier: Modifier) -> Unit,
-  onSmallCheckChanged: (Boolean) -> Unit,
-  onMediumCheckChanged: (Boolean) -> Unit,
-  onLargeCheckChanged: (Boolean) -> Unit,
-  onSpeedChanged: (Speed) -> Unit,
-  onSearchClicked: () -> Unit,
+  onGraphProfileClicked: (Long) -> Unit = {},
+  onGraphChallengeAccepted: () -> Unit = {},
+  onSmallCheckChanged: (Boolean) -> Unit = {},
+  onMediumCheckChanged: (Boolean) -> Unit = {},
+  onLargeCheckChanged: (Boolean) -> Unit = {},
+  onSpeedChanged: (Speed) -> Unit = {},
+  onSearchClicked: () -> Unit = {},
   modifier: Modifier = Modifier
 ) {
   Surface {
@@ -440,7 +235,13 @@ private fun NewAutomatchChallengeBottomSheetContent(
           color = MaterialTheme.colors.primary,
           modifier = Modifier.padding(top = 16.dp)
         )
-        chart(modifier = Modifier.fillMaxWidth())
+        ChallengeGraph(
+          challenges = state.challenges,
+          rating = state.rating,
+          onProfile = { onGraphProfileClicked(it) },
+          onAccept = { onGraphChallengeAccepted() },
+          modifier = Modifier.fillMaxWidth()
+        )
       }
       Button(
         modifier = Modifier
@@ -453,6 +254,220 @@ private fun NewAutomatchChallengeBottomSheetContent(
       }
     }
   }
+}
+
+@Composable
+private fun ChallengeGraph(
+  challenges: List<SeekGraphChallenge>,
+  rating: Int,
+  onProfile: (Long) -> Unit,
+  onAccept: () -> Unit,
+  modifier: Modifier
+) {
+  AndroidView(
+    modifier = Modifier
+      .fillMaxWidth()
+      .aspectRatio(ratio = 5f/4f),
+    factory = { context ->
+      ClickableBubbleChart(context).apply {
+        id = R.id.chart
+        layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
+        setMarginsDP(top = 4)
+        description.isEnabled = false
+        setOnChartValueSelectedListener(
+          object : OnChartValueSelectedListener {
+            private val chart: BubbleChart = this@apply
+
+            override fun onValueSelected(e: Entry, h: Highlight) {
+              Log.d(TAG, "Val selected: " + chart.axisLeft.valueFormatter.getFormattedValue(e.y) + ", " + e.x + " - " + chart.data.getDataSetByIndex(h.dataSetIndex).label + " " + e.data)
+            }
+
+            override fun onNothingSelected() {
+              Log.d(TAG, "Val unselected")
+            }
+          }
+        )
+        setDrawGridBackground(false)
+        setTouchEnabled(true)
+
+        // enable scaling and dragging
+        isDragEnabled = true
+        setScaleEnabled(true)
+
+        setMaxVisibleValueCount(200)
+        setPinchZoom(true)
+
+        // create a dataset and give it a type
+        val set1 = BubbleDataSet(ArrayList<BubbleEntry>(), "19x19")
+        //set1.setDrawIcons(false)
+        set1.setColor(ColorTemplate.COLORFUL_COLORS[0], 130)
+        set1.setDrawValues(true)
+        set1.isNormalizeSizeEnabled = false
+
+        val set2 = BubbleDataSet(ArrayList<BubbleEntry>(), "13x13")
+        //set2.setDrawIcons(false)
+        //set2.setIconsOffset(MPPointF(0f, 15f))
+        set2.setColor(ColorTemplate.COLORFUL_COLORS[1], 130)
+        set2.setDrawValues(true)
+        set2.isNormalizeSizeEnabled = false
+
+        val set3 = BubbleDataSet(ArrayList<BubbleEntry>(), "9x9")
+        set3.setColor(ColorTemplate.COLORFUL_COLORS[2], 130)
+        set3.setDrawValues(true)
+        set3.isNormalizeSizeEnabled = false
+
+        val set4 = BubbleDataSet(ArrayList<BubbleEntry>(), "?x?")
+        set4.setColor(ColorTemplate.COLORFUL_COLORS[3], 130)
+        set4.setDrawValues(true)
+        set4.isNormalizeSizeEnabled = false
+
+        val set5 = BubbleDataSet(ArrayList<BubbleEntry>(), "Eligible")
+        set5.setDrawIcons(false)
+        set5.setColor(Color.BLUE, 130)
+        set5.setDrawValues(true)
+        set5.isNormalizeSizeEnabled = false
+
+        val set6 = BubbleDataSet(ArrayList<BubbleEntry>(), "Rengo")
+        set6.setColor(Color.GRAY, 130)
+        set6.setDrawValues(false)
+        set6.isNormalizeSizeEnabled = false
+
+        val dataSets = ArrayList<IBubbleDataSet>()
+        dataSets.add(set1) // add the data sets
+        dataSets.add(set2)
+        dataSets.add(set3)
+        dataSets.add(set4)
+        dataSets.add(set5)
+        dataSets.add(set6)
+
+        // create a data object with the data sets
+        val data = BubbleData(dataSets)
+        data.setDrawValues(false)
+        data.setValueTextSize(8f)
+        data.setValueTextColor(Color.WHITE)
+        data.setHighlightCircleWidth(1.5f)
+
+        this.data = data
+        this.invalidate()
+
+        legend.apply {
+          verticalAlignment = Legend.LegendVerticalAlignment.TOP
+          horizontalAlignment = Legend.LegendHorizontalAlignment.RIGHT
+          orientation = Legend.LegendOrientation.VERTICAL
+          setDrawInside(false)
+          textColor = ResourcesCompat.getColor(resources, R.color.colorText, context.theme)
+        }
+
+        axisLeft.apply {
+          spaceTop = 30f
+          spaceBottom = 30f
+          setDrawZeroLine(false)
+          setLabelCount(10, true)
+          setAxisMinValue(-1f)
+          setAxisMaxValue(38f)
+          isGranularityEnabled = true
+          granularity = 1f
+          valueFormatter = object : ValueFormatter() {
+            override fun getFormattedValue(value: Float): String {
+              return formatRank(value.toDouble())
+            }
+          }
+          textColor = ResourcesCompat.getColor(resources, R.color.colorText, context.theme)
+          rating.toFloat().let {
+            addLimitLine(LimitLine(it, "").apply {
+              lineWidth = .5f
+              lineColor = Color.WHITE
+              labelPosition = LimitLabelPosition.RIGHT_TOP
+              textSize = 10f
+            })
+          }
+        }
+
+        axisRight.isEnabled = false
+
+        xAxis.apply {
+          position = XAxis.XAxisPosition.BOTTOM
+          valueFormatter = object : ValueFormatter() {
+            override fun getFormattedValue(value: Float): String = when(value.toInt()) {
+              0 -> "Blitz"
+              3 -> "Live"
+              6 -> "Correspondence"
+              else -> ""
+            }
+          }
+          //setLabelCount(4, true)
+          setCenterAxisLabels(true)
+          labelRotationAngle = 9f
+          setAxisMinValue(0f)
+          setAxisMaxValue(8f)
+          isGranularityEnabled = true
+          granularity = 1f
+          textColor = ResourcesCompat.getColor(resources, R.color.colorText, context.theme)
+          addLimitLine(LimitLine(2f, "").apply {
+            lineWidth = 1.5f
+            lineColor = Color.GRAY
+            labelPosition = LimitLabelPosition.RIGHT_TOP
+            textSize = 10f
+          })
+          addLimitLine(LimitLine(5f, "").apply {
+            lineWidth = 1.5f
+            lineColor = Color.GRAY
+            labelPosition = LimitLabelPosition.RIGHT_TOP
+            textSize = 10f
+          })
+        }
+
+        setNoDataTextColor(ResourcesCompat.getColor(resources, R.color.colorActionableText, context.theme))
+
+        let { chart ->
+          // create a custom MarkerView (extend MarkerView) and specify the layout to use for it
+          val mv = ChallengeMarkerView(context,
+            { onProfile(it.id) },
+            { onAccept() })
+          mv.chartView = chart
+          chart.marker = mv
+        }
+      }
+    },
+    update = { chart ->
+      (chart as BubbleChart).apply {
+        for(i in 0..5)
+          data.getDataSetByIndex(i).clear()
+
+        data.also {
+          challenges.forEach { challenge: SeekGraphChallenge ->
+            val rankDiff = (challenge.rank ?: 0.0) - rating.toDouble()
+            val eligible = when {
+              challenge.ranked && abs(rankDiff) > 9 -> false
+              rating < challenge.min_rank -> false
+              rating > challenge.max_rank -> false
+              challenge.rengo -> false
+              else -> true
+            }
+            val drawable = if (eligible) resources.getDrawable(R.drawable.ic_star) else null
+            val dataset = when {
+              challenge.rengo -> 5
+              eligible -> 4
+              challenge.width == 19 -> 0
+              challenge.width == 13 -> 1
+              challenge.width == 9 -> 2
+              else -> 3
+            }
+            val entry = BubbleEntry(
+              log10((challenge.time_per_move ?: 0.0) + 1).toFloat(),
+              challenge.rank?.toFloat() ?: 0f,
+              .2f, drawable, challenge)
+            data.addEntry(entry, dataset)
+          }
+
+          data.notifyDataChanged()
+        }
+
+        notifyDataSetChanged()
+        invalidate()
+      }
+    }
+  )
 }
 
 @Composable
@@ -480,6 +495,6 @@ private fun RowScope.SizeCheckbox(checked: Boolean, text: String, onClick: (Bool
 private fun NewAutomatchChallengeBottomSheetPreview() {
   OnlineGoTheme {
     Box(modifier = Modifier.fillMaxSize())
-    NewAutomatchChallengeBottomSheetContent(AutomatchState(), {}, {}, {}, {}, {}, {})
+    NewAutomatchChallengeBottomSheetContent(AutomatchState())
   }
 }
