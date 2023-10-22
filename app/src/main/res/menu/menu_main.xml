@@ -6,6 +6,11 @@
         android:icon="@drawable/ic_board_filled"
         />
     <item
+        android:id="@id/explore"
+        android:title="Explore"
+        android:icon="@drawable/ic_globe_filled"
+        />
+    <item
         android:id="@id/learn"
         android:title="Learn"
         android:icon="@drawable/ic_learn"

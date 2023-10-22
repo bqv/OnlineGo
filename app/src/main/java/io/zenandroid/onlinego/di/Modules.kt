@@ -34,6 +34,7 @@ import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.mvi.Store
 import io.zenandroid.onlinego.playstore.PlayStoreService
 import io.zenandroid.onlinego.ui.screens.automatch.NewAutomatchChallengeViewModel
+import io.zenandroid.onlinego.ui.screens.explore.ExploreViewModel
 import io.zenandroid.onlinego.ui.screens.face2face.FaceToFaceViewModel
 import io.zenandroid.onlinego.ui.screens.game.GameViewModel
 import io.zenandroid.onlinego.ui.screens.joseki.HotTrackMiddleware
@@ -103,6 +104,7 @@ private val repositoriesModule = module {
   single { ChatRepository(get(), get()) }
   single { FinishedGamesRepository(get(), get(), get()) }
   single { JosekiRepository(get(), get()) }
+  single { LadderRepository(get(), get()) }
   single { PuzzleRepository(get(), get()) }
   single { PlayersRepository(get(), get(), get()) }
   single { SeekGraphRepository(get()) }
@@ -219,6 +221,7 @@ private val viewModelsModule = module {
 
   viewModelOf(::StatsViewModel)
   viewModelOf(::LearnViewModel)
+  viewModelOf(::ExploreViewModel)
   viewModelOf(::TutorialViewModel)
   viewModelOf(::OnboardingViewModel)
 
@@ -251,14 +254,6 @@ private val viewModelsModule = module {
   }
 
   viewModelOf(::SettingsViewModel)
-
-//viewModel { params ->
-//  LadderViewModel(
-//    LadderRepository(get(), get()),
-//    OGSRestService(get(), get(), get(), get()),
-//    params.get()
-//  )
-//}
 }
 
 private val espressoModule = module {

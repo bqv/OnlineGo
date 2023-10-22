@@ -48,6 +48,10 @@
         android:name="io.zenandroid.onlinego.ui.screens.localai.AiGameFragment"
         android:label="AiGameFragment" />
     <fragment
+        android:id="@+id/explore"
+        android:name="io.zenandroid.onlinego.ui.screens.explore.ExploreFragment"
+        android:label="ExploreFragment" />
+    <fragment
         android:id="@+id/faceToFaceFragment"
         android:name="io.zenandroid.onlinego.ui.screens.face2face.FaceToFaceFragment"
         android:label="FaceToFaceFragment" />

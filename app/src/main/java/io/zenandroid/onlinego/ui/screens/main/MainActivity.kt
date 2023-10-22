@@ -110,6 +110,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
                     val shouldBeVisible =
                         destination.id in arrayOf(
                         R.id.myGames,
+                        R.id.explore,
                         R.id.learn,
                         R.id.settings
                     ) || (destination.id == R.id.stats && arguments?.isEmpty != false)
