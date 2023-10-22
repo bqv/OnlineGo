@@ -1,5 +1,6 @@
 package io.zenandroid.onlinego.ui.screens.automatch
 
+import androidx.lifecycle.viewModelScope
 import android.preference.PreferenceManager
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -13,19 +14,34 @@ import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.data.model.ogs.SeekGraphChallenge
 import io.zenandroid.onlinego.data.model.ogs.Speed
+import io.zenandroid.onlinego.data.ogs.OGSRestService
+import io.zenandroid.onlinego.data.repositories.PlayersRepository
 import io.zenandroid.onlinego.data.repositories.SeekGraphRepository
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.utils.addToDisposable
 import io.zenandroid.onlinego.utils.recordException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.rx2.asFlow
+import kotlinx.coroutines.rx2.await
+import kotlinx.coroutines.withContext
+import retrofit2.HttpException
 
 private const val TAG = "NewAutomatchChallengeVM"
 
 class NewAutomatchChallengeViewModel(
   private val userSessionRepository: UserSessionRepository,
   private val seekGraphRepository: SeekGraphRepository,
+  private val playersRepository: PlayersRepository,
+  private val restService: OGSRestService,
 ) : ViewModel() {
   companion object {
     private const val SEARCH_GAME_SMALL = "SEARCH_GAME_SMALL"
@@ -73,6 +89,28 @@ class NewAutomatchChallengeViewModel(
       .addToDisposable(subscriptions)
   }
 
+  fun findPlayerByName(playerName: String, onSuccess: (Long) -> Unit, onFailure: (Throwable) -> Unit) {
+    playersRepository.searchPlayers(playerName)
+      .toObservable()
+      .asFlow()
+      .map { it.first() }
+      .flowOn(Dispatchers.IO)
+      .catch { withContext(Dispatchers.Main) { onFailure(it) } }
+      .onEach { withContext(Dispatchers.Main) { onSuccess(it.id) } }
+      .launchIn(viewModelScope)
+  }
+
+  fun acceptOpenChallenge(challengeId: Long, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+    viewModelScope.launch(Dispatchers.IO) {
+      try {
+        restService.acceptOpenChallenge(challengeId).await()
+      } catch (e: HttpException) {
+        withContext(Dispatchers.Main) { onFailure(e) }
+      }
+
+      withContext(Dispatchers.Main) { onSuccess() }
+    }
+  }
 
   fun onSmallCheckChanged(checked: Boolean) {
     _state.update { it.copy(small = checked) }

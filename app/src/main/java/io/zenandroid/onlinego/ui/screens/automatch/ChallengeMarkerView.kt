@@ -1,58 +1,34 @@
 package io.zenandroid.onlinego.ui.screens.automatch
 
-import android.app.Activity
 import android.content.Context
-import android.graphics.Typeface
-import android.os.Handler
-import android.os.Looper
-import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.widget.LinearLayout
-import android.widget.Toast
 import android.widget.TextView
-import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
 import com.github.mikephil.charting.components.MarkerView
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.utils.MPPointF
 import com.google.android.material.button.MaterialButton
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
-import io.zenandroid.onlinego.data.model.local.Player
 import io.zenandroid.onlinego.data.model.ogs.SeekGraphChallenge
-import io.zenandroid.onlinego.data.repositories.PlayersRepository
-import io.zenandroid.onlinego.data.repositories.UserSessionRepository
-import io.zenandroid.onlinego.data.ogs.OGSRestService
-import io.zenandroid.onlinego.ui.screens.game.GameFragment
 import io.zenandroid.onlinego.ui.views.ClickableMarkerView
-import io.zenandroid.onlinego.utils.addToDisposable
 import io.zenandroid.onlinego.utils.formatMillis
 import io.zenandroid.onlinego.utils.formatRank
 import io.zenandroid.onlinego.utils.timeControlDescription
 import io.zenandroid.onlinego.R
-import org.koin.core.context.GlobalContext
 
 class ChallengeMarkerView(
     context: Context,
-    onProfile: (Player) -> Unit,
+    val currentRating: Int,
+    onProfile: (String) -> Unit,
     onAccept: (Long) -> Unit
 ) : ClickableMarkerView(context, R.layout.challenge_markerview) {
-    private val subscriptions = CompositeDisposable()
     private val containerView: LinearLayout = findViewById(R.id.containerView)
     private val rankTextView: TextView = findViewById(R.id.rankTextView)
     private val tpmTextView: TextView = findViewById(R.id.tpmTextView)
     private val userTextView: TextView = findViewById(R.id.userTextView)
     private val profileButton: MaterialButton = findViewById(R.id.profileButton)
     private val acceptButton: MaterialButton = findViewById(R.id.acceptButton)
-
-    private val playersRepository = GlobalContext.get().get<PlayersRepository>()
-    private val restService = GlobalContext.get().get<OGSRestService>()
-    private val currentRating = GlobalContext.get().get<UserSessionRepository>()
-        .uiConfig?.user?.ranking ?: 0
 
     lateinit var challenge: SeekGraphChallenge
         private set
@@ -67,31 +43,10 @@ class ChallengeMarkerView(
             }
         }
         profileButton.setOnClickListener {
-            playersRepository.searchPlayers(this.challenge.username)
-                .observeOn(Schedulers.single())
-                .subscribeOn(Schedulers.io())
-                .subscribe({
-                    Handler(Looper.getMainLooper()).post {
-                        it.firstOrNull()?.let { onProfile(it) }
-                    }
-                }, {
-                    Log.e("ChallengeMarkerView", it.toString())
-                })
-                .addToDisposable(subscriptions)
+            onProfile(this.challenge.username)
         }
         acceptButton.setOnClickListener {
-            restService.acceptOpenChallenge(this.challenge.challenge_id!!)
-                .observeOn(Schedulers.single())
-                .subscribe({
-                    Handler(Looper.getMainLooper()).post {
-                        onAccept(this.challenge.challenge_id!!)
-                    }
-                }, {
-                    Handler(Looper.getMainLooper()).post {
-                        Toast.makeText(context, "Not Eligible", Toast.LENGTH_SHORT).show()
-                    }
-                })
-                .addToDisposable(subscriptions)
+            onAccept(this.challenge.challenge_id!!)
         }
     }
 

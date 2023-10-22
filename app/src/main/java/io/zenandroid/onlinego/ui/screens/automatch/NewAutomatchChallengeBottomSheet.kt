@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -116,10 +117,21 @@ class NewAutomatchChallengeBottomSheet : BottomSheetDialogFragment() {
           NewAutomatchChallengeBottomSheetContent(
             state = state,
             onGraphProfileClicked = {
-              dismiss()
-              navigateToPlayerProfile(it)
+              viewModel.findPlayerByName(it, {
+                dismiss()
+                navigateToPlayerProfile(it)
+              }, {
+                Log.e("ChallengeMarkerView", it.toString())
+              })
             },
-            onGraphChallengeAccepted = { dismiss() },
+            onGraphChallengeAccepted = {
+              viewModel.acceptOpenChallenge(it, {
+                dismiss()
+              }, {
+                Toast.makeText(context, "Not Eligible: ${it.message}",
+                  Toast.LENGTH_SHORT).show()
+              })
+            },
             onSmallCheckChanged = { viewModel.onSmallCheckChanged(it) },
             onMediumCheckChanged = { viewModel.onMediumCheckChanged(it) },
             onLargeCheckChanged = { viewModel.onLargeCheckChanged(it) },
@@ -158,8 +170,8 @@ class NewAutomatchChallengeBottomSheet : BottomSheetDialogFragment() {
 @Composable
 private fun NewAutomatchChallengeBottomSheetContent(
   state: AutomatchState,
-  onGraphProfileClicked: (Long) -> Unit = {},
-  onGraphChallengeAccepted: () -> Unit = {},
+  onGraphProfileClicked: (String) -> Unit = {},
+  onGraphChallengeAccepted: (Long) -> Unit = {},
   onSmallCheckChanged: (Boolean) -> Unit = {},
   onMediumCheckChanged: (Boolean) -> Unit = {},
   onLargeCheckChanged: (Boolean) -> Unit = {},
@@ -239,7 +251,7 @@ private fun NewAutomatchChallengeBottomSheetContent(
           challenges = state.challenges,
           rating = state.rating,
           onProfile = { onGraphProfileClicked(it) },
-          onAccept = { onGraphChallengeAccepted() },
+          onAccept = { onGraphChallengeAccepted(it) },
           modifier = Modifier.fillMaxWidth()
         )
       }
@@ -260,8 +272,8 @@ private fun NewAutomatchChallengeBottomSheetContent(
 private fun ChallengeGraph(
   challenges: List<SeekGraphChallenge>,
   rating: Int,
-  onProfile: (Long) -> Unit,
-  onAccept: () -> Unit,
+  onProfile: (String) -> Unit,
+  onAccept: (Long) -> Unit,
   modifier: Modifier
 ) {
   AndroidView(
@@ -421,9 +433,9 @@ private fun ChallengeGraph(
 
         let { chart ->
           // create a custom MarkerView (extend MarkerView) and specify the layout to use for it
-          val mv = ChallengeMarkerView(context,
-            { onProfile(it.id) },
-            { onAccept() })
+          val mv = ChallengeMarkerView(context, rating,
+            { onProfile(it) },
+            { onAccept(it) })
           mv.chartView = chart
           chart.marker = mv
         }
