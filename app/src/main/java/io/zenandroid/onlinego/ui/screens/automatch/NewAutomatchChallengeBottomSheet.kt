@@ -43,6 +43,7 @@ import io.zenandroid.onlinego.data.model.ogs.Speed
 import io.zenandroid.onlinego.ui.screens.main.MainActivity
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.ui.views.ClickableBubbleChart
+import io.zenandroid.onlinego.utils.formatRank
 import io.zenandroid.onlinego.utils.rememberStateWithLifecycle
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.util.Locale
@@ -78,7 +79,6 @@ import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.interfaces.datasets.IBubbleDataSet
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener
 import com.github.mikephil.charting.utils.ColorTemplate
-import io.zenandroid.onlinego.ui.screens.newchallenge.ChallengeMarkerView
 import io.zenandroid.onlinego.utils.setMargins
 import io.zenandroid.onlinego.utils.setMarginsDP
 import kotlin.math.abs
@@ -196,12 +196,18 @@ class NewAutomatchChallengeBottomSheet : BottomSheetDialogFragment(), OnChartVal
           set5.setDrawValues(true)
           set5.isNormalizeSizeEnabled = false
 
+          val set6 = BubbleDataSet(ArrayList<BubbleEntry>(), "Rengo")
+          set6.setColor(Color.GRAY, 130)
+          set6.setDrawValues(false)
+          set6.isNormalizeSizeEnabled = false
+
           val dataSets = ArrayList<IBubbleDataSet>()
           dataSets.add(set1) // add the data sets
           dataSets.add(set2)
           dataSets.add(set3)
           dataSets.add(set4)
           dataSets.add(set5)
+          dataSets.add(set6)
 
           // create a data object with the data sets
           val data = BubbleData(dataSets)
@@ -232,11 +238,7 @@ class NewAutomatchChallengeBottomSheet : BottomSheetDialogFragment(), OnChartVal
             granularity = 1f
             valueFormatter = object : ValueFormatter() {
               override fun getFormattedValue(value: Float): String {
-                val rank = value.toInt()
-                return when {
-                  rank < 30 -> "${30 - rank}k"
-                  else -> "${rank - 29}d"
-                }
+                return formatRank(value.toDouble())
               }
             }
             textColor = ResourcesCompat.getColor(resources, R.color.colorText, context.theme)
@@ -288,16 +290,10 @@ class NewAutomatchChallengeBottomSheet : BottomSheetDialogFragment(), OnChartVal
 
           let { chart ->
             // create a custom MarkerView (extend MarkerView) and specify the layout to use for it
-            val mv = ChallengeMarkerView(context, {
+            val mv = ChallengeMarkerView(context, onProfile = {
               dismiss()
-              (context as FragmentActivity).findNavController(R.id.fragment_container).navigate(
-                R.id.stats,
-                bundleOf(PLAYER_ID to it.id),
-                NavOptions.Builder()
-                  .setLaunchSingleTop(true)
-                  .setPopUpTo(R.id.myGames, false, false)
-                  .build())
-            }, {
+              navigateToPlayerProfile(it.id)
+            }, onAccept = {
               dismiss()
             })
             mv.chartView = chart
@@ -307,20 +303,23 @@ class NewAutomatchChallengeBottomSheet : BottomSheetDialogFragment(), OnChartVal
       },
       update = { chart ->
         (chart as BubbleChart).apply {
-          for(i in 0..4)
+          for(i in 0..5)
             data.getDataSetByIndex(i).clear()
 
           data.also {
             challenges.forEach { challenge: SeekGraphChallenge ->
               val rankDiff = (challenge.rank ?: 0.0) - state.rating.toDouble()
-              val drawable = when {
-                challenge.ranked && abs(rankDiff) > 9 -> null
-                state.rating < challenge.min_rank -> null
-                state.rating > challenge.max_rank -> null
-                else -> resources.getDrawable(R.drawable.ic_star)
+              val eligible = when {
+                challenge.ranked && abs(rankDiff) > 9 -> false
+                state.rating < challenge.min_rank -> false
+                state.rating > challenge.max_rank -> false
+                challenge.rengo -> false
+                else -> true
               }
+              val drawable = if (eligible) resources.getDrawable(R.drawable.ic_star) else null
               val dataset = when {
-                drawable != null -> 4
+                challenge.rengo -> 5
+                eligible -> 4
                 challenge.width == 19 -> 0
                 challenge.width == 13 -> 1
                 challenge.width == 9 -> 2
@@ -341,6 +340,16 @@ class NewAutomatchChallengeBottomSheet : BottomSheetDialogFragment(), OnChartVal
         }
       }
     )
+  }
+
+  private fun navigateToPlayerProfile(playerId: Long) {
+    (context as FragmentActivity).findNavController(R.id.fragment_container).navigate(
+      R.id.stats,
+      bundleOf(PLAYER_ID to playerId),
+      NavOptions.Builder()
+        .setLaunchSingleTop(true)
+        .setPopUpTo(R.id.myGames, false, false)
+        .build())
   }
 
   override fun onValueSelected(e: Entry, h: Highlight) {

@@ -20,7 +20,8 @@ data class SeekGraphChallenge (
         var time_per_move: Double? = null,
         var width: Int = 0,
         var height: Int = 0,
-        var time_control_parameters: TimeControl? = null
+        var time_control_parameters: TimeControl? = null,
+        var rengo: Boolean = false,
 ) {
     override fun toString(): String {
         return "$username (${formatRank(rank)})"

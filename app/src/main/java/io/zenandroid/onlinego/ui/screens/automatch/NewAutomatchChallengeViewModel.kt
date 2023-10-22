@@ -2,7 +2,6 @@ package io.zenandroid.onlinego.ui.screens.automatch
 
 import android.preference.PreferenceManager
 import android.util.Log
-import com.github.mikephil.charting.listener.OnChartValueSelectedListener
 import androidx.lifecycle.ViewModel
 import com.github.mikephil.charting.data.BubbleEntry
 import com.github.mikephil.charting.data.Entry

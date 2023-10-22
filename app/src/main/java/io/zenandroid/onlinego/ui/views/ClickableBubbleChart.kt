@@ -9,6 +9,8 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import androidx.annotation.RequiresApi
 import com.github.mikephil.charting.charts.BubbleChart
+import com.github.mikephil.charting.highlight.Highlight
+import com.github.mikephil.charting.renderer.BubbleChartRenderer
 import com.github.mikephil.charting.components.MarkerView
 import java.time.Instant.now
 
@@ -16,6 +18,20 @@ class ClickableBubbleChart : BubbleChart {
     constructor(context: Context) : super(context)
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs)
     constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int) : super(context, attrs, defStyleAttr)
+
+    override fun init() {
+        super.init()
+
+        mRenderer = object : BubbleChartRenderer(this, mAnimator, mViewPortHandler) {
+            override fun drawHighlighted(c: Canvas, indices: Array<Highlight>) {
+                try {
+                    super.drawHighlighted(c, indices)
+                } catch (e: NullPointerException) {
+                    // https://github.com/PhilJay/MPAndroidChart/issues/2917
+                }
+            }
+        }
+    }
 
 	override fun onTouchEvent(event: MotionEvent): Boolean {
         // if there is no marker view or drawing marker is disabled

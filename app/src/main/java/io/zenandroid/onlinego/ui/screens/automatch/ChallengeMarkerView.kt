@@ -1,4 +1,4 @@
-package io.zenandroid.onlinego.ui.screens.newchallenge
+package io.zenandroid.onlinego.ui.screens.automatch
 
 import android.app.Activity
 import android.content.Context
@@ -34,10 +34,13 @@ import io.zenandroid.onlinego.utils.formatMillis
 import io.zenandroid.onlinego.utils.formatRank
 import io.zenandroid.onlinego.utils.timeControlDescription
 import io.zenandroid.onlinego.R
-import org.koin.core.context.GlobalContext.get
+import org.koin.core.context.GlobalContext
 
-class ChallengeMarkerView(context: Context, onProfile: (Player) -> Unit, onAccept: (Long) -> Unit) : ClickableMarkerView(context, R.layout.challenge_markerview) {
-
+class ChallengeMarkerView(
+    context: Context,
+    onProfile: (Player) -> Unit,
+    onAccept: (Long) -> Unit
+) : ClickableMarkerView(context, R.layout.challenge_markerview) {
     private val subscriptions = CompositeDisposable()
     private val containerView: LinearLayout = findViewById(R.id.containerView)
     private val rankTextView: TextView = findViewById(R.id.rankTextView)
@@ -46,9 +49,10 @@ class ChallengeMarkerView(context: Context, onProfile: (Player) -> Unit, onAccep
     private val profileButton: MaterialButton = findViewById(R.id.profileButton)
     private val acceptButton: MaterialButton = findViewById(R.id.acceptButton)
 
-    private val playersRepository = get().get<PlayersRepository>()
-    private val restService = get().get<OGSRestService>()
-    private val currentRating = get().get<UserSessionRepository>().uiConfig?.user?.ranking ?: 0
+    private val playersRepository = GlobalContext.get().get<PlayersRepository>()
+    private val restService = GlobalContext.get().get<OGSRestService>()
+    private val currentRating = GlobalContext.get().get<UserSessionRepository>()
+        .uiConfig?.user?.ranking ?: 0
 
     lateinit var challenge: SeekGraphChallenge
         private set
@@ -114,6 +118,7 @@ class ChallengeMarkerView(context: Context, onProfile: (Player) -> Unit, onAccep
                 it.ranked && (e.y - currentRating) > 9 -> View.INVISIBLE
                 it.min_rank > currentRating -> View.INVISIBLE
                 it.max_rank < currentRating -> View.INVISIBLE
+                it.rengo -> View.INVISIBLE
                 else -> View.VISIBLE
             }
             rankTextView.text = "${it.username} [${formatRank(it.rank)}]"

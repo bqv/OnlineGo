@@ -91,9 +91,9 @@
             android:layout_marginLeft="5dp"
             android:layout_marginRight="5dp"
             android:text="Profile"
-            android:backgroundTint="@color/disable_black"
+            android:backgroundTint="@color/colorTextBackground"
             android:layout_gravity="center"
-            android:textColor="@color/colorText"
+            android:textColor="@color/disable_black"
             android:textStyle="bold"
             android:textSize="10sp"
             />
@@ -109,7 +109,7 @@
             android:backgroundTint="@color/colorAccent"
             android:text="Accept"
             android:layout_gravity="center"
-            android:textColor="@color/colorText"
+            android:textColor="@color/disable_black"
             android:textStyle="bold"
             android:textSize="10sp"
             />
