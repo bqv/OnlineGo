@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
@@ -61,6 +62,11 @@ fun Screen(state: LearnState, listener: (LearnAction) -> Unit) {
                 PrimaryRow(title = "Joseki explorer", R.drawable.ic_branch) { listener(LearnAction.JosekiExplorerClicked) }
                 PrimaryRow(title = "Puzzles", R.drawable.ic_go_board) { listener(LearnAction.PuzzlesClicked) }
             }
+            Section(title = "Analyze") {
+                PrimaryRow(title = "Saved games", R.drawable.ic_storage) { }
+                PrimaryRow(title = "Reviews", R.drawable.ic_review) { }
+                PrimaryRow(title = "Watch", R.drawable.ic_eye) { }
+            }
         }
     }
 }
@@ -95,7 +101,7 @@ fun PrimaryRow(title: String, @DrawableRes icon: Int, onClick: () -> Unit) {
         .fillMaxWidth()
         .padding(start = 24.dp, top = 8.dp, bottom = 8.dp)
     ) {
-        Icon(painter = painterResource(icon), contentDescription = null)
+        Icon(painter = painterResource(icon), contentDescription = null, modifier = Modifier.size(24.dp))
         Text(title, style = MaterialTheme.typography.body2, modifier = Modifier
             .padding(start = 24.dp)
             .align(Alignment.CenterVertically))
