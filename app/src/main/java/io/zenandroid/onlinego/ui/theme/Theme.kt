@@ -4,6 +4,9 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.darkColors
 import androidx.compose.material.lightColors
+import androidx.compose.material3.MaterialTheme as Material3Theme
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 
 private val LightColorPalette = lightColors(
@@ -18,13 +21,25 @@ private val LightColorPalette = lightColors(
     onSecondary = lightOnPrimary,
 
     /* Other default colors to override
-background = Color.White,
-surface = Color.White,
-onPrimary = Color.White,
-onSecondary = Color.Black,
-onBackground = Color.Black,
-onSurface = Color.Black,
-*/
+    background = Color.White,
+    surface = Color.White,
+    onPrimary = Color.White,
+    onSecondary = Color.Black,
+    onBackground = Color.Black,
+    onSurface = Color.Black,
+    */
+)
+
+private val LightColorScheme = lightColorScheme(
+    primary = LightColorPalette.primary,
+    primaryContainer = LightColorPalette.primaryVariant,
+    secondary = LightColorPalette.secondary,
+    secondaryContainer = LightColorPalette.secondaryVariant,
+    onSurface = LightColorPalette.onSurface,
+    background = LightColorPalette.background,
+    onBackground = LightColorPalette.onBackground,
+    onPrimary = LightColorPalette.onPrimary,
+    onSecondary = LightColorPalette.onSecondary,
 )
 
 private val DarkColorPalette = darkColors(
@@ -40,6 +55,18 @@ private val DarkColorPalette = darkColors(
     onSecondary = nightOnPrimary,
 )
 
+private val DarkColorScheme = darkColorScheme(
+    primary = DarkColorPalette.primary,
+    secondary = DarkColorPalette.primaryVariant,
+    tertiary = DarkColorPalette.secondary,
+    surface = DarkColorPalette.surface,
+    onSurface = DarkColorPalette.onSurface,
+    background = DarkColorPalette.background,
+    onBackground = DarkColorPalette.onBackground,
+    onPrimary = DarkColorPalette.onPrimary,
+    onSecondary = DarkColorPalette.onSecondary,
+)
+
 @Composable
 fun OnlineGoTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
     val colors = if (darkTheme) {
@@ -48,10 +75,23 @@ fun OnlineGoTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composab
         LightColorPalette
     }
 
-    MaterialTheme(
-            colors = colors,
-            typography = typography,
-            shapes = shapes,
-            content = content
+    val colorScheme = if (darkTheme) {
+        DarkColorScheme
+    } else {
+        LightColorScheme
+    }
+
+    Material3Theme(
+        colorScheme = colorScheme,
+        typography = typography3,
+        shapes = shapes3,
+        content = @Composable {
+            MaterialTheme(
+                colors = colors,
+                typography = typography,
+                shapes = shapes,
+                content = content
+            )
+        }
     )
 }
