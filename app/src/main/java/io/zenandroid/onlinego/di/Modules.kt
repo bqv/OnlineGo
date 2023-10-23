@@ -157,6 +157,10 @@ private val databaseModule = module {
   single {
     get<Database>().puzzleDao()
   }
+
+  single {
+    get<Database>().siteDao()
+  }
 }
 
 private val useCasesModule = module {

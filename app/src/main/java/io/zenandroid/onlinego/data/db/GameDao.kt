@@ -22,18 +22,11 @@ import io.zenandroid.onlinego.data.model.local.GameNotification
 import io.zenandroid.onlinego.data.model.local.GameNotificationWithDetails
 import io.zenandroid.onlinego.data.model.local.HistoricGamesMetadata
 import io.zenandroid.onlinego.data.model.local.InitialState
-import io.zenandroid.onlinego.data.model.local.LadderPlayer
-import io.zenandroid.onlinego.data.model.local.LadderPlayer.LadderChallenge
 import io.zenandroid.onlinego.data.model.local.Message
 import io.zenandroid.onlinego.data.model.local.PauseControl
 import io.zenandroid.onlinego.data.model.local.Player
-import io.zenandroid.onlinego.data.model.local.Puzzle
-import io.zenandroid.onlinego.data.model.local.PuzzleCollection
-import io.zenandroid.onlinego.data.model.local.PuzzleCollectionSolutionMetadata
 import io.zenandroid.onlinego.data.model.local.Score
-import io.zenandroid.onlinego.data.model.local.VisitedPuzzleCollection
 import io.zenandroid.onlinego.data.model.ogs.JosekiPosition
-import io.zenandroid.onlinego.data.model.ogs.Ladder
 import io.zenandroid.onlinego.data.model.ogs.Phase
 import io.zenandroid.onlinego.data.ogs.Pause
 import kotlinx.coroutines.flow.Flow
@@ -441,35 +434,5 @@ abstract class GameDao {
             insertMessages(messages)
             updateChatMetadata(ChatMetadata(0, messages.last().chatId))
         }
-    }
-
-    @Query("SELECT * FROM ladder WHERE id = :ladderId")
-    abstract fun getLadder(ladderId: Long): Flow<Ladder>
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract suspend fun insertLadder(ladder: Ladder)
-
-    @Query("SELECT * FROM ladderplayer WHERE ladderId = :ladderId ORDER BY rank ASC")
-    abstract fun getLadderPlayers(ladderId: Long): Flow<List<LadderPlayer>>
-
-    @Query("SELECT coalesce(max(lastrefresh), 0) FROM ladderplayer WHERE ladderId = :ladderId")
-    abstract suspend fun getLadderPlayersLastRefresh(ladderId: Long): Long
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract suspend fun insertLadderPlayers(ladderPlayers: List<LadderPlayer>)
-
-    @Query("SELECT * FROM ladderchallenge WHERE ladderId = :ladderId AND ladderPlayerId = :ladderPlayerId")
-    abstract fun getLadderChallenges(ladderId: Long, ladderPlayerId: Long): Flow<List<LadderChallenge>>
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract suspend fun insertLadderChallenges(challenges: List<LadderChallenge>)
-
-    @Query("DELETE FROM ladderchallenge WHERE ladderId = :ladderId AND ladderPlayerId = :ladderPlayerId")
-    abstract suspend fun deleteLadderChallenges(ladderId: Long, ladderPlayerId: Long)
-
-    @Transaction
-    open suspend fun replaceLadderChallenges(ladderId: Long, ladderPlayerId: Long, challenges: List<LadderChallenge>) {
-        deleteLadderChallenges(ladderId, ladderPlayerId)
-        insertLadderChallenges(challenges)
     }
 }

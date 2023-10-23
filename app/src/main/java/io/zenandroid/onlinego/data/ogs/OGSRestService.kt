@@ -12,6 +12,9 @@ import io.zenandroid.onlinego.data.model.local.PuzzleCollection
 import io.zenandroid.onlinego.data.model.ogs.ChallengeParams
 import io.zenandroid.onlinego.data.model.ogs.CreateAccountRequest
 import io.zenandroid.onlinego.data.model.ogs.Glicko2History
+import io.zenandroid.onlinego.data.model.ogs.Group
+import io.zenandroid.onlinego.data.model.ogs.Group.GroupInvitation
+import io.zenandroid.onlinego.data.model.ogs.Group.GroupNews
 import io.zenandroid.onlinego.data.model.ogs.JosekiPosition
 import io.zenandroid.onlinego.data.model.ogs.Ladder
 import io.zenandroid.onlinego.data.model.ogs.OGSChallenge
@@ -19,18 +22,27 @@ import io.zenandroid.onlinego.data.model.ogs.OGSChallengeRequest
 import io.zenandroid.onlinego.data.model.ogs.OGSGame
 import io.zenandroid.onlinego.data.model.ogs.OGSLadderPlayer
 import io.zenandroid.onlinego.data.model.ogs.OGSPlayer
+import io.zenandroid.onlinego.data.model.ogs.OGSPlayer.FriendRequest
 import io.zenandroid.onlinego.data.model.ogs.OGSPlayerLadder
+import io.zenandroid.onlinego.data.model.ogs.PagedResult
 import io.zenandroid.onlinego.data.model.ogs.PasswordBody
 import io.zenandroid.onlinego.data.model.ogs.PuzzleRating
 import io.zenandroid.onlinego.data.model.ogs.PuzzleSolution
+import io.zenandroid.onlinego.data.model.ogs.Tournament
+import io.zenandroid.onlinego.data.model.ogs.Tournament.TournamentInvitation
 import io.zenandroid.onlinego.data.model.ogs.VersusStats
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.utils.CountingIdlingResource
 import io.zenandroid.onlinego.utils.microsToISODateTime
-import kotlinx.coroutines.delay
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.delay
 import okhttp3.ResponseBody.Companion.toResponseBody
 import retrofit2.HttpException
 import retrofit2.Response
@@ -53,6 +65,20 @@ class OGSRestService(
             val newEbi = "${Math.random().toString().split(".")[1]}.0.0.0.0.xxx.xxx.${Date().timezoneOffset + 13}"
             prefs.edit().putString(OGS_EBI, newEbi).apply()
             newEbi
+        }
+    }
+
+    suspend inline fun <reified T> unroll(
+        requestDelay: Duration = 5.seconds,
+        initialPage: Int = 0,
+        crossinline fetchPage: suspend (Int) -> PagedResult<T>,
+    ): Flow<T> = flow {
+        var page = initialPage
+        while (true) {
+            val result = fetchPage(++page)
+            emitAll(flowOf(*result.results.toTypedArray()))
+            if (result.next == null) break
+            delay(requestDelay)
         }
     }
 
@@ -125,7 +151,7 @@ class OGSRestService(
             else -> "automatic"
         }
 
-        val timeControl = when(challengeParams.speed.toLowerCase()) {
+        val timeControl = when(challengeParams.speed.lowercase()) {
             "correspondence" -> TimeControl(
                     system = "byoyomi",
                     time_control = "byoyomi",
@@ -261,21 +287,13 @@ class OGSRestService(
         return restApi.getPlayerFullProfileAsync(id).vs
     }
 
-    fun getPuzzleCollections(minCount: Int? = null, namePrefix: String? = null): Flow<List<PuzzleCollection>> {
-        var page = 0
-
-        return flow {
-          do {
-            val result = restApi.getPuzzleCollections(
-              minimumCount = minCount ?: 0,
-              namePrefix = namePrefix ?: "",
-              page = ++page
-            )
-            emit(result.results)
-            delay(5000)
-          } while (result.next != null)
-        }.map { it.map (PuzzleCollection::fromOGSPuzzleCollection) }
-    }
+    suspend fun getPuzzleCollections(minCount: Int? = null, namePrefix: String? = null): Flow<PuzzleCollection> = unroll {
+        restApi.getPuzzleCollections(
+            minimumCount = minCount ?: 0,
+            namePrefix = namePrefix ?: "",
+            page = it
+        )
+    }.map(PuzzleCollection::fromOGSPuzzleCollection)
 
     suspend fun getPuzzleCollection(id: Long): PuzzleCollection =
         restApi.getPuzzleCollection(collectionId = id)
@@ -290,20 +308,14 @@ class OGSRestService(
             .let { Puzzle.fromOGSPuzzle(it) }
 
   // TODO: This causes HTTP 429s, so we need to throttle it somehow
-    suspend fun getPuzzleSolutions(id: Long): List<PuzzleSolution> {
-      var page = 0
-
-      val list = mutableListOf<PuzzleSolution>()
-      do {
-        val result = restApi.getPuzzleSolutions(
+    suspend fun getPuzzleSolutions(id: Long): Flow<PuzzleSolution> {
+      return unroll(requestDelay = 1.seconds) {
+        restApi.getPuzzleSolutions(
           puzzleId = id,
           playerId = userSessionRepository.userId!!,
-          page = ++page
+          page = it
         )
-        list.addAll(result.results)
-        delay(1000)
-      } while (result.next != null)
-      return list
+      }
     }
 
     suspend fun getPuzzleRating(id: Long): PuzzleRating =
@@ -325,17 +337,13 @@ class OGSRestService(
     suspend fun getLadder(id: Long): Ladder =
       restApi.getLadder(ladderId = id)
 
-    suspend fun getLadderPlayers(id: Long): Sequence<LadderPlayer> = sequence {
-      var page = 0
-
-      do {
-        val result = restApi.getLadderPlayers(
+    suspend fun getLadderPlayers(id: Long): Flow<LadderPlayer> {
+      return unroll {
+        restApi.getLadderPlayers(
           ladderId = id,
-          page = ++page
+          page = it
         )
-        yieldAll(result.results.map(LadderPlayer::fromOGSLadderPlayer))
-        delay(5000)
-      } while (result.next != null)
+      }.map(LadderPlayer::fromOGSLadderPlayer)
     }
 
     suspend fun joinLadder(id: Long) =
@@ -347,16 +355,122 @@ class OGSRestService(
     suspend fun challengeLadderPlayer(id: Long, playerId: Long) =
       restApi.challengeLadderPlayer(ladderId = id, request = Ladder.ChallengeRequest(playerId))
 
-    suspend fun getPlayerLadders(id: Long): Sequence<OGSPlayerLadder> = sequence {
-      var page = 0
-
-      do {
-        val result = restApi.getPlayerLadders(
+    suspend fun getPlayerLadders(id: Long): Flow<OGSPlayerLadder> {
+      return unroll {
+        restApi.getPlayerLadders(
           playerId = id,
-          page = ++page
+          page = it
         )
-        yieldAll(result.results)
-        delay(5000)
-      } while (result.next != null)
+      }
     }
+
+    suspend fun getParticipatingTournaments(): Flow<Tournament> {
+      return unroll {
+        restApi.getParticipatingTournaments(
+          page = it
+        )
+      }
+    }
+
+    suspend fun getTournaments(): Flow<Tournament> {
+      return unroll {
+        restApi.getTournaments(
+          page = it
+        )
+      }
+    }
+
+    suspend fun getTournament(id: Long): Tournament =
+      restApi.getTournament(tournamentId = id)
+
+    suspend fun getTournamentInvitations(): Flow<TournamentInvitation> {
+      return unroll {
+        restApi.getTournamentInvitations(
+          page = it
+        )
+      }
+    }
+
+    suspend fun acceptTournamentInvitation(id: Long) =
+      restApi.acceptTournamentInvitation(request = TournamentInvitation(id))
+
+    suspend fun declineTournamentInvitation(id: Long) =
+      restApi.declineTournamentInvitation(request = TournamentInvitation(id))
+
+    suspend fun getGroups(): Flow<Group> {
+      return unroll {
+        restApi.getGroups(
+          page = it
+        )
+      }.map(Group::fromOGSGroup)
+    }
+
+    suspend fun getGroup(id: Long): Group =
+      restApi.getGroup(groupId = id)
+
+    suspend fun getGroupMembers(id: Long): Flow<OGSPlayer> {
+      return unroll {
+        restApi.getGroupMembers(
+          groupId = id,
+          page = it
+        )
+      }
+    }
+
+    suspend fun joinGroup(id: Long) =
+      restApi.joinGroup(groupId = id)
+
+    suspend fun leaveGroup(id: Long) =
+      restApi.leaveGroup(groupId = id)
+
+    suspend fun getGroupNews(id: Long): Flow<GroupNews> {
+      return unroll {
+        restApi.getGroupNews(
+          groupId = id,
+          page = it
+        )
+      }
+    }
+
+    suspend fun getGroupInvitations(): Flow<GroupInvitation> {
+      return unroll {
+        restApi.getGroupInvitations(
+          page = it
+        )
+      }
+    }
+
+    suspend fun acceptGroupInvitation(id: Long) =
+      restApi.acceptGroupInvitation(request = GroupInvitation(id))
+
+    suspend fun declineGroupInvitation(id: Long) =
+      restApi.declineGroupInvitation(request = GroupInvitation(id))
+
+    suspend fun getFriends(): Flow<OGSPlayer> {
+      return unroll {
+        restApi.getFriends(
+          page = it
+        )
+      }
+    }
+
+    suspend fun addFriend(id: Long) =
+      restApi.addFriend(request = FriendRequest(player_id = id))
+
+    suspend fun removeFriend(id: Long) =
+      restApi.removeFriend(request = FriendRequest(player_id = id))
+
+    suspend fun getFriendRequests(): Flow<Long> {
+      return unroll {
+        restApi.getFriendRequests(
+          page = it
+        )
+      }.mapNotNull { it.from_user }
+    }
+
+    suspend fun acceptFriendRequest(id: Long) =
+      restApi.acceptFriendRequest(request = FriendRequest(from_user = id))
+
+    suspend fun declineFriendRequest(id: Long) =
+      restApi.declineFriendRequest(request = FriendRequest(from_user = id))
 }

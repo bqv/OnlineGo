@@ -46,4 +46,5 @@ import io.zenandroid.onlinego.data.model.ogs.PuzzleSolution
 abstract class Database: RoomDatabase() {
     abstract fun gameDao(): GameDao
     abstract fun puzzleDao(): PuzzleDao
+    abstract fun siteDao(): SiteDao
 }

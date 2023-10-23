@@ -1,5 +1,7 @@
 package io.zenandroid.onlinego.data.model.ogs
 
+import java.time.Instant
+
 data class Group(
     val id: Long,
     val name: String? = null,
@@ -48,15 +50,15 @@ data class Group(
     companion object {
         fun fromOGSGroup(ogsGroup: OGSGroup): Group =
             Group(
-                id = ogsGroup.id
-                name = ogsGroup.name
-                short_description = ogsGroup.summary
-                require_invitation = ogsGroup.require_invitation
-                is_public = ogsGroup.is_public
-                admin_only_tournaments = ogsGroup.admin_only_tournaments
-                hide_details = ogsGroup.hide_details
-                member_count = ogsGroup.member_count
-                icon = ogsGroup.icon
+                id = ogsGroup.id,
+                name = ogsGroup.name,
+                short_description = ogsGroup.summary,
+                require_invitation = ogsGroup.require_invitation,
+                is_public = ogsGroup.is_public,
+                admin_only_tournaments = ogsGroup.admin_only_tournaments,
+                hide_details = ogsGroup.hide_details,
+                member_count = ogsGroup.member_count,
+                icon = ogsGroup.icon,
             )
     }
 }

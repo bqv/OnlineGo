@@ -3,11 +3,13 @@ package io.zenandroid.onlinego.data.repositories
 import android.util.Log
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.data.db.GameDao
+import io.zenandroid.onlinego.data.db.SiteDao
 import io.zenandroid.onlinego.data.model.local.LadderPlayer
 import io.zenandroid.onlinego.data.model.local.Player
 import io.zenandroid.onlinego.data.model.ogs.Ladder
 import io.zenandroid.onlinego.data.ogs.OGSRestService
 import io.zenandroid.onlinego.utils.addToDisposable
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -18,12 +20,13 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.withContext
 import java.time.Instant
 
 class LadderRepository(
     private val restService: OGSRestService,
-    private val dao: GameDao
+    private val dao: SiteDao
 ) {
     private val refreshCooldownSeconds = 60 * 60
 
@@ -47,6 +50,7 @@ class LadderRepository(
             .distinctUntilChanged()
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     suspend fun getLadderPlayers(ladderId: Long): Flow<List<LadderPlayer>> {
         withContext(Dispatchers.IO) {
             val lastFetchSecondsAgo = dao.getLadderPlayersLastRefresh(ladderId)
@@ -70,6 +74,7 @@ class LadderRepository(
                             ) }
                         )
                     }
+                    .toList()
                 saveLadderPlayersToDB(ladderPlayers)
             }
         }
@@ -89,7 +94,7 @@ class LadderRepository(
                             )
                         }
                 }.let {
-                    combine(it) { it.toList() as List<LadderPlayer> }
+                    combine(it) { it.toList() }
                 }
             }
     }

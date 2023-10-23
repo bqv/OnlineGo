@@ -6,6 +6,7 @@ import io.zenandroid.onlinego.data.model.ogs.Chat
 import io.zenandroid.onlinego.data.model.ogs.CreateAccountRequest
 import io.zenandroid.onlinego.data.model.ogs.Glicko2History
 import io.zenandroid.onlinego.data.model.ogs.Group
+import io.zenandroid.onlinego.data.model.ogs.Group.GroupInvitation
 import io.zenandroid.onlinego.data.model.ogs.JosekiPosition
 import io.zenandroid.onlinego.data.model.ogs.Ladder
 import io.zenandroid.onlinego.data.model.ogs.OGSChallenge
@@ -27,6 +28,7 @@ import io.zenandroid.onlinego.data.model.ogs.PasswordBody
 import io.zenandroid.onlinego.data.model.ogs.PuzzleRating
 import io.zenandroid.onlinego.data.model.ogs.PuzzleSolution
 import io.zenandroid.onlinego.data.model.ogs.Tournament
+import io.zenandroid.onlinego.data.model.ogs.Tournament.TournamentInvitation
 import io.zenandroid.onlinego.data.model.ogs.UIConfig
 import okhttp3.ResponseBody
 import retrofit2.Response
@@ -200,31 +202,42 @@ interface OGSRestAPI {
         @Query("page") page: Int = 1): PagedResult<OGSPlayerLadder>
 
     @GET("api/v1/me/tournaments")
-    suspend fun getCurrentTournaments(): PagedResult<Tournament>
+    suspend fun getParticipatingTournaments(
+        @Query("page_size") pageSize: Int = 100,
+        @Query("page") page: Int = 1): PagedResult<Tournament>
 
     @GET("api/v1/tournaments")
-    suspend fun getTournaments(): PagedResult<Tournament>
+    suspend fun getTournaments(
+        @Query("page_size") pageSize: Int = 100,
+        @Query("page") page: Int = 1): PagedResult<Tournament>
 
     @GET("api/v1/tournaments/{tournament_id}")
     suspend fun getTournament(@Path("tournament_id") tournamentId: Long): Tournament
 
     @GET("api/v1/me/tournaments/invitations")
-    suspend fun getTournamentInvitations(): PagedResult<OGSPlayer.TournamentInvitation>
+    suspend fun getTournamentInvitations(
+        @Query("page_size") pageSize: Int = 100,
+        @Query("page") page: Int = 1): PagedResult<TournamentInvitation>
 
     @POST("api/v1/me/tournaments/invitations")
-    suspend fun acceptTournamentInvitation(@Body request: OGSPlayer.TournamentInvitation)
+    suspend fun acceptTournamentInvitation(@Body request: TournamentInvitation)
 
     @HTTP(method = "DELETE", path="api/v1/me/tournaments/invitations", hasBody = true)
-    suspend fun declineTournamentInvitation(@Body request: OGSPlayer.TournamentInvitation)
+    suspend fun declineTournamentInvitation(@Body request: TournamentInvitation)
 
     @GET("api/v1/groups")
-    suspend fun getGroups(): PagedResult<OGSGroup>
+    suspend fun getGroups(
+        @Query("page_size") pageSize: Int = 100,
+        @Query("page") page: Int = 1): PagedResult<OGSGroup>
 
     @GET("api/v1/groups/{group_id}")
     suspend fun getGroup(@Path("group_id") groupId: Long): Group
 
     @GET("api/v1/groups/{group_id}/members")
-    suspend fun getGroupMembers(@Path("group_id") groupId: Long): PagedResult<OGSPlayer>
+    suspend fun getGroupMembers(
+        @Path("group_id") groupId: Long,
+        @Query("page_size") pageSize: Int = 100,
+        @Query("page") page: Int = 1): PagedResult<OGSPlayer>
 
     @POST("api/v1/groups/{group_id}/members")
     suspend fun joinGroup(@Path("group_id") groupId: Long)
@@ -233,19 +246,26 @@ interface OGSRestAPI {
     suspend fun leaveGroup(@Path("group_id") groupId: Long)
 
     @GET("api/v1/groups/{group_id}/news")
-    suspend fun getGroupNews(@Path("group_id") groupId: Long): PagedResult<Group.GroupNews>
+    suspend fun getGroupNews(
+        @Path("group_id") groupId: Long,
+        @Query("page_size") pageSize: Int = 100,
+        @Query("page") page: Int = 1): PagedResult<Group.GroupNews>
 
     @GET("api/v1/me/groups/invitations")
-    suspend fun getGroupInvitations(): PagedResult<OGSPlayer.GroupInvitation>
+    suspend fun getGroupInvitations(
+        @Query("page_size") pageSize: Int = 100,
+        @Query("page") page: Int = 1): PagedResult<GroupInvitation>
 
     @POST("api/v1/me/groups/invitations")
-    suspend fun acceptGroupInvitation(@Body request: OGSPlayer.GroupInvitation) 
+    suspend fun acceptGroupInvitation(@Body request: GroupInvitation) 
 
     @HTTP(method = "DELETE", path="api/v1/me/groups/invitations", hasBody = true)
-    suspend fun declineGroupInvitation(@Body request: OGSPlayer.GroupInvitation)
+    suspend fun declineGroupInvitation(@Body request: GroupInvitation)
 
     @GET("api/v1/me/friends")
-    suspend fun getFriends(): PagedResult<OGSPlayer>
+    suspend fun getFriends(
+        @Query("page_size") pageSize: Int = 100,
+        @Query("page") page: Int = 1): PagedResult<OGSPlayer>
 
     @POST("api/v1/me/friends")
     suspend fun addFriend(@Body request: OGSPlayer.FriendRequest)
@@ -254,7 +274,9 @@ interface OGSRestAPI {
     suspend fun removeFriend(@Body request: OGSPlayer.FriendRequest)
 
     @GET("api/v1/me/friends/invitations")
-    suspend fun getFriendRequests(): PagedResult<OGSPlayer.FriendRequest>
+    suspend fun getFriendRequests(
+        @Query("page_size") pageSize: Int = 100,
+        @Query("page") page: Int = 1): PagedResult<OGSPlayer.FriendRequest>
 
     @POST("api/v1/me/friends/invitations")
     suspend fun acceptFriendRequest(@Body request: OGSPlayer.FriendRequest)

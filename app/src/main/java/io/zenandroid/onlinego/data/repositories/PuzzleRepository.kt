@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.withContext
 import java.time.Instant.now
 
@@ -33,7 +34,8 @@ class PuzzleRepository(
       if(lastRefresh > refreshCooldownSeconds || currentPuzzleCount < 1) {
         restService.getPuzzleCollections()
           .catch { onError(it) }
-          .collect { saveCollectionsToDB(it) }
+          .toList()
+          .let { saveCollectionsToDB(it) }
 
         PersistenceManager.puzzleCollectionLastRefresh = now().epochSecond
       }
@@ -79,7 +81,7 @@ class PuzzleRepository(
       savePuzzlesToDB(listOf(puzzle))
       val rating = restService.getPuzzleRating(id)
       savePuzzleRatingToDB(rating.copy(puzzleId = id))
-      val solutions = restService.getPuzzleSolutions(id)
+      val solutions = restService.getPuzzleSolutions(id).toList()
       savePuzzleSolutionsToDB(solutions)
     }
   }
@@ -118,7 +120,7 @@ class PuzzleRepository(
 
   suspend fun fetchPuzzleSolutions(id: Long) {
     withContext(Dispatchers.IO) {
-      val solutions = restService.getPuzzleSolutions(id)
+      val solutions = restService.getPuzzleSolutions(id).toList()
       savePuzzleSolutionsToDB(solutions)
     }
   }
