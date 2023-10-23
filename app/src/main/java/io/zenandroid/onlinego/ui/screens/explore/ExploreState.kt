@@ -1,6 +1,7 @@
 package io.zenandroid.onlinego.ui.screens.explore
 
 import androidx.compose.runtime.Immutable
+import io.zenandroid.onlinego.data.model.BoardTheme
 import io.zenandroid.onlinego.data.model.ogs.OGSPlayer
 
 @Immutable
@@ -12,7 +13,13 @@ data class LaddersState(
 
 @Immutable
 data class TournamentsState(
-  val placeholder: Nothing? = null
+  val myTournaments: List<Unit> = emptyList(),
+
+  val liveTournaments: List<Unit> = emptyList(),
+  val correspondenceTournaments: List<Unit> = emptyList(),
+  val archivedTournaments: List<Unit> = emptyList(),
+
+  val recurringTournaments: List<Unit> = emptyList(),
 ) {
   val subtitle: String get() = "Tournaments"
 }
@@ -28,6 +35,7 @@ data class GroupsState(
 data class ExploreState(
   val title: String? = null,
   val loading: Boolean = false,
+  val boardTheme: BoardTheme = BoardTheme.WOOD,
   val playerDetails: OGSPlayer? = null,
 
   val laddersState: LaddersState = LaddersState(),

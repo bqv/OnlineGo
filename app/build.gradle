@@ -120,6 +120,7 @@ dependencies {
     def firebase_version = '31.2.0'
     def compose_version = "1.5.0"
     def work_manager_version = "2.8.1"
+    def compose_calendar_version = "1.1.1"
 //    def composeBom = platform('androidx.compose:compose-bom:2023.01.00')
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
@@ -135,6 +136,9 @@ dependencies {
 
     implementation "com.google.accompanist:accompanist-placeholder-material:$accompanist_version"
     implementation "com.google.accompanist:accompanist-pager-indicators:$accompanist_version"
+
+    implementation "io.github.boguszpawlowski.composecalendar:composecalendar:$compose_calendar_version"
+    implementation "io.github.boguszpawlowski.composecalendar:kotlinx-datetime:$compose_calendar_version"
 
     implementation 'androidx.appcompat:appcompat:1.6.1'
 
