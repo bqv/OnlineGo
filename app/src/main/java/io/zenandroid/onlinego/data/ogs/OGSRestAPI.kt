@@ -5,13 +5,18 @@ import io.reactivex.Single
 import io.zenandroid.onlinego.data.model.ogs.Chat
 import io.zenandroid.onlinego.data.model.ogs.CreateAccountRequest
 import io.zenandroid.onlinego.data.model.ogs.Glicko2History
+import io.zenandroid.onlinego.data.model.ogs.Group
 import io.zenandroid.onlinego.data.model.ogs.JosekiPosition
 import io.zenandroid.onlinego.data.model.ogs.Ladder
 import io.zenandroid.onlinego.data.model.ogs.OGSChallenge
 import io.zenandroid.onlinego.data.model.ogs.OGSChallengeRequest
 import io.zenandroid.onlinego.data.model.ogs.OGSGame
+import io.zenandroid.onlinego.data.model.ogs.OGSGroup
 import io.zenandroid.onlinego.data.model.ogs.OGSLadderPlayer
 import io.zenandroid.onlinego.data.model.ogs.OGSPlayer
+import io.zenandroid.onlinego.data.model.ogs.OGSPlayerGroup
+import io.zenandroid.onlinego.data.model.ogs.OGSPlayerLadder
+import io.zenandroid.onlinego.data.model.ogs.OGSPlayerTournament
 import io.zenandroid.onlinego.data.model.ogs.OGSPlayerProfile
 import io.zenandroid.onlinego.data.model.ogs.OGSPuzzle
 import io.zenandroid.onlinego.data.model.ogs.OGSPuzzleCollection
@@ -21,6 +26,7 @@ import io.zenandroid.onlinego.data.model.ogs.PagedResult
 import io.zenandroid.onlinego.data.model.ogs.PasswordBody
 import io.zenandroid.onlinego.data.model.ogs.PuzzleRating
 import io.zenandroid.onlinego.data.model.ogs.PuzzleSolution
+import io.zenandroid.onlinego.data.model.ogs.Tournament
 import io.zenandroid.onlinego.data.model.ogs.UIConfig
 import okhttp3.ResponseBody
 import retrofit2.Response
@@ -58,7 +64,6 @@ interface OGSRestAPI {
     fun fetchGame(@Path("game_id") game_id: Long): Single<OGSGame>
 
     @GET("api/v1/ui/overview")
-//    @GET("api/v1/players/126739/full")
     fun fetchOverview(): Single<Overview>
 
     @GET("api/v1/players/{player_id}/full")
@@ -187,12 +192,79 @@ interface OGSRestAPI {
     suspend fun challengeLadderPlayer(
         @Path("ladder_id") ladderId: Long,
         @Body request: Ladder.ChallengeRequest)
+
+    @GET("api/v1/players/{player_id}/ladders")
+    suspend fun getPlayerLadders(
+        @Path("player_id") playerId: Long,
+        @Query("page_size") pageSize: Int = 100,
+        @Query("page") page: Int = 1): PagedResult<OGSPlayerLadder>
+
+    @GET("api/v1/me/tournaments")
+    suspend fun getCurrentTournaments(): PagedResult<Tournament>
+
+    @GET("api/v1/tournaments")
+    suspend fun getTournaments(): PagedResult<Tournament>
+
+    @GET("api/v1/tournaments/{tournament_id}")
+    suspend fun getTournament(@Path("tournament_id") tournamentId: Long): Tournament
+
+    @GET("api/v1/me/tournaments/invitations")
+    suspend fun getTournamentInvitations(): PagedResult<OGSPlayer.TournamentInvitation>
+
+    @POST("api/v1/me/tournaments/invitations")
+    suspend fun acceptTournamentInvitation(@Body request: OGSPlayer.TournamentInvitation)
+
+    @HTTP(method = "DELETE", path="api/v1/me/tournaments/invitations", hasBody = true)
+    suspend fun declineTournamentInvitation(@Body request: OGSPlayer.TournamentInvitation)
+
+    @GET("api/v1/groups")
+    suspend fun getGroups(): PagedResult<OGSGroup>
+
+    @GET("api/v1/groups/{group_id}")
+    suspend fun getGroup(@Path("group_id") groupId: Long): Group
+
+    @GET("api/v1/groups/{group_id}/members")
+    suspend fun getGroupMembers(@Path("group_id") groupId: Long): PagedResult<OGSPlayer>
+
+    @POST("api/v1/groups/{group_id}/members")
+    suspend fun joinGroup(@Path("group_id") groupId: Long)
+
+    @DELETE("api/v1/groups/{group_id}/members")
+    suspend fun leaveGroup(@Path("group_id") groupId: Long)
+
+    @GET("api/v1/groups/{group_id}/news")
+    suspend fun getGroupNews(@Path("group_id") groupId: Long): PagedResult<Group.GroupNews>
+
+    @GET("api/v1/me/groups/invitations")
+    suspend fun getGroupInvitations(): PagedResult<OGSPlayer.GroupInvitation>
+
+    @POST("api/v1/me/groups/invitations")
+    suspend fun acceptGroupInvitation(@Body request: OGSPlayer.GroupInvitation) 
+
+    @HTTP(method = "DELETE", path="api/v1/me/groups/invitations", hasBody = true)
+    suspend fun declineGroupInvitation(@Body request: OGSPlayer.GroupInvitation)
+
+    @GET("api/v1/me/friends")
+    suspend fun getFriends(): PagedResult<OGSPlayer>
+
+    @POST("api/v1/me/friends")
+    suspend fun addFriend(@Body request: OGSPlayer.FriendRequest)
+
+    @HTTP(method = "DELETE", path="api/v1/me/friends", hasBody = true)
+    suspend fun removeFriend(@Body request: OGSPlayer.FriendRequest)
+
+    @GET("api/v1/me/friends/invitations")
+    suspend fun getFriendRequests(): PagedResult<OGSPlayer.FriendRequest>
+
+    @POST("api/v1/me/friends/invitations")
+    suspend fun acceptFriendRequest(@Body request: OGSPlayer.FriendRequest)
+
+    @HTTP(method = "DELETE", path="api/v1/me/friends/invitations", hasBody = true)
+    suspend fun declineFriendRequest(@Body request: OGSPlayer.FriendRequest)
 }
 
 /*
 Other interesting APIs:
-
-https://online-go.com/api/v1/players/89194/full -> gives full list of moves!!!
 
 https://forums.online-go.com/t/ogs-api-notes/17136
 https://ogs.readme.io/docs/real-time-api
@@ -200,6 +272,8 @@ https://ogs.docs.apiary.io/#reference/games
 
 https://github.com/flovo/ogs_api
 https://forums.online-go.com/t/live-games-via-api/1867/2
+
+https://forums.online-go.com/t/rate-limiting/6478/2
 
 power user - 126739
  */

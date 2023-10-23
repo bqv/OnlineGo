@@ -27,6 +27,11 @@ data class OGSPlayer (
             var games_played: Int? = null
     )
 
+    data class FriendRequest(
+        val player_id: Long? = null,
+        val from_user: Long? = null,
+    )
+
     companion object {
         fun fromPlayer(player: Player) =
             OGSPlayer(

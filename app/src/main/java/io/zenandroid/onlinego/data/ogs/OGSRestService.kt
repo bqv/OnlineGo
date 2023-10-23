@@ -19,6 +19,7 @@ import io.zenandroid.onlinego.data.model.ogs.OGSChallengeRequest
 import io.zenandroid.onlinego.data.model.ogs.OGSGame
 import io.zenandroid.onlinego.data.model.ogs.OGSLadderPlayer
 import io.zenandroid.onlinego.data.model.ogs.OGSPlayer
+import io.zenandroid.onlinego.data.model.ogs.OGSPlayerLadder
 import io.zenandroid.onlinego.data.model.ogs.PasswordBody
 import io.zenandroid.onlinego.data.model.ogs.PuzzleRating
 import io.zenandroid.onlinego.data.model.ogs.PuzzleSolution
@@ -324,19 +325,17 @@ class OGSRestService(
     suspend fun getLadder(id: Long): Ladder =
       restApi.getLadder(ladderId = id)
 
-    suspend fun getLadderPlayers(id: Long, page: Int? = null): List<LadderPlayer> {
+    suspend fun getLadderPlayers(id: Long): Sequence<LadderPlayer> = sequence {
       var page = 0
 
-      val list = mutableListOf<OGSLadderPlayer>()
       do {
         val result = restApi.getLadderPlayers(
           ladderId = id,
           page = ++page
         )
-        list.addAll(result.results)
+        yieldAll(result.results.map(LadderPlayer::fromOGSLadderPlayer))
         delay(5000)
       } while (result.next != null)
-      return list.map(LadderPlayer::fromOGSLadderPlayer)
     }
 
     suspend fun joinLadder(id: Long) =
@@ -347,4 +346,17 @@ class OGSRestService(
 
     suspend fun challengeLadderPlayer(id: Long, playerId: Long) =
       restApi.challengeLadderPlayer(ladderId = id, request = Ladder.ChallengeRequest(playerId))
+
+    suspend fun getPlayerLadders(id: Long): Sequence<OGSPlayerLadder> = sequence {
+      var page = 0
+
+      do {
+        val result = restApi.getPlayerLadders(
+          playerId = id,
+          page = ++page
+        )
+        yieldAll(result.results)
+        delay(5000)
+      } while (result.next != null)
+    }
 }
