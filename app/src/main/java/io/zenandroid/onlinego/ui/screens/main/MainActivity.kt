@@ -1,6 +1,7 @@
 package io.zenandroid.onlinego.ui.screens.main
 
 import android.Manifest
+import android.app.Dialog
 import android.app.NotificationChannel
 import android.app.NotificationChannelGroup
 import android.app.NotificationManager
@@ -17,7 +18,9 @@ import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
 import android.util.Log
+import android.view.KeyEvent
 import android.view.MenuItem
+import android.view.Window
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -27,10 +30,15 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.core.view.ViewCompat
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.setViewTreeLifecycleOwner
+import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import androidx.navigation.NavOptions
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
+import io.zenandroid.onlinego.BuildConfig
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.local.Game
@@ -344,4 +352,16 @@ class MainActivity : AppCompatActivity(), MainContract.View {
 	private fun hasPermission(permission: String): Boolean {
 		return ContextCompat.checkSelfPermission(applicationContext, permission) == PackageManager.PERMISSION_GRANTED
 	}
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        if (!BuildConfig.DEBUG) return super.onKeyDown(keyCode, event)
+
+        when (keyCode) {
+            KeyEvent.KEYCODE_VOLUME_UP ->
+                io.zenandroid.onlinego.utils.LogcatPopup(this).show()
+            KeyEvent.KEYCODE_VOLUME_DOWN -> {}
+            else -> return super.onKeyDown(keyCode, event)
+        }
+        return true
+    }
 }

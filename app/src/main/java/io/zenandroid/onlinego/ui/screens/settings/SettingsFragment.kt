@@ -494,7 +494,7 @@ fun SettingsScreen(state: SettingsState, onAction: (SettingsAction) -> Unit) {
       color = MaterialTheme.colors.onSurface,
       modifier = Modifier
         .align(Alignment.CenterHorizontally)
-        .clickable { CheckNotificationsTask.test() }
+        .clickable { if (BuildConfig.DEBUG) CheckNotificationsTask.test() }
         .padding(vertical = 32.dp),
     )
   }
