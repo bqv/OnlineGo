@@ -93,7 +93,7 @@ fun TournamentsTab(
     userId: Long,
 ) {
     ExploreSurface(
-        state.subtitle,
+        title = state.subtitle,
     ) {
         Column(
             verticalArrangement = Arrangement.spacedBy(16.dp),

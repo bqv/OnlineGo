@@ -29,6 +29,7 @@ import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
+import androidx.compose.material.ScrollableTabRow
 import androidx.compose.material.Surface
 import androidx.compose.material.Switch
 import androidx.compose.material.Tab
@@ -37,9 +38,10 @@ import androidx.compose.material.TabRowDefaults
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme as Material3Theme
@@ -80,7 +82,6 @@ import io.zenandroid.onlinego.data.model.BoardTheme
 import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.gamelogic.Util
 import io.zenandroid.onlinego.ui.screens.explore.ExploreState
-//import io.zenandroid.onlinego.ui.screens.explore.composables.*
 import io.zenandroid.onlinego.ui.screens.mygames.composables.SmallGameItem
 import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatRank
@@ -173,25 +174,23 @@ fun ExploreScreen(
                 }
             }
         },
-        bottomBar = {
-            BottomAppBar(
-                containerColor = Material3Theme.colorScheme.surface,
-                contentColor = Material3Theme.colorScheme.onSurface,
-            ) {
-                Text(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    textAlign = TextAlign.Center,
-                    text = "Hmm.",
-                )
-            }
-
-        },
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = { openLadder(0) }
-            ) {
-                Icon(imageVector = Icons.Default.Search, contentDescription = "Search")
+            when (ExploreTab[currentTab]!!) {
+                ExploreTab.LADDERS -> FloatingActionButton(
+                    onClick = { }
+                ) {
+                    Icon(imageVector = Icons.Default.LocationOn, contentDescription = "Locate me")
+                }
+                ExploreTab.TOURNAMENTS -> FloatingActionButton(
+                    onClick = { openLadder(0) }
+                ) {
+                    Icon(imageVector = Icons.Default.Search, contentDescription = "Search")
+                }
+                ExploreTab.GROUPS -> FloatingActionButton(
+                    onClick = { openLadder(0) }
+                ) {
+                    Icon(imageVector = Icons.Default.Add, contentDescription = "Add")
+                }
             }
         },
     ) { innerPadding ->
@@ -225,10 +224,9 @@ fun ExploreSurface(
         modifier = Modifier.fillMaxSize(),
     ) {
         Column(
-            verticalArrangement = Arrangement.Center,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(top = 20.dp),
+                .padding(20.dp),
         ) {
             Text(
                 text = title,

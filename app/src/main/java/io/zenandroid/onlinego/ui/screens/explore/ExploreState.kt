@@ -1,37 +1,38 @@
 package io.zenandroid.onlinego.ui.screens.explore
 
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 import io.zenandroid.onlinego.data.model.BoardTheme
+import io.zenandroid.onlinego.data.model.local.LadderPlayer
+import io.zenandroid.onlinego.data.model.ogs.Group
+import io.zenandroid.onlinego.data.model.ogs.Ladder
 import io.zenandroid.onlinego.data.model.ogs.OGSPlayer
+import io.zenandroid.onlinego.data.model.ogs.Tournament
 
-@Immutable
 data class LaddersState(
-  val placeholder: Nothing? = null
+  val ladders: List<Ladder> = emptyList()
 ) {
   val subtitle: String get() = "Ladders"
 }
 
-@Immutable
 data class TournamentsState(
-  val myTournaments: List<Unit> = emptyList(),
+  val myTournaments: List<Tournament> = emptyList(),
 
-  val liveTournaments: List<Unit> = emptyList(),
-  val correspondenceTournaments: List<Unit> = emptyList(),
-  val archivedTournaments: List<Unit> = emptyList(),
+  val liveTournaments: List<Tournament> = emptyList(),
+  val correspondenceTournaments: List<Tournament> = emptyList(),
+  val archivedTournaments: List<Tournament> = emptyList(),
 
-  val recurringTournaments: List<Unit> = emptyList(),
+  val recurringTournaments: List<Tournament> = emptyList(),
 ) {
   val subtitle: String get() = "Tournaments"
 }
 
-@Immutable
 data class GroupsState(
-  val placeholder: Nothing? = null
+  val groups: List<Group> = emptyList(),
 ) {
   val subtitle: String get() = "Groups"
 }
 
-@Immutable
 data class ExploreState(
   val title: String? = null,
   val loading: Boolean = false,

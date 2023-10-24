@@ -27,6 +27,8 @@ import io.zenandroid.onlinego.data.model.ogs.JosekiPosition
 import io.zenandroid.onlinego.data.model.ogs.Ladder
 import io.zenandroid.onlinego.data.model.ogs.Phase
 import io.zenandroid.onlinego.data.ogs.Pause
+import java.time.Duration
+import java.time.Instant
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -41,10 +43,24 @@ abstract class SiteDao {
     abstract fun getLadderPlayers(ladderId: Long): Flow<List<LadderPlayer>>
 
     @Query("SELECT coalesce(max(lastrefresh), 0) FROM ladderplayer WHERE ladderId = :ladderId")
-    abstract suspend fun getLadderPlayersLastRefresh(ladderId: Long): Long
+    abstract suspend fun getLadderPlayersLastRefresh(ladderId: Long): Instant
+
+    suspend fun getLadderPlayersLastRefreshAgo(playerId: Long): Duration =
+        Duration.between(getLadderPlayersLastRefresh(playerId), Instant.now())
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract suspend fun insertLadderPlayers(ladderPlayers: List<LadderPlayer>)
+
+    @Query("SELECT ladder.* FROM ladderplayer" +
+            " INNER JOIN ladder ON ladder.id = ladderPlayer.ladderId" +
+            " WHERE ladderPlayer.player_id = :playerId")
+    abstract fun getPlayerLadders(playerId: Long): Flow<List<Ladder>>
+
+    @Query("SELECT coalesce(max(lastrefresh), 0) FROM ladderplayer WHERE player_id = :playerId")
+    abstract suspend fun getPlayerLaddersLastRefresh(playerId: Long): Instant
+
+    suspend fun getPlayerLaddersLastRefreshAgo(playerId: Long): Duration =
+        Duration.between(getPlayerLaddersLastRefresh(playerId), Instant.now())
 
     @Query("SELECT * FROM ladderchallenge WHERE ladderId = :ladderId AND ladderPlayerId = :ladderPlayerId")
     abstract fun getLadderChallenges(ladderId: Long, ladderPlayerId: Long): Flow<List<LadderChallenge>>

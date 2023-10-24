@@ -1,6 +1,5 @@
 package io.zenandroid.onlinego.ui.screens.explore
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -69,12 +68,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 import androidx.compose.ui.unit.sp
 import com.google.accompanist.pager.HorizontalPagerIndicator
-import io.github.boguszpawlowski.composecalendar.SelectableCalendar
-import io.github.boguszpawlowski.composecalendar.day.DayState
-import io.github.boguszpawlowski.composecalendar.header.MonthState
-import io.github.boguszpawlowski.composecalendar.rememberSelectableCalendarState
-import io.github.boguszpawlowski.composecalendar.selection.DynamicSelectionState
-import io.github.boguszpawlowski.composecalendar.selection.SelectionMode
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.BoardTheme
 import io.zenandroid.onlinego.data.model.local.Game
@@ -91,9 +84,48 @@ fun LaddersTab(
     state: LaddersState,
 ) {
     ExploreSurface(
-        state.subtitle,
+        title = state.subtitle,
     ) {
-        /* horizontal pager of vscrollable ladder w/ linked rungs and side peek? */
-        /* label/details */
+        Column(
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier.fillMaxSize()
+        ) {
+            val hScrollState = rememberScrollState()
+            val vScrollState = rememberPagerState { state.ladders.size }
+            Column(
+                modifier = Modifier.verticalScroll(hScrollState)
+                    .fillMaxSize()
+            ) {
+                HorizontalPager(
+                    state = vScrollState,
+                    modifier = Modifier.fillMaxSize()
+                ) { index ->
+                    val ladder = state.ladders[index]
+                    Text(
+                        text = "Ladder:\n\n${ladder.name}",
+                        color = MaterialTheme.colors.onSurface,
+                        modifier = Modifier
+                            .align(Alignment.CenterHorizontally)
+                    )
+                    /* horizontal pager of vscrollable ladder w/ linked rungs and side peek? */
+                }
+            }
+            HorizontalPagerIndicator(
+                pagerState = vScrollState,
+                pageCount = vScrollState.pageCount,
+                activeColor = MaterialTheme.colors.onSurface,
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(16.dp)
+            )
+            Row {
+                /* label/details */
+                Text(
+                    text = "Extra detail\n${state.ladders.size}",
+                    color = MaterialTheme.colors.onSurface,
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
     }
 }

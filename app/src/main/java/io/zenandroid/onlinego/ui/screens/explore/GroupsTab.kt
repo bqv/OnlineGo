@@ -1,7 +1,7 @@
 package io.zenandroid.onlinego.ui.screens.explore
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,12 +16,14 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.pager.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Card
 import androidx.compose.material.FloatingActionButton
@@ -44,6 +46,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme as Material3Theme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -69,12 +72,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 import androidx.compose.ui.unit.sp
 import com.google.accompanist.pager.HorizontalPagerIndicator
-import io.github.boguszpawlowski.composecalendar.SelectableCalendar
-import io.github.boguszpawlowski.composecalendar.day.DayState
-import io.github.boguszpawlowski.composecalendar.header.MonthState
-import io.github.boguszpawlowski.composecalendar.rememberSelectableCalendarState
-import io.github.boguszpawlowski.composecalendar.selection.DynamicSelectionState
-import io.github.boguszpawlowski.composecalendar.selection.SelectionMode
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.BoardTheme
 import io.zenandroid.onlinego.data.model.local.Game
@@ -91,7 +88,7 @@ fun GroupsTab(
     state: GroupsState,
 ) {
     ExploreSurface(
-        state.subtitle,
+        title = state.subtitle,
     ) {
         /* search bar */
         /* chips to filter to MyGroups */

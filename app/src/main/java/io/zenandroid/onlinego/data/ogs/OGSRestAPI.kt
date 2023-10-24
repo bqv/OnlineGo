@@ -195,6 +195,11 @@ interface OGSRestAPI {
         @Path("ladder_id") ladderId: Long,
         @Body request: Ladder.ChallengeRequest)
 
+    @GET("api/v1/me/ladders")
+    suspend fun getParticipatingLadders(
+        @Query("page_size") pageSize: Int = 100,
+        @Query("page") page: Int = 1): PagedResult<Ladder>
+
     @GET("api/v1/players/{player_id}/ladders")
     suspend fun getPlayerLadders(
         @Path("player_id") playerId: Long,
@@ -250,6 +255,11 @@ interface OGSRestAPI {
         @Path("group_id") groupId: Long,
         @Query("page_size") pageSize: Int = 100,
         @Query("page") page: Int = 1): PagedResult<Group.GroupNews>
+
+    @GET("api/v1/me/groups")
+    suspend fun getParticipatingGroups(
+        @Query("page_size") pageSize: Int = 100,
+        @Query("page") page: Int = 1): PagedResult<Group>
 
     @GET("api/v1/me/groups/invitations")
     suspend fun getGroupInvitations(

@@ -355,6 +355,14 @@ class OGSRestService(
     suspend fun challengeLadderPlayer(id: Long, playerId: Long) =
       restApi.challengeLadderPlayer(ladderId = id, request = Ladder.ChallengeRequest(playerId))
 
+    suspend fun getParticipatingLadders(): Flow<Ladder> {
+      return unroll {
+        restApi.getParticipatingLadders(
+          page = it
+        )
+      }
+    }
+
     suspend fun getPlayerLadders(id: Long): Flow<OGSPlayerLadder> {
       return unroll {
         restApi.getPlayerLadders(
