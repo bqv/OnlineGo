@@ -147,6 +147,7 @@ private val databaseModule = module {
   single {
     Room.databaseBuilder(get(), Database::class.java, "database.db")
       .fallbackToDestructiveMigration()
+      .logQueries()
       .build()
   }
 
