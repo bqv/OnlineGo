@@ -2,6 +2,8 @@ package io.zenandroid.onlinego.utils
 
 import io.zenandroid.onlinego.BuildConfig
 import android.content.Context
+import android.os.Handler
+import android.os.Looper
 import android.widget.Toast
 import io.zenandroid.onlinego.data.model.local.Clock
 import io.zenandroid.onlinego.data.model.local.Game
@@ -336,5 +338,7 @@ fun toastException(t: Throwable, long: Boolean = false) {
 
     val context: Context = GlobalContext.get().get()
     val length = if (long) Toast.LENGTH_LONG else Toast.LENGTH_SHORT
-    Toast.makeText(context, t.toString(), length).show()
+    Handler(Looper.getMainLooper()).post {
+        Toast.makeText(context, t.toString(), length).show()
+    }
 }
